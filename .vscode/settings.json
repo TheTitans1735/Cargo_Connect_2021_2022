@@ -3,5 +3,20 @@
 	"files.eol": "\n",
 	"debug.openDebug": "neverOpen",
 	"python.linting.enabled": false,
-	"python.languageServer": "None"
+	"python.languageServer": "None",
+    "python.defaultInterpreterPath": "C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python310\\python.exe",
+    "editor.renderControlCharacters": true,
+    "python.analysis.completeFunctionParens": true,
+    "python.globalModuleInstallation": true, 
+    "python.autoComplete.extraPaths": [
+        "C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python310\\Lib"
+    ],
+    "python.analysis.extraPaths": [
+        "C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python310\\Lib"
+    ],
+    "editor.fontSize": 18,
+    "git.autofetch": true,
+    "git.confirmSync": false,
+    "editor.suggest.preview": true
+
 }
