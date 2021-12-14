@@ -1,33 +1,25 @@
-#!/usr/bin/env pybricks-micropython
+#!/usr/bin/env micropython
 
-from robot import Robot
-from pybricks.tools import wait, StopWatch, DataLog
+from robot import *
 
 # Write your program here.
 ilan = Robot()
 #Ilan goes back and forth
 
 #Ilan moves the wall
-ilan.move_wall(-100)
-ilan.move_wall(150)
+# ilan.move_wall(-100)
+# ilan.move_wall(150)
 
-#Ilan moves forward
-ilan.run_cm(20)
-
-ilan.ev3.speaker.set_speech_options(voice='whisper')
-
+# #Ilan moves forward
+# ilan.run_cm(20)
+# for i in range(3):
 #Ilan says angle, turns, X3
-a=str(ilan.gyro_sensor.angle())
-ilan.say("eedosa is" + a)
-ilan.turn(r, 360)
-a=str(ilan.gyro_sensor.angle())
-ilan.say("eedosa" + a)
-ilan.turn(l, 360)
-a=str(ilan.gyro_sensor.angle())
-ilan.say("eedosa" + a)
 
-ilan.ev3.speaker.voice_opinion
-ilan.say("Ani Eshmor Ba GitHub")
+# print(ilan.gyro_sensor.angle())
+ilan.run_cm(100000, 40)
+# ilan.turn_right(45)
+# ilan.run_cm(60, 40)
+# ilan.turn_left(90)
+# print(ilan.gyro_sensor.angle())
 
 # Ilan did it his way! if you say so.
-ev3.speaker.say('i did it my way')

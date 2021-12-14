@@ -2,8 +2,8 @@
 {
 	"files.eol": "\n",
 	"debug.openDebug": "neverOpen",
-	"python.linting.enabled": false,
-	"python.languageServer": "None",
+	"python.linting.enabled": true,
+	"python.languageServer": "Pylance",
     "python.defaultInterpreterPath": "C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python310\\python.exe",
     "editor.renderControlCharacters": true,
     "python.analysis.completeFunctionParens": true,
