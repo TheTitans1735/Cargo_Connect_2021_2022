@@ -7,8 +7,7 @@ ilan = Robot()
 #Ilan goes back and forth
 
 #Ilan moves the wall
-# ilan.move_wall(-100)
-# ilan.move_wall(150)
+ilan.move_wall(20)
 
 # #Ilan moves forward
 # ilan.run_cm(20)
@@ -16,7 +15,7 @@ ilan = Robot()
 #Ilan says angle, turns, X3
 
 # print(ilan.gyro_sensor.angle())
-ilan.run_cm(100000, 40)
+# ilan.run_cm(100000, 40)
 # ilan.turn_right(45)
 # ilan.run_cm(60, 40)
 # ilan.turn_left(90)
