@@ -1,0 +1,14 @@
+Intellisense
+1. https://github.com/pybricks/support/issues/10
+2. In settings.json, remark last 2 lines:
+    //"python.linting.enabled": false,
+	//"python.languageServer": "None"
+3. Connecting to the ev3.
+    connect via bluetooth: https://thecodingfun.com/2020/04/04/cannot-connect-lego-mindstorms-ev3-to-visual-studio-code-via-bluetooth-check-those-steps/
+    if the connection via vscode does not succeed:
+    - wait 1-2 minutes (ip acquisition takes a while)
+    - open command prompt and ping ev3dev
+    - copy the ip address from the ping
+    - in vscode Command Pallette -> Preferences: Open user settings -> Extensions -> ev3dev browser configuration -> Edit in Settings.json -> change the ip
+    - save and restart vs code 
+    - try to connect
