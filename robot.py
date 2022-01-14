@@ -76,19 +76,19 @@ class Robot:
     def beep(self):
         self.ev3.speaker.beep()
 
-    def pid_gyro(self, Td):
+    def pid_gyro(self,Td, Ts = 150, Kp = 3, Ki= 0.025, Kd = 3):
         self.robot.reset() 
         self.gyro_sensor.reset_angle(0)
         #Td = 1000 # target distance
-        Ts = 150 # target speed of robot in mm/s
-        Kp = 3 #  the Constant 'K' for the 'p' proportional controller
+        #Ts = 150 # target speed of robot in mm/s
+        #Kp = 3 #  the Constant 'K' for the 'p' proportional controller
 
         integral = 0 # initialize
-        Ki = 0.025 #  the Constant 'K' for the 'i' integral term
+        #Ki = 0.025 #  the Constant 'K' for the 'i' integral term
 
         derivative = 0 # initialize
         lastError = 0 # initialize
-        Kd = 3 #  the Constant 'K' for the 'd' derivative term
+        #Kd = 3 #  the Constant 'K' for the 'd' derivative term
         #print(robot.distance())
         while (self.robot.distance() < Td):
             error = self.gyro_sensor.angle() # proportional 

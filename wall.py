@@ -30,7 +30,7 @@ while True:
             # Reset the Timer to enable entering multiple commands.
             timer.reset()
             #ilan.ev3.speaker.beep()
-            ilan.wall_x_motor.run_time(speed, 1000, then=Stop.BRAKE, wait=True)
+            ilan.wall_x_motor.run_time(speed, 100, then=Stop.BRAKE, wait=True)
             ilan.write2(str(ilan.wall_x_motor.angle()) + ", " + str(ilan.wall_y_motor.angle()))
             # To avoid registering the same command again, wait until
             # the Up Button is released before continuing.
@@ -40,7 +40,7 @@ while True:
             # Reset the Timer to enable entering multiple commands.
             timer.reset()
             #ilan.ev3.speaker.beep()
-            ilan.wall_x_motor.run_time(speed * -1, 1000, then=Stop.BRAKE, wait=True)
+            ilan.wall_x_motor.run_time(speed * -1, 100, then=Stop.BRAKE, wait=True)
             ilan.write2(str(ilan.wall_x_motor.angle()) + ", " + str(ilan.wall_y_motor.angle()))
             # To avoid registering the same command again, wait until
             # the Up Button is released before continuing.
@@ -50,7 +50,7 @@ while True:
             # Reset the Timer to enable entering multiple commands.
             timer.reset()
             #ilan.ev3.speaker.beep()
-            ilan.wall_y_motor.run_time(speed , 1000, then=Stop.BRAKE, wait=True)
+            ilan.wall_y_motor.run_time(speed , 100, then=Stop.BRAKE, wait=True)
             ilan.write2(str(ilan.wall_x_motor.angle()) + ", " + str(ilan.wall_y_motor.angle()))
             # To avoid registering the same command again, wait until
             # the Up Button is released before continuing.
@@ -60,7 +60,7 @@ while True:
             # Reset the Timer to enable entering multiple commands.
             timer.reset()
             #ilan.ev3.speaker.beep()
-            ilan.wall_y_motor.run_time(speed *-1, 1000, then=Stop.BRAKE, wait=True)
+            ilan.wall_y_motor.run_time(speed *-1, 100, then=Stop.BRAKE, wait=True)
             ilan.write2(str(ilan.wall_x_motor.angle()) + ", " + str(ilan.wall_y_motor.angle()))
             # To avoid registering the same command again, wait until
             # the Up Button is released before continuing.
