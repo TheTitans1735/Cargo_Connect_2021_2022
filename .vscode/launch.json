@@ -10,6 +10,13 @@
 			"request": "launch",
 			"program": "/home/robot/${workspaceRootFolderName}/main.py",
 			"interactiveTerminal": false
+		}, 
+		{
+			"name": "Download and Run Wall",
+			"type": "ev3devBrowser",
+			"request": "launch",
+			"program": "/home/robot/${workspaceRootFolderName}/wall.py",
+			"interactiveTerminal": false
 		}
 	]
 }
