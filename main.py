@@ -8,11 +8,9 @@ ilan = Robot()
 menu = ["Reset Wall","Trucks","Wing","Blue Green","Cargo Plane"]
 i=0
 ilan.ev3.speaker.beep()
-ilan.robot.straight(300)
 #functions.pid_gyro(1000)
 # Set up the Timer.  It is used to exit the input loop after 1 second.
 timer = StopWatch()
-ilan.write("Click => or <= ")
 # ilan.measure_wall()
 # wait(1000000)
 # ilan.pid_follow_line(ilan.color_sensor_right, 5000, 80, -1.5)
@@ -21,8 +19,7 @@ ilan.write("Click => or <= ")
 
 
 #Ilan moves the wall
-ilan.move_wall_to_point(300, 300)
-
+# ilan.pid_follow_line(ilan.color_sensor_right,4000,150,1.5, True)
 
 while False:
     #x=-1455

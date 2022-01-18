@@ -23,36 +23,50 @@ class Robot:
         self.wall_x_motor = Motor(Port.D) 
         self.wall_y_motor = Motor(Port.A,Direction.COUNTERCLOCKWISE) 
 
-        self.WALL_MAX_ANGLE_X = 1440 # need to be measured
-        self.WALL_MAX_ANGLE_Y = 1350 # need to be measured
+        #self.WALL_MAX_ANGLE_X = 1440 # need to be measured
+        self.WALL_MAX_ANGLE_X = 870
+        #self.WALL_MAX_ANGLE_Y = 1350 # need to be measured
+        self.WALL_MAX_ANGLE_Y = 750
         #max x= -1445 max y= -1365
 
         ######################## RESET WALL ###################################
     def reset_wall(self):
-        self.wall_x_motor.run_until_stalled(-800,Stop.HOLD, duty_limit=5)
-        self.wall_y_motor.run_until_stalled(-1200,Stop.HOLD, duty_limit=85)
+        speed_x = -800
+        speed_y = -1200
+        # if upper_right:
+        #     speed_x = -1 * speed_x
+        #     speed_y = -1 * speed_y
+        self.wall_x_motor.run_until_stalled(speed_x,Stop.HOLD, duty_limit=5)
+        self.wall_y_motor.run_until_stalled(speed_y,Stop.HOLD, duty_limit=85)
         self.wall_x_motor.reset_angle(0)
         self.wall_y_motor.reset_angle(0)
+        # if upper_right:
+        #     self.wall_x_motor.reset_angle(self.WALL_MAX_ANGLE_X)
+        #     self.wall_y_motor.reset_angle(self.WALL_MAX_ANGLE_Y)
+        print("x = " + str(self.wall_x_motor.angle()) + ", y = " + str(self.wall_y_motor.angle()))
         #now we know the wall is at the top left
 
     ######################### MOVE WALL #################################
     # move the wall to the point specified
     def move_wall_to_point(self, x:int,y:int):
         # make sure wall does not try to extend beyond boundries
+        #print("x = " + str(self.wall_x_motor.angle()) + ", y = " + str(self.wall_y_motor.angle()))
         x = min( x, self.WALL_MAX_ANGLE_X)
         y = min( y, self.WALL_MAX_ANGLE_Y)
         x = max( x, 0)
         y = max( y, 0)
-        self.wall_x_motor.run_target(100, x, then=Stop.HOLD, wait=False)
-        self.wall_x_motor.run_target(100, y, then=Stop.HOLD, wait=False)
+        #print(str(x),str(y))
+        self.wall_x_motor.run_target(-1000, x, Stop.HOLD, wait=False)
+        self.wall_y_motor.run_target(-1000, y, Stop.HOLD, wait=True)
+        # wait(3000)
         print("x = " + str(self.wall_x_motor.angle()) + ", y = " + str(self.wall_y_motor.angle()))
         
     ######################## MEASURE WALL ###################################
     # ideally will be run only once to measure the angles of the wall extremes
     def measure_wall(self):
         self.reset_wall()
-        max_x = self.wall_x_motor.run_until_stalled(800,Stop.HOLD, duty_limit=5)
-        max_y = self.wall_y_motor.run_until_stalled(800,Stop.HOLD, duty_limit=85)
+        max_x = self.wall_x_motor.run_until_stalled(800,Stop.HOLD, duty_limit=20)
+        max_y = self.wall_y_motor.run_until_stalled(800,Stop.HOLD, duty_limit=1)
         self.write("max x= " + str(max_x) + " max y= " + str(max_y))
     ######################## WRITE ON SCREEN ###################################
     def write(self, my_text):
@@ -90,7 +104,7 @@ class Robot:
         lastError = 0 # initialize
         #Kd = 3 #  the Constant 'K' for the 'd' derivative term
         #print(robot.distance())
-        while (self.robot.distance() < Td):
+        while (self.robot.distance() < Td*10):
             error = self.gyro_sensor.angle() # proportional 
             print("distance: " + str(self.robot.distance()) + " gyro: " + str(self.gyro_sensor.angle()))
             if (error == 0):
@@ -109,7 +123,7 @@ class Robot:
             
         self.robot.stop()
 
-    def pid_follow_line(self,line_sensor, distance, speed, Kp):
+    def pid_follow_line(self,line_sensor, distance, speed, Kp, white_is_right):
         self.robot.reset() 
         # Calculate the light threshold. Choose values based on your measurements.
         #6,71
@@ -128,15 +142,16 @@ class Robot:
         # For example, if the light value deviates from the threshold by 10, the robot
         # steers at 10*1.2 = 12 degrees per second.
         PROPORTIONAL_GAIN = Kp
-        DERIVATIVE_GAIN = 0.05
-        INTEGRAL_GAIN = 0.008
+        DERIVATIVE_GAIN = 0.06
+        INTEGRAL_GAIN = 0.007
         integral = 0
         derivative =0
         last_error = 0
+
         
         # Start following the line endlessly.
         #while True:
-        while (self.robot.distance() < distance):
+        while (self.robot.distance() < distance*10):
             # Calculate the deviation from the threshold.
             error = line_sensor.reflection() - threshold
             integral = integral + error
@@ -144,14 +159,15 @@ class Robot:
             
             # Calculate the turn rate.
             turn_rate = PROPORTIONAL_GAIN * error + DERIVATIVE_GAIN * derivative + INTEGRAL_GAIN * integral
-            
+            if white_is_right:
+                turn_rate = turn_rate * -1
             # Set the drive base speed and turn rate.
             self.robot.drive(DRIVE_SPEED, turn_rate)
             print(self.robot.distance(),line_sensor.reflection(),error,integral,derivative,turn_rate) 
             #logger.log(error,integral,derivative,turn_rate)
             last_error = error
             # You can wait for a short time or do other things in this loop.
-            self.wait(10)
+            wait(10)
         #print(logger)    
         self.robot.stop()
 

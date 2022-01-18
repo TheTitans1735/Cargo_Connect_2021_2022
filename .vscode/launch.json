@@ -18,5 +18,13 @@
 			"program": "/home/robot/${workspaceRootFolderName}/wall.py",
 			"interactiveTerminal": false
 		}
+		, 
+		{
+			"name": "Runs Download and Run",
+			"type": "ev3devBrowser",
+			"request": "launch",
+			"program": "/home/robot/${workspaceRootFolderName}/runs.py",
+			"interactiveTerminal": false
+		}
 	]
 }

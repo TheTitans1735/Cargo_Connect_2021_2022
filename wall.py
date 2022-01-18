@@ -15,6 +15,7 @@ timer = StopWatch()
 speed = 500 #start with
 ilan.write2("Use buttons to move wall")
 while True:
+    ilan.write(str(ilan.wall_x_motor.angle()) + "," + str(ilan.wall_y_motor.angle()))
     # Reset the Timer and the steps variable.
     timer.reset()
     
@@ -31,7 +32,8 @@ while True:
             timer.reset()
             #ilan.ev3.speaker.beep()
             ilan.wall_x_motor.run_time(speed, 100, then=Stop.BRAKE, wait=True)
-            ilan.write2(str(ilan.wall_x_motor.angle()) + ", " + str(ilan.wall_y_motor.angle()))
+            #ilan.write2(str(ilan.wall_x_motor.angle()) + ", " + str(ilan.wall_y_motor.angle()))
+            
             # To avoid registering the same command again, wait until
             # the Up Button is released before continuing.
             #while Button.RIGHT in ilan.ev3.buttons.pressed():
@@ -72,11 +74,3 @@ while True:
                 speed = 0
             speed = speed + 100
             #ilan.write("speed = " + str(speed))
-            
-
-            # To avoid registering the same command again, wait until
-            # the Up Button is released before continuing.
-            #while Button.RIGHT in ilan.ev3.buttons.pressed():
-            #    wait(10)
-            
-    
