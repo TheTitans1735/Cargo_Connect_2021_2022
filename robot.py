@@ -48,7 +48,7 @@ class Robot:
 
     ######################### MOVE WALL #################################
     # move the wall to the point specified
-    def move_wall_to_point(self, x:int,y:int):
+    def move_wall_to_point(self, x:int,y:int, speed=-1000):
         # make sure wall does not try to extend beyond boundries
         #print("x = " + str(self.wall_x_motor.angle()) + ", y = " + str(self.wall_y_motor.angle()))
         x = min( x, self.WALL_MAX_ANGLE_X)
@@ -56,8 +56,8 @@ class Robot:
         x = max( x, 0)
         y = max( y, 0)
         #print(str(x),str(y))
-        self.wall_x_motor.run_target(-1000, x, Stop.HOLD, wait=False)
-        self.wall_y_motor.run_target(-1000, y, Stop.HOLD, wait=True)
+        self.wall_x_motor.run_target(speed, x, Stop.HOLD, wait=False)
+        self.wall_y_motor.run_target(speed, y, Stop.HOLD, wait=True)
         # wait(3000)
         print("x = " + str(self.wall_x_motor.angle()) + ", y = " + str(self.wall_y_motor.angle()))
         
@@ -89,6 +89,11 @@ class Robot:
     
     def beep(self):
         self.ev3.speaker.beep()
+
+    
+    def say(self, text, volume=100):
+        self.ev3.speaker.set_volume(100)
+        self.ev3.speaker.say(text)
 
     def pid_gyro(self,Td, Ts = 150, Kp = 3, Ki= 0.025, Kd = 3):
         self.robot.reset() 
