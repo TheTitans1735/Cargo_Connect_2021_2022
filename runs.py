@@ -8,23 +8,37 @@ ilan.beep()
 wait(1000)
 def go_trucks():
     ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y)
+
+    # שמים את הזרוע
     wait(2000)
+
+    # הזרוע נכנסת למשאית
     ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 70)
-    print("x = " + str(ilan.wall_x_motor.angle()) + ", y = " + str(ilan.wall_y_motor.angle()))
     ilan.beep()
     print("going")
-    ilan.pid_gyro(10,100)
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 50)
-    ilan.pid_follow_line(ilan.color_sensor_right,68,120,1.3, True)
+
+    # הרובוט נוסע אל הקו 
+    ilan.pid_gyro(15,100)
+
+    # הרובוט עוקב אחרי הקו עד לגשר, ושם את המשאיות בגשר
+    ilan.pid_follow_line(ilan.color_sensor_right,62,120,1.3, True)
     ilan.beep()
-    ilan.move_wall_to_point(670, ilan.WALL_MAX_ANGLE_Y)
-    ilan.pid_gyro(30,100)
-    ilan.move_wall_to_point(670, 150)
-    ilan.pid_gyro(13,100)
-    ilan.move_wall_to_point(x=670, y=50)
-    ilan.move_wall_to_point(x=670, y=ilan.WALL_MAX_ANGLE_Y)
+
+    # מרים את הקיר ומוריד את הגשר הראשון
+    ilan.move_wall_to_point(600, ilan.WALL_MAX_ANGLE_Y-100)
+    ilan.pid_follow_line(ilan.color_sensor_right,30,100,1.3, True)
+
+    # ilan.move_wall_to_point(600, 150)
+    # ilan.pid_gyro(-13,100)
+
+    # מוריד את הזרוע
+    ilan.move_wall_to_point(x=500, y=0)
+    ilan.reset_wall()
+    ilan.move_wall_to_point(x=600, y=ilan.WALL_MAX_ANGLE_Y)
+
+    # מוריד את הקיר השני
     ilan.pid_gyro(30, 50)
-    ilan.move_wall_to_point(x=670, y=0)
+    ilan.move_wall_to_point(x=600, y=0)
     ilan.pid_gyro(-5, 50)
     # # ilan.robot.turn(-90)
     # ilan.pid_gyro(20)
