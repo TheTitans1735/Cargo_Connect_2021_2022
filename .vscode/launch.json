@@ -12,6 +12,13 @@
 			"interactiveTerminal": false
 		}, 
 		{
+			"name": "ilan-brother",
+			"type": "ev3devBrowser",
+			"request": "launch",
+			"program": "/home/robot/${workspaceRootFolderName}/ilan-brother.py",
+			"interactiveTerminal": false
+		}, 
+		{
 			"name": "Wall Download and Run",
 			"type": "ev3devBrowser",
 			"request": "launch",
