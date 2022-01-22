@@ -44,9 +44,23 @@ class Robot:
         #     self.wall_x_motor.reset_angle(self.WALL_MAX_ANGLE_X)
         #     self.wall_y_motor.reset_angle(self.WALL_MAX_ANGLE_Y)
         print("x = " + str(self.wall_x_motor.angle()) + ", y = " + str(self.wall_y_motor.angle()))
-        #now we know the wall is at the top left
 
     ######################### MOVE WALL #################################
+    def reset_wall_bottom_right(self):
+        speed_x = 800
+        speed_y = -1200
+        # if upper_right:
+        #     speed_x = -1 * speed_x
+        #     speed_y = -1 * speed_y
+        self.wall_x_motor.run_until_stalled(speed_x,Stop.HOLD, duty_limit=5)
+        self.wall_y_motor.run_until_stalled(speed_y,Stop.HOLD, duty_limit=85)
+        self.wall_x_motor.reset_angle(self.WALL_MAX_ANGLE_X)
+        self.wall_y_motor.reset_angle(0)
+        # if upper_right:
+        #     self.wall_x_motor.reset_angle(self.WALL_MAX_ANGLE_X)
+        #     self.wall_y_motor.reset_angle(self.WALL_MAX_ANGLE_Y)
+        print("x = " + str(self.wall_x_motor.angle()) + ", y = " + str(self.wall_y_motor.angle()))
+    
     # move the wall to the point specified
     def move_wall_to_point(self, x:int,y:int, speed=-1000):
         # make sure wall does not try to extend beyond boundries
@@ -168,11 +182,16 @@ class Robot:
                 turn_rate = turn_rate * -1
             # Set the drive base speed and turn rate.
             self.robot.drive(DRIVE_SPEED, turn_rate)
-            print(self.robot.distance(),line_sensor.reflection(),error,integral,derivative,turn_rate) 
-            #logger.log(error,integral,derivative,turn_rate)
+            print("distance = " + self.robot.distance() + " reflection = " + line_sensor.reflection() + " error = " + error + 
+                " integral = " + integral + " derivative = " + derivative + " turn_rate = " + turn_rate)
             last_error = error
             # You can wait for a short time or do other things in this loop.
             wait(10)
         #print(logger)    
         self.robot.stop()
 
+    def run_straight(self, distance):
+        self.robot.straight(distance * 10)
+
+    def turn(self, angle):
+        self.robot.turn(angle)

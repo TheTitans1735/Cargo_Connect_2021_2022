@@ -2,12 +2,12 @@
 from robot import *
 # Write code here
 ilan = Robot()
-ilan.reset_wall()
-ilan.beep()
 #ilan.wall_x_motor.run_time(200,3000,Stop.COAST,True)
 wait(1000)
 def go_trucks():
-    # ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y)
+
+    # מאפס את הקיר
+    ilan.reset_wall_bottom_right()
 
     # הזרוע נכנסת למשאית
     ilan.move_wall_to_point(720, 70)
@@ -29,33 +29,46 @@ def go_trucks():
     ilan.move_wall_to_point(600, ilan.WALL_MAX_ANGLE_Y-100)
     ilan.pid_follow_line(ilan.color_sensor_right,30,100,1.3, True)
 
-    # ilan.move_wall_to_point(600, 150)
-    # ilan.pid_gyro(-13,100)
-
     # מוריד את הזרוע
     ilan.move_wall_to_point(300, 0)
-    ilan.reset_wall()
 
     # מוריד את הקיר השני
     ilan.pid_follow_line(ilan.color_sensor_right,10,50,1.3, True)
-    ilan.beep()
-    ilan.reset_wall()
     ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, y=0)
-    ilan.beep()
- 
     ilan.robot.straight(-100)
     
     ilan.say("lets go titans! lets go rotem!")
-    
- 
 
+def green_airplain_and_Containers():
 
-    # # ilan.robot.turn(-90)
-    # ilan.pid_gyro(20)
-    # #ilan.pid_follow_line(ilan.color_sensor_right,20,120,1.5, True)
-    # #ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X,ilan.WALL_MAX_ANGLE_Y)  
-    # ilan.beep()
+    # אילן שם את המכולות בעיגול וחזר אחורה למטוס
+    ilan.reset_wall_bottom_right()
+    ilan.pid_gyro(25)
+    ilan.pid_follow_line(ilan.color_sensor_right, 55, 150, 1.3, True)
+    ilan.run_straight(-25)
 
+    # מוריד את המכולה מהמטוס
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y)
+    wait(2000)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 0)
+    wait(2000)
+    ilan.move_wall_to_point(600, ilan.WALL_MAX_ANGLE_Y)
+    wait(2000)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y)
+    wait(2000)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 0)
+    wait(2000)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 100)
+    wait(2000)
+    ilan.run_straight(10)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 0)
+    wait(2000)
+    ilan.run_straight(-15)
+    wait(2000)
+    ilan.turn(70)
+    wait(2000)
+    ilan.run_straight(-15)
+    wait(2000)
 
+green_airplain_and_Containers()
 
-go_trucks()
