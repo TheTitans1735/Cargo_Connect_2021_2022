@@ -182,8 +182,8 @@ class Robot:
                 turn_rate = turn_rate * -1
             # Set the drive base speed and turn rate.
             self.robot.drive(DRIVE_SPEED, turn_rate)
-            print("distance = " + self.robot.distance() + " reflection = " + line_sensor.reflection() + " error = " + error + 
-                " integral = " + integral + " derivative = " + derivative + " turn_rate = " + turn_rate)
+            print("distance = " , self.robot.distance() , " reflection = " , line_sensor.reflection() , " error = " , error ,
+                " integral = " , integral , " derivative = " , derivative , " turn_rate = " , turn_rate)
             last_error = error
             # You can wait for a short time or do other things in this loop.
             wait(10)
