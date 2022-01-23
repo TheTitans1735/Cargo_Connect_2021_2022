@@ -105,11 +105,17 @@ class Robot:
         self.ev3.speaker.beep()
 
     
-    def say(self, text, volume=100):
-        self.ev3.speaker.set_volume(100)
+    def say(self, text, voice='m1', volume=100):
+        self.ev3.speaker.set_volume(volume)
+        self.ev3.speaker.set_speech_options(voice)
         self.ev3.speaker.say(text)
 
-    def pid_gyro(self,Td, Ts = 150, Kp = 3, Ki= 0.025, Kd = 3):
+    def pid_gyro(self,Td, Ts = 150, Forward_Is_True = True, Kp = 3, Ki= 0.025, Kd = 3):
+        direction_indicator = -1
+        speed_indicator = -1       #משתנה שנועד כדי לכפול אותו במהירות ובתיקון השגיאה כדי שנוכל לנסוע אחורה במידת הצורך          
+        if Forward_Is_True:             #אם נוסעים קדימה - תכפול באחד. אחורה - תכפול במינוס אחד
+            direction_indicator = -1
+            speed_indicator = 1   
         self.robot.reset() 
         self.gyro_sensor.reset_angle(0)
         #Td = 1000 # target distance
@@ -134,7 +140,7 @@ class Robot:
         
             correction = (Kp*(error) + Ki*(integral) + Kd*derivative) * -1
         
-            self.robot.drive(Ts, correction)
+            self.robot.drive(Ts * speed_indicator , correction * direction_indicator * -1) 
 
             lastError = error  
         

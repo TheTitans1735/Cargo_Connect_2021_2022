@@ -33,5 +33,13 @@
 			"program": "/home/robot/${workspaceRootFolderName}/runs.py",
 			"interactiveTerminal": false
 		}
+		, 
+		{
+			"name": "TESTS Download and Run",
+			"type": "ev3devBrowser",
+			"request": "launch",
+			"program": "/home/robot/${workspaceRootFolderName}/TESTS.py",
+			"interactiveTerminal": false
+		}
 	]
 }

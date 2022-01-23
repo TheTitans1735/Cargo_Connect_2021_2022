@@ -48,31 +48,52 @@ def green_airplain_and_Containers():
 
     # אילן שם את המכולות בעיגול וחזר אחורה למטוס
     ilan.reset_wall_bottom_right()
-    wait(2000)
+    wait(3000)
     ilan.pid_gyro(25)
     ilan.pid_follow_line(ilan.color_sensor_right, 50, 100, 1.3, True)
     ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y)
-    ilan.run_straight(-5)
-    ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y)
-    ilan.run_straight(-20)
+    ilan.pid_gyro(5, Forward_Is_True=False) #ilan.run_straight(-5)
+    ilan.pid_gyro(20, Forward_Is_True=False) #ilan.run_straight(-20)    
     
     
     # מוריד את המכולה מהמטוס
     ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y)
-    ilan.move_wall_to_point(0, 100)
-    ilan.move_wall_to_point(200, ilan.WALL_MAX_ANGLE_Y)
+    wait(500)
+    # ilan.move_wall_to_point(0, 0)
+    wait(500)
+    # ilan.move_wall_to_point(300, 0)
+    ilan.move_wall_to_point(300, ilan.WALL_MAX_ANGLE_Y)
     ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y)
     ilan.move_wall_to_point(0, 100)
-    ilan.move_wall_to_point(200,  ilan.WALL_MAX_ANGLE_Y)
-    ilan.run_straight(10)
-    ilan.move_wall_to_point(200, 100)
+    ilan.move_wall_to_point(0,  300)
+    ilan.move_wall_to_point(500, 300)
+    wait(500)
+    ilan.move_wall_to_point(500, 650)
+    wait(500)
+    ilan.reset_wall()
+    ilan.move_wall_to_point(0, 650)
     ilan.beep()
-    ilan.run_straight(-10)
+    ilan.pid_gyro(10) #ilan.run_straight(10)
+    ilan.reset_wall()
+    ilan.move_wall_to_point(0, 0)
+    ilan.pid_gyro(10, Forward_Is_True=False) #ilan.run_straight(-10)
     ilan.beep()
     ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y)
     ilan.turn(70)
-    ilan.run_straight(-35)
-    ilan.turn(90)
+    ilan.pid_gyro(33, Forward_Is_True=False) #ilan.run_straight(-33)
+    ilan.turn(80)
+    ilan.reset_wall_bottom_right()
 
-green_airplain_and_Containers()
+# green_airplain_and_Containers()
+
+
+
+
+def wing():
+    ilan.reset_wall()
+    ilan.pid_gyro(82)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 0)
+
+wing()
+
 
