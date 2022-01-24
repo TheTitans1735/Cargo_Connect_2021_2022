@@ -23,26 +23,26 @@ def go_trucks():
 
     # הרובוט עוקב אחרי הקו עד לגשר, ושם את המשאיות בגשר
     ilan.pid_follow_line(ilan.color_sensor_right,45,120,1.3, True)
-    ilan.beep()
-    ilan.move_wall_to_point(720, ilan.WALL_MAX_ANGLE_Y)
+    ilan.move_wall_to_point(720, 0)
+    ilan.move_wall_to_point(0, 0)
     ilan.pid_follow_line(ilan.color_sensor_right, 10, 120, 1.3, True)
-    ilan.move_wall_to_point(720, 150)
-    ilan.pid_follow_line(ilan.color_sensor_right, 10, 120, 1.3, True)
+    ilan.move_wall_to_point(720, 200)
+    ilan.pid_follow_line(ilan.color_sensor_right, 18, 120, 1.3, True)
 
-    # # מרים את הקיר ומוריד את הגשר הראשון
-    # ilan.move_wall_to_point(600, ilan.WALL_MAX_ANGLE_Y-100)
-    # ilan.pid_follow_line(ilan.color_sensor_right,30,100,1.3, True)
+    # מרים את הקיר ומוריד את הגשר הראשון
+    ilan.move_wall_to_point(720, ilan.WALL_MAX_ANGLE_Y)
+    ilan.pid_follow_line(ilan.color_sensor_right,15,100,1.3, True)
 
     # מוריד את הזרוע
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y)
-    ilan.move_wall_to_point(300, 0)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 100)
+    ilan.reset_wall()
 
     # מוריד את הקיר השני
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, y=0)
-    ilan.pid_follow_line(ilan.color_sensor_right,10,50,1.3, True)
-    # ilan.robot.straight(-100)
+    ilan.pid_follow_line(ilan.color_sensor_right,10,100,1.3, True)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 100)
+    ilan.robot.straight(-100)
     
-    ilan.say("lets go titans! lets go rotem!")
+    # ilan.say("lets go titans! lets go rotem!")
 
 def green_airplain_and_Containers():
 
@@ -84,7 +84,6 @@ def green_airplain_and_Containers():
     ilan.turn(80)
     ilan.reset_wall_bottom_right()
 
-# green_airplain_and_Containers()
 
 
 
@@ -94,6 +93,7 @@ def wing():
     ilan.pid_gyro(82)
     ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 0)
 
-wing()
+# wing()
+# go_trucks()
 
 
