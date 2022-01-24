@@ -36,8 +36,9 @@ class Robot:
         # if upper_right:
         #     speed_x = -1 * speed_x
         #     speed_y = -1 * speed_y
-        self.wall_x_motor.run_until_stalled(speed_x,Stop.HOLD, duty_limit=5)
         self.wall_y_motor.run_until_stalled(speed_y,Stop.HOLD, duty_limit=85)
+        self.wall_x_motor.run_until_stalled(speed_x,Stop.HOLD, duty_limit=5)
+        
         self.wall_x_motor.reset_angle(0)
         self.wall_y_motor.reset_angle(0)
         # if upper_right:
@@ -129,7 +130,7 @@ class Robot:
         lastError = 0 # initialize
         #Kd = 3 #  the Constant 'K' for the 'd' derivative term
         #print(robot.distance())
-        while (self.robot.distance() < Td*10):
+        while (abs(self.robot.distance()) < Td*10):
             error = self.gyro_sensor.angle() # proportional 
             print("distance: " + str(self.robot.distance()) + " gyro: " + str(self.gyro_sensor.angle()))
             if (error == 0):
@@ -167,8 +168,8 @@ class Robot:
         # For example, if the light value deviates from the threshold by 10, the robot
         # steers at 10*1.2 = 12 degrees per second.
         PROPORTIONAL_GAIN = Kp
-        DERIVATIVE_GAIN = 0.06
-        INTEGRAL_GAIN = 0.007
+        DERIVATIVE_GAIN = 0.07
+        INTEGRAL_GAIN = 0.01
         integral = 0
         derivative =0
         last_error = 0
@@ -176,7 +177,7 @@ class Robot:
         
         # Start following the line endlessly.
         #while True:
-        while (self.robot.distance() < distance*10):
+        while (abs(self.robot.distance()) < distance*10):
             # Calculate the deviation from the threshold.
             error = line_sensor.reflection() - threshold
             integral = integral + error

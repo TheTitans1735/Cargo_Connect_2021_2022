@@ -22,19 +22,19 @@ def go_trucks():
     ilan.pid_gyro(20,100)
 
     # הרובוט עוקב אחרי הקו עד לגשר, ושם את המשאיות בגשר
-    ilan.pid_follow_line(ilan.color_sensor_right,45,120,1.3, True)
-    ilan.move_wall_to_point(720, 0)
-    ilan.move_wall_to_point(0, 0)
+    ilan.pid_follow_line(ilan.color_sensor_right,50,120,1.3, True)
+    ilan.move_wall_to_point(600, ilan.WALL_MAX_ANGLE_Y)
     ilan.pid_follow_line(ilan.color_sensor_right, 10, 120, 1.3, True)
-    ilan.move_wall_to_point(720, 200)
-    ilan.pid_follow_line(ilan.color_sensor_right, 18, 120, 1.3, True)
+    ilan.reset_wall_bottom_right()
+    ilan.reset_wall()
+    
 
     # מרים את הקיר ומוריד את הגשר הראשון
-    ilan.move_wall_to_point(720, ilan.WALL_MAX_ANGLE_Y)
+    ilan.move_wall_to_point(720, 150)
     ilan.pid_follow_line(ilan.color_sensor_right,15,100,1.3, True)
 
-    # מוריד את הזרוע
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 100)
+    # # מוריד את הזרוע
+    # ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 100)
     ilan.reset_wall()
 
     # מוריד את הקיר השני
@@ -42,7 +42,44 @@ def go_trucks():
     ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 100)
     ilan.robot.straight(-100)
     
-    # ilan.say("lets go titans! lets go rotem!")
+
+def go_trucks2():
+    
+    # מאפס את הקיר
+    ilan.reset_wall_bottom_right()
+
+    # הזרוע נכנסת למשאית
+    ilan.move_wall_to_point(720, 70)
+    ilan.beep()
+    print("going")
+
+
+    # שמים את הזרוע
+    wait(4000)
+
+    # הרובוט נוסע אל הקו 
+    ilan.pid_gyro(20,100)
+
+    # הרובוט עוקב אחרי הקו עד לגשר, ושם את המשאיות בגשר
+    ilan.pid_follow_line(ilan.color_sensor_right,47,120,1.3, True)
+    ilan.move_wall_to_point(600, ilan.WALL_MAX_ANGLE_Y)
+    ilan.pid_follow_line(ilan.color_sensor_right,10,120,1.3, True)
+    ilan.move_wall_to_point(720, 250)
+    ilan.pid_follow_line(ilan.color_sensor_right, 17, 150, 1.3, True)
+    ilan.pid_gyro(5, 150, False)
+    ilan.reset_wall()
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 300)
+    ilan.pid_gyro(20)
+    ilan.reset_wall()
+    ilan.pid_gyro(10, 150)
+    ilan.reset_wall_bottom_right()
+    ilan.run_straight(-10)
+    ilan.pid_gyro(30, 150)
+    ilan.turn(90)
+    ilan.run_straight(-10)
+    ilan.reset_wall()
+    ilan.turn(270)
+    ilan.run_straight(20)
 
 def green_airplain_and_Containers():
 
@@ -94,6 +131,5 @@ def wing():
     ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 0)
 
 # wing()
-# go_trucks()
-
+go_trucks2()
 
