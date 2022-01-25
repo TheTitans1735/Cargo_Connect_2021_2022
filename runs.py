@@ -1,4 +1,5 @@
 #!/usr/bin/env pybricks-micropython
+from re import I
 from robot import *
 # Write code here
 ilan = Robot()
@@ -55,31 +56,44 @@ def go_trucks2():
 
 
     # שמים את הזרוע
-    wait(4000)
+    while not any(ilan.ev3.buttons.pressed()):
+        wait(10)
 
+    wait(1000)
     # הרובוט נוסע אל הקו 
     ilan.pid_gyro(20,100)
 
     # הרובוט עוקב אחרי הקו עד לגשר, ושם את המשאיות בגשר
-    ilan.pid_follow_line(ilan.color_sensor_right,47,120,1.3, True)
+    ilan.pid_follow_line(ilan.color_sensor_right,45,120,1.35, True)
     ilan.move_wall_to_point(600, ilan.WALL_MAX_ANGLE_Y)
     ilan.pid_follow_line(ilan.color_sensor_right,10,120,1.3, True)
     ilan.move_wall_to_point(720, 250)
-    ilan.pid_follow_line(ilan.color_sensor_right, 17, 150, 1.3, True)
+    ilan.pid_follow_line(ilan.color_sensor_right, 19, 150, 1.3, True)
     ilan.pid_gyro(5, 150, False)
     ilan.reset_wall()
     ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 300)
-    ilan.pid_gyro(20)
+    ilan.pid_follow_line(ilan.color_sensor_right,20,150,1.3, True)
     ilan.reset_wall()
-    ilan.pid_gyro(10, 150)
+    ilan.pid_follow_line(ilan.color_sensor_right,10,150,1.3, True)
     ilan.reset_wall_bottom_right()
     ilan.run_straight(-10)
     ilan.pid_gyro(30, 150)
     ilan.turn(90)
     ilan.run_straight(-10)
-    ilan.reset_wall()
-    ilan.turn(270)
-    ilan.run_straight(20)
+
+
+# def prepare_go_trucks3():
+def go_trucks3():
+    ilan.reset_wall_bottom_right()
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 350)
+    wait(1000)
+    ilan.pid_gyro(50, 200)
+    ilan.move_wall_to_point(650, 450)
+    ilan.turn(90, 200)
+    ilan.move_wall_to_point(650, 350)
+    ilan.pid_gyro(38, 200)
+
+
 
 def green_airplain_and_Containers():
 
@@ -127,9 +141,17 @@ def green_airplain_and_Containers():
 
 def wing():
     ilan.reset_wall()
+    # נסיעה על שהכנף נוגעת במתקן שלה
     ilan.pid_gyro(82)
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 0)
+    # ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 0)
+    # קיר זז ותופס תרנגולת
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 0)
+    wait(1000)
+    ilan.pid_gyro(10, 600, Forward_Is_True = False)
+    ilan.move_wall_to_point(400, 100)
+    # חזרה הביתה
+    ilan.pid_gyro(82, 600, Forward_Is_True = False) 
 
 # wing()
-go_trucks2()
-
+# prepare_go_trucks3()
+go_trucks3()

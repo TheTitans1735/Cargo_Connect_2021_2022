@@ -200,5 +200,19 @@ class Robot:
     def run_straight(self, distance):
         self.robot.straight(distance * 10)
 
-    def turn(self, angle):
-        self.robot.turn(angle)
+    def turn(self, angle, speed=150):
+        # self.robot.turn(angle)
+        self.gyro_sensor.reset_angle(0)
+        if angle > 0:
+            while self.gyro_sensor.angle() < angle:
+                self.right_motor.run(speed=(-1 * speed))
+                self.left_motor.run(speed=speed)
+                wait(10)
+        elif angle < 0:  
+            while self.gyro_sensor.angle() > angle:
+                self.right_motor.run(speed=speed)
+                self.left_motor.run(speed=(-1 * speed))
+                wait(10)  
+        print(self.gyro_sensor.angle())
+        self.right_motor.brake()
+        self.left_motor.brake()    

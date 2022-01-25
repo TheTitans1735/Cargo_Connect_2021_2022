@@ -13,16 +13,13 @@ ilan.beep()
 print("going")
 
 
-# שמים את הזרוע
-wait(4000)
+    # שמים את הזרוע
+while not any(ilan.ev3.buttons.pressed()):
+    wait(10)
 
-# הרובוט נוסע אל הקו 
-ilan.pid_gyro(20,100)
+wait(1000)
 
-# הרובוט עוקב אחרי הקו עד לגשר, ושם את המשאיות בגשר
-ilan.pid_follow_line(ilan.color_sensor_right,45,120,1.3, True)
-ilan.move_wall_to_point(720, 0)
-ilan.move_wall_to_point(0, 0)
+ilan.turn(90)
 # ilan.pid_follow_line(ilan.color_sensor_right, 10, 120, 1.3, True)
 # ilan.move_wall_to_point(720, 200)
 # ilan.pid_follow_line(ilan.color_sensor_right, 18, 120, 1.3, True)
