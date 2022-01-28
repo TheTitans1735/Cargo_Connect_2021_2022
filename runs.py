@@ -56,8 +56,6 @@ def go_trucks2():
 
 
     # שמים את הזרוע
-    while not any(ilan.ev3.buttons.pressed()):
-        wait(10)
 
     wait(1000)
     # הרובוט נוסע אל הקו 
@@ -84,14 +82,30 @@ def go_trucks2():
 
 # def prepare_go_trucks3():
 def go_trucks3():
+    # ilan.write2("the run 'go trucks'\n will run by pressing \nthe: \ncenter button")
+
     ilan.reset_wall_bottom_right()
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 350)
-    wait(1000)
-    ilan.pid_gyro(50, 200)
+    ilan.move_wall_to_point(450, 450)
+    # שמים את הזרוע
+    while not any(ilan.ev3.buttons.pressed()):
+        wait(10)
+       
+    ilan.pid_gyro(60, 200)
+    wait(500)
+    ilan.turn(90 - ilan.gyro_sensor.angle())
+    # while not any(ilan.ev3.buttons.pressed()):
+    #         wait(10)
+    
+   
+    
+    # while not any(ilan.ev3.buttons.pressed()):
+    #         wait(10)
+    
+    #ilan.pid_gyro(38, 700)
+    ilan.pid_gyro(25, 700)
     ilan.move_wall_to_point(650, 450)
-    ilan.turn(90, 200)
     ilan.move_wall_to_point(650, 350)
-    ilan.pid_gyro(38, 200)
+    ilan.pid_gyro(30, 200)
 
 
 
@@ -155,3 +169,4 @@ def wing():
 # wing()
 # prepare_go_trucks3()
 go_trucks3()
+# ilan.say("hello. i'm ilan with a russian accent", 'ru', 1000)
