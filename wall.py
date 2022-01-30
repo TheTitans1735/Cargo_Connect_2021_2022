@@ -12,7 +12,7 @@ print("---")
 # ilan.move_wall_to_point(200,150)
 # wait(1500)
 timer = StopWatch()
-speed = 800 #start with
+speed = 100 #start with
 ilan.write2("Use buttons to move wall")
 while True:
     ilan.write(str(ilan.wall_x_motor.angle()) + "," + str(ilan.wall_y_motor.angle()))
@@ -24,14 +24,15 @@ while True:
         wait(10)
 
     # Respond to the Brick Button press.
-    while timer.time() < 100:
+    while True:
         # Check whether Up Button is pressed, and increase the steps
         # variable by 1 if it is.
         if Button.RIGHT in ilan.ev3.buttons.pressed():
             # Reset the Timer to enable entering multiple commands.
             timer.reset()
             #ilan.ev3.speaker.beep()
-            ilan.wall_x_motor.run_time(speed, 180, then=Stop.BRAKE, wait=True)
+            #ilan.wall_x_motor.run_time(speed, 180, then=Stop.BRAKE, wait=True)
+            ilan.wall_x_motor.dc(speed)
             #ilan.write2(str(ilan.wall_x_motor.angle()) + ", " + str(ilan.wall_y_motor.angle()))
             
             # To avoid registering the same command again, wait until
@@ -42,7 +43,8 @@ while True:
             # Reset the Timer to enable entering multiple commands.
             timer.reset()
             #ilan.ev3.speaker.beep()
-            ilan.wall_x_motor.run_time(speed * -1, 180, then=Stop.BRAKE, wait=True)
+            #ilan.wall_x_motor.run_time(speed * -1, 180, then=Stop.BRAKE, wait=True)
+            ilan.wall_x_motor.dc(-speed)
             ilan.write2(str(ilan.wall_x_motor.angle()) + ", " + str(ilan.wall_y_motor.angle()))
             # To avoid registering the same command again, wait until
             # the Up Button is released before continuing.
@@ -52,7 +54,8 @@ while True:
             # Reset the Timer to enable entering multiple commands.
             timer.reset()
             #ilan.ev3.speaker.beep()
-            ilan.wall_y_motor.run_time(speed , 180, then=Stop.BRAKE, wait=True)
+            #ilan.wall_y_motor.run_time(speed , 180, then=Stop.BRAKE, wait=True)
+            ilan.wall_y_motor.dc(speed)
             ilan.write2(str(ilan.wall_x_motor.angle()) + ", " + str(ilan.wall_y_motor.angle()))
             # To avoid registering the same command again, wait until
             # the Up Button is released before continuing.
@@ -62,7 +65,9 @@ while True:
             # Reset the Timer to enable entering multiple commands.
             timer.reset()
             #ilan.ev3.speaker.beep()
-            ilan.wall_y_motor.run_time(speed *-1, 180, then=Stop.BRAKE, wait=True)
+            #ilan.wall_y_motor.run_time(speed *-1, 180, then=Stop.BRAKE, wait=True)
+            ilan.wall_y_motor.dc(-speed)
+
             ilan.write2(str(ilan.wall_x_motor.angle()) + ", " + str(ilan.wall_y_motor.angle()))
             # To avoid registering the same command again, wait until
             # the Up Button is released before continuing.
@@ -70,7 +75,10 @@ while True:
             #    wait(10)
         if Button.CENTER in ilan.ev3.buttons.pressed():
             # Reset the Timer to enable entering multiple commands.
-            if speed > 1000:
-                speed = 0
-            speed = speed + 100
+            speed -= 10
+            if speed <= 0:
+                speed = 10
+            
             #ilan.write("speed = " + str(speed))
+        ilan.wall_y_motor.hold()
+        ilan.wall_x_motor.hold()

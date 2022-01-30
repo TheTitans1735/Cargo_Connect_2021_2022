@@ -61,21 +61,30 @@ class Robot:
         #     self.wall_x_motor.reset_angle(self.WALL_MAX_ANGLE_X)
         #     self.wall_y_motor.reset_angle(self.WALL_MAX_ANGLE_Y)
         print("x = " + str(self.wall_x_motor.angle()) + ", y = " + str(self.wall_y_motor.angle()))
-    
+    #waiting for button and showing text - for debugging
+    def wait_for_button(self,text,debug=True):
+        self.write(text)
+        if not debug:
+            return
+        while not any(self.ev3.buttons.pressed()):
+            wait(10)
+        wait(300)
+        
     # move the wall to the point specified
     def move_wall_to_point(self, x:int,y:int, speed=-1000):
         # make sure wall does not try to extend beyond boundries
         #print("x = " + str(self.wall_x_motor.angle()) + ", y = " + str(self.wall_y_motor.angle()))
-        x = min( x, self.WALL_MAX_ANGLE_X)
-        y = min( y, self.WALL_MAX_ANGLE_Y)
-        x = max( x, 0)
-        y = max( y, 0)
+        x = min( x, self.WALL_MAX_ANGLE_X-10)
+        y = min( y, self.WALL_MAX_ANGLE_Y-10)
+        x = max( x, 10)
+        y = max( y, 10)
         #print(str(x),str(y))
-        self.wall_x_motor.run_target(speed, x, Stop.HOLD, wait=False)
-        self.wall_y_motor.run_target(speed, y, Stop.HOLD, wait=True)
+        self.wall_x_motor.run_target(speed, x, Stop.BRAKE, wait=True)
+        self.wall_y_motor.run_target(speed, y, Stop.BRAKE, wait=True)
+        # if y ended before x, wait for x to get to target
+        # self.wall_x_motor.run_target(speed, x, Stop.HOLD, wait=True)
         # wait(3000)
-        print("x = " + str(self.wall_x_motor.angle()) + ", y = " + str(self.wall_y_motor.angle()))
-        
+    
     ######################## MEASURE WALL ###################################
     # ideally will be run only once to measure the angles of the wall extremes
     def measure_wall(self):
@@ -83,10 +92,12 @@ class Robot:
         max_x = self.wall_x_motor.run_until_stalled(800,Stop.HOLD, duty_limit=20)
         max_y = self.wall_y_motor.run_until_stalled(800,Stop.HOLD, duty_limit=1)
         self.write("max x= " + str(max_x) + " max y= " + str(max_y))
+        self.wall_y_motor.stop()
+        self.wall_x_motor.stop()
     ######################## WRITE ON SCREEN ###################################
     def write(self, my_text):
         self.ev3.screen.clear()
-        self.ev3.screen.draw_text(1, 20, my_text, text_color=Color.BLACK, background_color=None)
+        self.ev3.screen.draw_text(1, 1, my_text, text_color=Color.BLACK, background_color=None)
         print(my_text)
 ###################### WRITE ON EV3 SCREEN WITH WRAP##########################
     def write2(self, my_text):
@@ -189,8 +200,8 @@ class Robot:
                 turn_rate = turn_rate * -1
             # Set the drive base speed and turn rate.
             self.robot.drive(DRIVE_SPEED, turn_rate)
-            print("distance = " , self.robot.distance() , " reflection = " , line_sensor.reflection() , " error = " , error ,
-                " integral = " , integral , " derivative = " , derivative , " turn_rate = " , turn_rate)
+            print("distance = " , self.robot.distance() , "  |  reflection = " , line_sensor.reflection() , "  |  error = " , error ,
+                "  |  integral = " , integral , "  |  derivative = " , derivative , "  |  turn_rate = " , turn_rate, "  |  gyro = ", self.gyro_sensor.angle())
             last_error = error
             # You can wait for a short time or do other things in this loop.
             wait(10)
@@ -213,7 +224,7 @@ class Robot:
                 self.left_motor.run(speed=(-1 * speed))
                 wait(10)  
    
-        # self.right_motor.brake()
-        # self.left_motor.brake()
-        self.robot.stop()
-        print(self.gyro_sensor.angle()) 
+        self.right_motor.brake()
+        self.left_motor.brake()
+        # self.robot.stop()
+        print("Gyro angle:" + str(self.gyro_sensor.angle())) 
