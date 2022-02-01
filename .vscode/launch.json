@@ -5,10 +5,19 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"name": "Launch Chrome",
+			"request": "launch",
+			"type": "pwa-chrome",
+			"url": "http://localhost:8080",
+			"webRoot": "${workspaceFolder}"
+		},
+		{
+
 			"name": "Main Download and Run",
 			"type": "ev3devBrowser",
 			"request": "launch",
 			"program": "/home/robot/${workspaceRootFolderName}/main.py",
+			"url": "http://localhost:8080",
 			"interactiveTerminal": false
 		}, 
 		{

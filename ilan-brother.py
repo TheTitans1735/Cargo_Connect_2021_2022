@@ -6,6 +6,14 @@ from pybricks.tools import wait, StopWatch, DataLog
 from pybricks.robotics import DriveBase
 from pybricks.media import ev3dev
 
+from pybricks.tools import DataLog, StopWatch, wait
+
+# Create a data log file in the project folder on the EV3 Brick.
+# * By default, the file name contains the current date and time, for example:
+#   log_2020_02_13_10_07_44_431260.csv
+# * You can optionally specify the titles of your data columns. For example,
+#   if you want to record the motor angles at a given time, you could do:
+
 ev3 = EV3Brick()
         # CONFIGURATION ILAN
 left_motor = Motor(Port.B, Direction.CLOCKWISE)
@@ -16,6 +24,59 @@ color_sensor_left = ColorSensor(Port.S1)
 color_sensor_right = ColorSensor(Port.S2)
 gyro_sensor= GyroSensor(Port.S3)
 arm_motor = Motor(Port.A)
+################################PID FOLLOW LINE#######################################
+def pid_follow_line(line_sensor, distance, speed, Kp, white_is_right, stop_codition=None):
+    robot.reset() 
+    # Calculate the light threshold. Choose values based on your measurements.
+    #6,71
+    BLACK = 6
+    WHITE = 71
+    threshold = (BLACK + WHITE) / 2
+    robot.reset()
+    #logger = DataLog('error', 'integral','derivative','turn_rate')
+    # Set the drive speed at 100 millimeters per second.
+    DRIVE_SPEED = speed
+
+    # Set the gain of the proportional line controller. This means that for every
+    # percentage point of light deviating from the threshold, we set the turn
+    # rate of the drivebase to 1.2 degrees per second.
+
+    # For example, if the light value deviates from the threshold by 10, the robot
+    # steers at 10*1.2 = 12 degrees per second.
+    PROPORTIONAL_GAIN = Kp
+    DERIVATIVE_GAIN = 0.06
+    INTEGRAL_GAIN = 0.007
+    integral = 0
+    derivative =0
+    last_error = 0
+
+    
+    # Start following the line endlessly.
+    #while True:
+    while (robot.distance() < distance*10):
+        # Calculate the deviation from the threshold.
+        error = line_sensor.reflection() - threshold
+        integral = integral + error
+        derivative = error - last_error
+        
+        # Calculate the turn rate.
+        turn_rate = PROPORTIONAL_GAIN * error + DERIVATIVE_GAIN * derivative + INTEGRAL_GAIN * integral
+        if white_is_right:
+            turn_rate = turn_rate * -1
+        # Set the drive base speed and turn rate.
+        robot.drive(DRIVE_SPEED, turn_rate)
+        #print("distance = " + robot.distance() + " reflection = " + line_sensor.reflection() + " error = " + error + 
+        #    " integral = " + integral + " derivative = " + derivative + " turn_rate = " + turn_rate)
+        last_error = error
+        # You can wait for a short time or do other things in this loop.
+        if stop_codition:
+            if stop_codition():
+                break
+        wait(10)
+    #print(logger)    
+    robot.stop()
+
+
 ################################PID GYRO##############################################
 def pid_gyro(Td, Ts = 100, Kp = 1.3, Ki= 0.025, Kd = 3):
         robot.reset() 
@@ -45,14 +106,16 @@ def pid_gyro(Td, Ts = 100, Kp = 1.3, Ki= 0.025, Kd = 3):
             robot.drive(Ts, correction)
 
             lastError = error  
-        
             #print("error " + str(error) + "; integral " + str(integral) + "; correction " + str(correction)  )    
             
         robot.stop()
 
 
-robot.drive(50,0)
+# robot.drive(50,0)
 #  robot.straight(500)
-
-wait(10000)
-robot.stop()
+stop_on_white = lambda : color_sensor_left.reflection() > 70
+pid_follow_line(color_sensor_right,70,120,1.1,True, stop_codition=stop_on_white)
+robot.turn(20)
+robot.straight(80)
+# wait(10000)
+#robot.stop()
