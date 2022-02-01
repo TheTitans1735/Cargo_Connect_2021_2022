@@ -205,7 +205,7 @@ def take_container_activate():
 
     #מחכה להלבשת הזרוע
     ilan.wait_for_button("Place arm", True)
-    ilan.write("Right  |  Left  |  Middle")
+    ilan.write("Far  |  Center | Close")
 
     #בודק לאיזה מקום צריך להגיע - ימין, אמצע שמאל
     while True:
@@ -237,8 +237,9 @@ def take_container(port: int):
 
     #נוסע אל ועל הקו השחור
     ilan.pid_gyro(20)
-    ilan.pid_follow_line(ilan.color_sensor_right, 98, 120, 1.35, True)
-    
+    ilan.pid_follow_line(ilan.color_sensor_right, 98, 130, 1.355, True)
+    wait(1000)
+
     #בודק האם צריך להגיע למכולה ימין, אמצע או שמאל ונוסע קדימה בהתאם
     ilan.wait_for_button("Moving ahead", debug)
     x = 42
@@ -252,7 +253,7 @@ def take_container(port: int):
         ilan.pid_gyro(x + 16.5)
     
     #מסתובב אל המשימה
-    ilan.turn(90, 30)
+    ilan.turn(90, 150)
 
     #מוריד את הקיר קרוב לרצפה
     ilan.wait_for_button("Move wall down", debug)
@@ -265,22 +266,32 @@ def take_container(port: int):
     ilan.wait_for_button("Drive to mission", debug)
     ilan.pid_gyro(11)
 
-    #תופס את המכולה ומרים אותה
     wait(500)
+    #מוריד את הקיר למטה, תופס את המכולה - קרוב, אמצע
     ilan.wait_for_button("Take conatainer", debug)
-    ilan.wall_y_motor.run_time(-2000, 2000)
+    if port == 2:
+        ilan.move_wall_to_point(0, 0)
 
+    #מוריד את הקיר למטה, תופס את המכולה - רחוק
+    else:
+        ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 0)
+
+    #מעלה את הקיר למעלה - קרוב, אמצע
     ilan.wait_for_button("Move wall up", debug)
     if port == 2:
         ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y)
 
+    #מעלה את הקיר למעלה - רחוק
     else:
         ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, ilan.WALL_MAX_ANGLE_Y)
 
-    #חוזר לאחור
+    #חוזר לאזור הבית
     wait(1000)
-    ilan.run_straight(-15)
-    ilan.turn(-90)
+    ilan.pid_gyro(20, 200, False)
+    wait(500)
+    ilan.turn(90, 150)
+    wait(100)
+    ilan.pid_gyro(2000, 500)
 
 
 "Testing Area"
@@ -297,4 +308,3 @@ def take_container(port: int):
 #ilan.pid_follow_line(ilan.color_sensor_right, 40, 150, 1.3, True)
 
 take_container_activate()
-

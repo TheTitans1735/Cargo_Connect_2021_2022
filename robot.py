@@ -213,17 +213,55 @@ class Robot:
     def run_straight(self, distance):
         self.robot.straight(distance * 10)
 
+######################## TURN ###################################
     def turn(self, angle, speed=100):
         self.gyro_sensor.reset_angle(0)
+        wait(500)
+
+        #פנייה ימינה - זווית פנייה חיובית
         if angle > 0:
-            while self.gyro_sensor.angle() < angle:
+
+            #נוסע כמעט עד ערך הזווית במהירות מלאה
+            while self.gyro_sensor.angle() <= angle * 0.8:
                 self.right_motor.run(speed=(-1 * speed))
                 self.left_motor.run(speed=speed)
-                wait(10)
-        elif angle < 0:  
+            self.right_motor.brake()
+            self.left_motor.brake()
+
+            #נוסע את שארית ערך הזווית במהירות מופחתת - פי 0.2
+            while self.gyro_sensor.angle() < angle:
+                self.right_motor.run(speed=(-0.2 * speed))
+                self.left_motor.run(speed=speed*0.2)
+            self.right_motor.brake()
+            self.left_motor.brake()
+            
+            #תיקון איטי נוסף למקרה שצריך
             while self.gyro_sensor.angle() > angle:
-                self.right_motor.run(speed=speed)
-                self.left_motor.run(speed=(-1 * speed))
+                self.right_motor.run(20)
+                self.left_motor.run(-20)
+                wait(10)  
+
+        #פנייה שמאלה - זווית פנייה שלילית
+        elif angle < 0:  
+            
+            #נוסע כמעט עד ערך הזווית במהירות מלאה, הגלגלים נעים בכיוון הפוך
+            while self.gyro_sensor.angle() >= angle * 0.8:
+                self.right_motor.run(speed=(speed))
+                self.left_motor.run(speed=speed*-1)
+            self.right_motor.brake()
+            self.left_motor.brake()
+
+            #נוסע את שארית ערך הזווית במהירות מופחתת - פי 0.2
+            while self.gyro_sensor.angle() > angle:
+                self.right_motor.run(speed=(0.2 * speed))
+                self.left_motor.run(speed=speed*-0.2)
+            self.right_motor.brake()
+            self.left_motor.brake()
+
+            #תיקון איטי נוסף למקרה שצריך
+            while self.gyro_sensor.angle() > angle:
+                self.right_motor.run(-20)
+                self.left_motor.run(20)
                 wait(10)  
    
         self.right_motor.brake()
