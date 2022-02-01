@@ -4,7 +4,7 @@ from robot import *
 # Write code here
 ilan = Robot()
 #ilan.wall_x_motor.run_time(200,3000,Stop.COAST,True)
-wait(1000)
+ilan.say("I am ready!")
 def go_trucks():
 
     # מאפס את הקיר
@@ -177,17 +177,25 @@ def green_airplane_and_Containers():
 
 
 def wing():
+    watch = StopWatch()
     ilan.reset_wall()
+    while not any(ilan.ev3.buttons.pressed()):
+        wait(10)
     # נסיעה על שהכנף נוגעת במתקן שלה
-    ilan.pid_gyro(82)
+    watch = StopWatch()
+    ilan.pid_gyro(72, 250, Kp = 3.05)
+    ilan.pid_gyro(10, 120)
+
     # ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 0)
     # קיר זז ותופס תרנגולת
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 0)
-    wait(1000)
-    ilan.pid_gyro(10, 600, Forward_Is_True = False)
-    ilan.move_wall_to_point(400, 100)
+    ilan.move_wall_to_point(600, 0)
+    #wait(1000)
+    ilan.pid_gyro(21, 100, Forward_Is_True = False)
+    ilan.move_wall_to_point(0, 100)
     # חזרה הביתה
-    ilan.pid_gyro(82, 600, Forward_Is_True = False) 
+    ilan.pid_gyro(52, 500, Forward_Is_True = False) 
+    ilan.pid_gyro(3, 100, Forward_Is_True = False)
+    print(watch.time())
 
 def take_container_activate():
 
@@ -275,10 +283,7 @@ def take_container(port: int):
     ilan.turn(-90)
 
 
-
-
-
-
+"Testing Area"
 
 # wing()
 # prepare_go_trucks3()
@@ -286,20 +291,10 @@ def take_container(port: int):
 # green_airplane_and_Containers()
 # ilan.say("hello. i'm ilan with a russian accent", 'ru', 1000)
 
+# 01-02-2022
+# wing()
+#ilan.pid_gyro(20, 200)
+#ilan.pid_follow_line(ilan.color_sensor_right, 40, 150, 1.3, True)
+
 take_container_activate()
-# ilan.reset_wall()
-# ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, ilan.WALL_MAX_ANGLE_Y / 2)
-# debug = False
-# ilan.wait_for_button("Move wall down", True)
-# ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 220)
-
-# ilan.wait_for_button("Drive to mission", debug)
-# ilan.pid_gyro(5)
-
-
-# ilan.wait_for_button("Take conatainer", True)
-# ilan.wall_y_motor.run_time(-2000, 1000)
-
-# ilan.wait_for_button("Move wall up", debug)
-# ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, ilan.WALL_MAX_ANGLE_Y)
 

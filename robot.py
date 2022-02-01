@@ -94,12 +94,14 @@ class Robot:
         self.write("max x= " + str(max_x) + " max y= " + str(max_y))
         self.wall_y_motor.stop()
         self.wall_x_motor.stop()
+
     ######################## WRITE ON SCREEN ###################################
     def write(self, my_text):
         self.ev3.screen.clear()
         self.ev3.screen.draw_text(1, 1, my_text, text_color=Color.BLACK, background_color=None)
         print(my_text)
-###################### WRITE ON EV3 SCREEN WITH WRAP##########################
+
+    ###################### WRITE ON EV3 SCREEN WITH WRAP########################
     def write2(self, my_text):
         self.ev3.screen.clear()
         current_line = ""
