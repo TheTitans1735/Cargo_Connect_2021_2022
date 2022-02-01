@@ -1,5 +1,4 @@
 #!/usr/bin/env pybricks-micropython
-from re import I
 from robot import *
 # Write code here
 ilan = Robot()
@@ -204,8 +203,8 @@ def take_container_activate():
     ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, ilan.WALL_MAX_ANGLE_Y)
 
     #מחכה להלבשת הזרוע
-    ilan.wait_for_button("Place arm", True)
-    ilan.write("Far  |  Center | Close")
+    ilan.wait_for_button("Place arm", False)
+    ilan.write("Choose Container: \nFar | Center | Close")
 
     #בודק לאיזה מקום צריך להגיע - ימין, אמצע שמאל
     while True:
@@ -238,7 +237,7 @@ def take_container(port: int):
     #נוסע אל ועל הקו השחור
     ilan.pid_gyro(20)
     ilan.pid_follow_line(ilan.color_sensor_right, 98, 130, 1.355, True)
-    wait(1000)
+    wait(500)
 
     #בודק האם צריך להגיע למכולה ימין, אמצע או שמאל ונוסע קדימה בהתאם
     ilan.wait_for_button("Moving ahead", debug)
@@ -247,7 +246,7 @@ def take_container(port: int):
         ilan.pid_gyro(x)
 
     elif port == 1:
-        ilan.pid_gyro(x + 10)
+        ilan.pid_gyro(x + 7.5)
 
     elif port == 2:
         ilan.pid_gyro(x + 16.5)
@@ -286,12 +285,14 @@ def take_container(port: int):
         ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, ilan.WALL_MAX_ANGLE_Y)
 
     #חוזר לאזור הבית
-    wait(1000)
-    ilan.pid_gyro(20, 200, False)
-    wait(500)
-    ilan.turn(90, 150)
-    wait(100)
-    ilan.pid_gyro(2000, 500)
+    # wait(1000)
+    # ilan.pid_gyro(20, 200, False)
+    # wait(500)
+    # ilan.turn(90, 150)
+    # wait(100)
+    # ilan.pid_gyro(2000, 500)
+
+
 
 
 "Testing Area"
