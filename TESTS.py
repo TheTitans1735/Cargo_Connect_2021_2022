@@ -35,4 +35,4 @@ ilan = Robot()
 
 
 # move_wall_up()
-ilan.robot
+print("HI")

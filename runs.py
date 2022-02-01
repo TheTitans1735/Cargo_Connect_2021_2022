@@ -1,4 +1,5 @@
 #!/usr/bin/env pybricks-micropython
+from turtle import color
 from robot import *
 # Write code here
 ilan = Robot()
@@ -194,7 +195,7 @@ def wing():
     # חזרה הביתה
     ilan.pid_gyro(52, 500, Forward_Is_True = False) 
     ilan.pid_gyro(3, 100, Forward_Is_True = False)
-    print(watch.time())
+    print(watch.time() / 1000)
 
 def take_container_activate():
 
@@ -236,18 +237,18 @@ def take_container(port: int):
 
     #נוסע אל ועל הקו השחור
     ilan.pid_gyro(20)
-    ilan.pid_follow_line(ilan.color_sensor_right, 98, 130, 1.355, True)
+    ilan.pid_follow_right_line_until_left_detect_line(90, 3, 1.355, True)
     wait(500)
 
     #בודק האם צריך להגיע למכולה ימין, אמצע או שמאל ונוסע קדימה בהתאם
-    ilan.wait_for_button("Moving ahead", debug)
+    ilan.wait_for_button("Moving ahead", True)
     x = 42
     if port == 0:
         ilan.pid_gyro(x)
 
     elif port == 1:
         ilan.pid_gyro(x + 7.5)
-
+        
     elif port == 2:
         ilan.pid_gyro(x + 16.5)
     
@@ -304,8 +305,14 @@ def take_container(port: int):
 # ilan.say("hello. i'm ilan with a russian accent", 'ru', 1000)
 
 # 01-02-2022
+
 # wing()
 #ilan.pid_gyro(20, 200)
 #ilan.pid_follow_line(ilan.color_sensor_right, 40, 150, 1.3, True)
 
-take_container_activate()
+#take_container_activate()
+# while True:
+#     ilan.write("left" + str(ilan.color_sensor_left.reflection()))
+#     wait(1000)
+
+ilan.color_sensor_left.
