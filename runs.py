@@ -284,6 +284,19 @@ def take_container(port: int):
     else:
         ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, ilan.WALL_MAX_ANGLE_Y)
 
+def go_trucks2022_02_01():
+    # yali 
+    debug = True
+    ilan.reset_wall_bottom_right()
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 100)
+    ilan.wait_for_button("start", debug)
+    ilan.pid_gyro(50, 300)
+    ilan.turn(90)
+    ilan.pid_gyro(42, 200)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 50)
+    ilan.pid_gyro(5, 150)
+    ilan.reset_wall()
+    ilan.pid_follow_line(ilan.color_sensor_right, 50, 150, 1.3)
     #חוזר לאזור הבית
     # wait(1000)
     # ilan.pid_gyro(20, 200, False)
@@ -308,4 +321,4 @@ def take_container(port: int):
 #ilan.pid_gyro(20, 200)
 #ilan.pid_follow_line(ilan.color_sensor_right, 40, 150, 1.3, True)
 
-take_container_activate()
+# take_container_activate()
