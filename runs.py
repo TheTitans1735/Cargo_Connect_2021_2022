@@ -1,10 +1,10 @@
 #!/usr/bin/env pybricks-micropython
-from turtle import color
+
+from os import kill
 from robot import *
 # Write code here
 ilan = Robot()
-#ilan.wall_x_motor.run_time(200,3000,Stop.COAST,True)
-ilan.say("I am ready!")
+
 def go_trucks():
 
     # מאפס את הקיר
@@ -286,18 +286,26 @@ def take_container(port: int):
         ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, ilan.WALL_MAX_ANGLE_Y)
 
 def go_trucks2022_02_01():
-    # yali 
-    debug = True
-    ilan.reset_wall_bottom_right()
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 100)
-    ilan.wait_for_button("start", debug)
-    ilan.pid_gyro(50, 300)
+
+    ilan.reset_wall() 
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 200)
+    ilan.wait_for_button("start", True)
+    ilan.pid_gyro(47.5, 300)
     ilan.turn(90)
-    ilan.pid_gyro(42, 200)
+    ilan.pid_gyro(43.5, 200)
     ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 50)
-    ilan.pid_gyro(5, 150)
+    #ilan.pid_gyro(5, 150)
     ilan.reset_wall()
-    ilan.pid_follow_line(ilan.color_sensor_right, 50, 150, 1.3)
+    while ilan.color_sensor_right.color() != Color.BLACK:
+        ilan.right_motor.run(80)
+        ilan.left_motor.run(20)
+        wait(100)
+    ilan.right_motor.brake()
+    ilan.left_motor.brake()
+    ilan.pid_follow_line(ilan.color_sensor_right, 50, 150,Kp=1.7,Ki=0.02,Kd=0.08)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 350)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 350)
+    ilan.pid_follow_line(ilan.color_sensor_right, 20, 150,Ki=0.06)
     #חוזר לאזור הבית
     # wait(1000)
     # ilan.pid_gyro(20, 200, False)
@@ -309,23 +317,5 @@ def go_trucks2022_02_01():
 
 
 
-"Testing Area"
-
-# wing()
-# prepare_go_trucks3()
-# go_trucks3()
-# green_airplane_and_Containers()
-# ilan.say("hello. i'm ilan with a russian accent", 'ru', 1000)
-
-# 01-02-2022
-
-# wing()
-#ilan.pid_gyro(20, 200)
-#ilan.pid_follow_line(ilan.color_sensor_right, 40, 150, 1.3, True)
-
-#take_container_activate()
-# while True:
-#     ilan.write("left" + str(ilan.color_sensor_left.reflection()))
-#     wait(1000)
-
+go_trucks2022_02_01()
 

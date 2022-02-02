@@ -40,7 +40,7 @@
 			"type": "ev3devBrowser",
 			"request": "launch",
 			"program": "/home/robot/${workspaceRootFolderName}/runs.py",
-			"interactiveTerminal": false
+			"interactiveTerminal": true
 		}
 		, 
 		{

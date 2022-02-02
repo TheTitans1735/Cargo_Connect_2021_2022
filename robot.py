@@ -165,7 +165,7 @@ class Robot:
 
 ######################## PID FOLLOW LINE ###################################
 
-    def pid_follow_line(self,line_sensor, distance, speed, Kp, white_is_right):
+    def pid_follow_line(self,line_sensor, distance, speed, Kp = 1.3, Ki = 0.01, Kd = 0.07, white_is_right = True):
         self.robot.reset() 
         # Calculate the light threshold. Choose values based on your measurements.
         #6,71
@@ -184,8 +184,8 @@ class Robot:
         # For example, if the light value deviates from the threshold by 10, the robot
         # steers at 10*1.2 = 12 degrees per second.
         PROPORTIONAL_GAIN = Kp
-        DERIVATIVE_GAIN = 0.07
-        INTEGRAL_GAIN = 0.01
+        DERIVATIVE_GAIN = Kd
+        INTEGRAL_GAIN = Ki
         integral = 0
         derivative =0
         last_error = 0

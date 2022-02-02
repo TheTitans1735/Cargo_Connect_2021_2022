@@ -1,6 +1,5 @@
-# #!/usr/bin/env pybricks-micropython
+#!/usr/bin/env pybricks-micropython
 
-from random import randint
 
 from pybricks.hubs import EV3Brick
 from robot import *
@@ -35,4 +34,10 @@ ilan = Robot()
 
 
 # move_wall_up()
-print("HI")
+while ilan.color_sensor_right.color() != Color.BLACK:
+    ilan.right_motor.run(-80)
+    ilan.left_motor.run(-100)
+    wait(100)
+ilan.right_motor.brake()
+ilan.left_motor.brake()
+
