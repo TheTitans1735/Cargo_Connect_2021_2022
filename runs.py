@@ -1,6 +1,5 @@
 #!/usr/bin/env pybricks-micropython
 
-from os import kill
 from robot import *
 # Write code here
 ilan = Robot()
@@ -177,25 +176,34 @@ def green_airplane_and_Containers():
 
 
 def wing():
-    watch = StopWatch()
+    debug = True
     ilan.reset_wall()
-    while not any(ilan.ev3.buttons.pressed()):
-        wait(10)
+    ilan.wait_for_button("Wait For Start",  debug)
+
     # נסיעה על שהכנף נוגעת במתקן שלה
     watch = StopWatch()
     ilan.pid_gyro(72, 250, Kp = 3.05)
     ilan.pid_gyro(10, 120)
 
-    # ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 0)
     # קיר זז ותופס תרנגולת
     ilan.move_wall_to_point(600, 0)
+
     #wait(1000)
+
+    #מזיז את הקיר על מנת לא להיתקע בתרנגולת
     ilan.pid_gyro(21, 100, Forward_Is_True = False)
     ilan.move_wall_to_point(0, 100)
+
     # חזרה הביתה
-    ilan.pid_gyro(52, 500, Forward_Is_True = False) 
-    ilan.pid_gyro(3, 100, Forward_Is_True = False)
-    print(watch.time() / 1000)
+    ilan.pid_gyro(10, 100, False)
+    ilan.turn(5)
+    ilan.pid_gyro(55, 500, False, 3.05) 
+    # ilan.pid_gyro(3, 100, Forward_Is_True = False)
+    
+
+    # מדפיס את זמן ביצוע המשימה
+    print("Mission time: " + str(watch.time() / 1000))
+    return
 
 def take_container_activate():
 
@@ -205,28 +213,28 @@ def take_container_activate():
 
     #מחכה להלבשת הזרוע
     ilan.wait_for_button("Place arm", False)
-    ilan.write("Choose Container: \nFar | Center | Close")
+    ilan.write("Far | Center | Close")
 
     #בודק לאיזה מקום צריך להגיע - ימין, אמצע שמאל
     while True:
-        # Wait until any Brick Button is pressed.
+        # Wait until any Brick Button is pressed.ilan
         while not any(ilan.ev3.buttons.pressed()):
            wait(10)
 
         # Respond to the Brick Button press.
         
         if Button.RIGHT in ilan.ev3.buttons.pressed():
-            ilan.write("Right Container")
+            ilan.write("Close Container")
             take_container(0)
             return
 
         elif Button.CENTER in ilan.ev3.buttons.pressed():
-            ilan.write("Middle Container")
+            ilan.write("Center Container")
             take_container(1)
             return
 
         elif Button.LEFT in ilan.ev3.buttons.pressed():
-            ilan.write("Left Container")
+            ilan.write("Far Container")
             take_container(2)
             return
 
@@ -237,7 +245,8 @@ def take_container(port: int):
 
     #נוסע אל ועל הקו השחור
     ilan.pid_gyro(20)
-    ilan.pid_follow_right_line_until_left_detect_line(90, 3, 1.355, True)
+    # ilan.pid_follow_right_line_until_left_detect_line(90, 3, 1.355, True)
+    ilan.pid_follow_line(ilan.color_sensor_right, 98, 130, 1.355, True)
     wait(500)
 
     #בודק האם צריך להגיע למכולה ימין, אמצע או שמאל ונוסע קדימה בהתאם
@@ -245,12 +254,15 @@ def take_container(port: int):
     x = 42
     if port == 0:
         ilan.pid_gyro(x)
+        ilan.write("Close Container")
 
     elif port == 1:
         ilan.pid_gyro(x + 7.5)
+        ilan.write("Center Container")
         
     elif port == 2:
         ilan.pid_gyro(x + 16.5)
+        ilan.write("Far Container")
     
     #מסתובב אל המשימה
     ilan.turn(90, 150)
@@ -314,8 +326,40 @@ def go_trucks2022_02_01():
     # wait(100)
     # ilan.pid_gyro(2000, 500)
 
+def running ():
+    ilan.write("Container L | Wing C | __ R")
+    while True:
+
+        # מחכה ללחיצת כפתור
+        while not any(ilan.ev3.buttons.pressed()):
+           wait(10)
+
+        # מגיב ללחיצת כפתור
+        
+        # כפתור שמאלי - ראן לקיחת מכולות
+        if Button.LEFT in ilan.ev3.buttons.pressed():
+            ilan.write("Container Run")
+            take_container_activate()
+
+            return
+
+        elif Button.CENTER in ilan.ev3.buttons.pressed():
+            ilan.write("Wing Run")
+            wing()
+
+            return
+
+        elif Button.RIGHT in ilan.ev3.buttons.pressed():
+            ilan.write("No Run")
+            
+            # return
+
+        
 
 
 
-go_trucks2022_02_01()
 
+#ilan.pid_gyro(200, 150, True)
+# running()
+ilan.pid_follow_line(ilan.color_sensor_right, 98, 130, 1.355, True)
+# ilan.pid_follow_right_line_until_left_detect_line(150, 3, 3, True)
