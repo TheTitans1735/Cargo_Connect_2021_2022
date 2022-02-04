@@ -76,6 +76,63 @@ def pid_follow_line(line_sensor, distance, speed, Kp, white_is_right, stop_codit
     #print(logger)    
     robot.stop()
 
+################################PID FOLLOW LINE#######################################
+def pid_follow_line2(line_sensor, distance, speed, Kp, white_is_right, stop_codition=None, count_stop_conditions = 6):
+    robot.reset() 
+    # Calculate the light threshold. Choose values based on your measurements.
+    #6,71
+    BLACK = 6
+    WHITE = 71
+    threshold = (BLACK + WHITE) / 2
+    robot.reset()
+    #logger = DataLog('error', 'integral','derivative','turn_rate')
+    # Set the drive speed at 100 millimeters per second.
+    DRIVE_SPEED = speed
+
+    # Set the gain of the proportional line controller. This means that for every
+    # percentage point of light deviating from the threshold, we set the turn
+    # rate of the drivebase to 1.2 degrees per second.
+
+    # For example, if the light value deviates from the threshold by 10, the robot
+    # steers at 10*1.2 = 12 degrees per second.
+    PROPORTIONAL_GAIN = Kp
+    DERIVATIVE_GAIN = 0.06
+    INTEGRAL_GAIN = 0.007
+    integral = 0
+    derivative =0
+    last_error = 0
+    stop_condition_count=0
+    
+    # Start following the line endlessly.
+    #while True:
+    while (robot.distance() < distance*10):
+        # Calculate the deviation from the threshold.
+        error = line_sensor.reflection() - threshold
+        integral = integral + error
+        derivative = error - last_error
+        
+        # Calculate the turn rate.
+        turn_rate = PROPORTIONAL_GAIN * error + DERIVATIVE_GAIN * derivative + INTEGRAL_GAIN * integral
+        if white_is_right:
+            turn_rate = turn_rate * -1
+        # Set the drive base speed and turn rate.
+        robot.drive(DRIVE_SPEED, turn_rate)
+        #print("distance = " + robot.distance() + " reflection = " + line_sensor.reflection() + " error = " + error + 
+        #    " integral = " + integral + " derivative = " + derivative + " turn_rate = " + turn_rate)
+        last_error = error
+        # You can wait for a short time or do other things in this loop.
+        if stop_codition:
+            print("max whites:" + str(count_stop_conditions) + " current: " + str(stop_condition_count))
+            if stop_condition_count < count_stop_conditions:
+                stop_condition_count = stop_condition_count + 1
+            else:
+                break
+            #if stop_codition():
+            #    break
+        wait(10)
+    #print(logger)    
+    robot.stop()
+
 
 ################################PID GYRO##############################################
 def pid_gyro(Td, Ts = 100, Kp = 1.3, Ki= 0.025, Kd = 3):
@@ -114,8 +171,24 @@ def pid_gyro(Td, Ts = 100, Kp = 1.3, Ki= 0.025, Kd = 3):
 # robot.drive(50,0)
 #  robot.straight(500)
 stop_on_white = lambda : color_sensor_left.reflection() > 70
+stop_on_black = lambda : color_sensor_left.reflection() < 10
 pid_follow_line(color_sensor_right,70,120,1.1,True, stop_codition=stop_on_white)
-robot.turn(20)
-robot.straight(80)
+pid_follow_line(color_sensor_right,70,120,1.1,True, stop_codition=stop_on_black)
+robot.straight(35)
+pid_follow_line(color_sensor_right,70,120,1.1,True, stop_codition=stop_on_white)
+pid_follow_line(color_sensor_right,70,120,1.1,True, stop_codition=stop_on_black)
+robot.straight(35)
+pid_follow_line(color_sensor_right,70,120,1.1,True, stop_codition=stop_on_white)
+pid_follow_line(color_sensor_right,70,120,1.1,True, stop_codition=stop_on_black)
+robot.straight(35)
+pid_follow_line(color_sensor_right,70,120,1.1,True, stop_codition=stop_on_white)
+pid_follow_line(color_sensor_right,70,120,1.1,True, stop_codition=stop_on_black)
+robot.straight(35)
+
+
+#pid_follow_line2(color_sensor_right,70,120,1.1,True, stop_on_white,6)
+
+#robot.turn(20)
+#robot.straight(80)
 # wait(10000)
 #robot.stop()
