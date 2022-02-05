@@ -110,67 +110,111 @@ def go_trucks3():
 
 def green_airplane_and_Containers():
     debug = False
+    
     # אילן שם את המכולות בעיגול וחזר אחורה למטוס
     ilan.reset_wall_bottom_right()
     
     ilan.wait_for_button("10. start",True)
-    wait(500)
+    wait(200)
+    sw.reset()
+    
     ilan.pid_gyro(25, 250)
     ilan.pid_follow_line(ilan.color_sensor_right, 50, 100, 1.3, True)
     #turn engine over
     ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y)
-    #ilan.pid_gyro(20, Forward_Is_True=False) #ilan.run_straight(-20)    
-    ilan.pid_gyro(25, Forward_Is_True=False) #ilan.run_straight(-20)
-    
+    ilan.pid_gyro(24, Forward_Is_True=False)
     
     # מוריד את המכולה מהמטוס
     #move to left
     ilan.wait_for_button("20. wall left",debug)
     ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y)
-    #wait(500)
-    # ilan.move_wall_to_point(0, 0)
-    #wait(500)
-    # ilan.move_wall_to_point(300, 0)
+
     #go right to center
-    
-    # ilan.wait_for_button("30. wall x center")
-    # ilan.move_wall_to_point(300, ilan.WALL_MAX_ANGLE_Y)
-    # #go down
-    # ilan.wait_for_button("40. wall left")
-    # ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y)
     ilan.wait_for_button("50. wall down",debug)
     ilan.move_wall_to_point(0, 100)
+
     ilan.wait_for_button("60. wall up middle",debug)
     ilan.move_wall_to_point(0,  300)
+
     ilan.wait_for_button("70. wall right",debug)
     ilan.move_wall_to_point(500, 300)
+
     ilan.wait_for_button("80. wall up",debug)
-    #wait(500)
     ilan.move_wall_to_point(500, ilan.WALL_MAX_ANGLE_Y)
-    #wait(500)
+
     ilan.wait_for_button("90. wall left then down",debug)
     ilan.move_wall_to_point(80, ilan.WALL_MAX_ANGLE_Y)
-    #wait(500)
     ilan.move_wall_to_point(80, 0)
+
     ilan.wait_for_button("100. up",debug)
     ilan.move_wall_to_point(0, 650)
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 650)
-    #ilan.beep()
-    ilan.pid_gyro(10) #ilan.run_straight(10)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 700)
+    ilan.turn(10,150)
+    ilan.pid_gyro(10)
+    ilan.turn(-15,150)
+    #ilan.pid_gyro(5)
     ilan.wait_for_button("110. wall reset",debug)
-    #ilan.reset_wall()
     ilan.wait_for_button("120. wall 0,0",debug)
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X-100, 0)
-    ilan.pid_gyro(10, Forward_Is_True=False) #ilan.run_straight(-10)
+    #ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 0)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 180)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X-550, 180)
+    ilan.pid_gyro(8,Forward_Is_True=False)
+    #ilan.pid_gyro(2,Forward_Is_True=False)
+    #ilan.turn(-10,150)
+    #ilan.pid_gyro(10, 100,Forward_Is_True=False)
+    ilan.wait_for_button("125. Pause after left",False)
+    
+    
+    
     ilan.beep()
+
     ilan.wait_for_button("130. wall up",debug)
     ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y)
-    ilan.turn(70)
-    ilan.pid_gyro(33, 500, Forward_Is_True=False) #ilan.run_straight(-33)
+    ilan.turn(70,250)
+    ilan.pid_gyro(33, 500, Forward_Is_True=False)
     ilan.turn(80, 200)
     ilan.wait_for_button("140. wall reset right",debug)
-    #ilan.reset_wall_bottom_right()
 
+
+def green_airplain_and_Containers_old():
+
+    # אילן שם את המכולות בעיגול וחזר אחורה למטוס
+    ilan.reset_wall_bottom_right()
+    ilan.wait_for_button("10. start",True)
+    ilan.pid_gyro(25)
+    ilan.pid_follow_line(ilan.color_sensor_right, 50, 100, 1.3, True)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y)
+    ilan.pid_gyro(5, Forward_Is_True=False) #ilan.run_straight(-5)
+    ilan.pid_gyro(20, Forward_Is_True=False) #ilan.run_straight(-20)    
+    
+    
+    # מוריד את המכולה מהמטוס
+    ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y)
+    wait(500)
+    # ilan.move_wall_to_point(0, 0)
+    wait(500)
+    # ilan.move_wall_to_point(300, 0)
+    ilan.move_wall_to_point(300, ilan.WALL_MAX_ANGLE_Y)
+    ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y)
+    ilan.move_wall_to_point(0, 100)
+    ilan.move_wall_to_point(0,  300)
+    ilan.move_wall_to_point(500, 300)
+    wait(500)
+    ilan.move_wall_to_point(500, 650)
+    wait(500)
+    ilan.reset_wall()
+    ilan.move_wall_to_point(0, 650)
+    ilan.beep()
+    ilan.pid_gyro(10) #ilan.run_straight(10)
+    ilan.reset_wall()
+    ilan.move_wall_to_point(0, 0)
+    ilan.pid_gyro(10, Forward_Is_True=False) #ilan.run_straight(-10)
+    ilan.beep()
+    ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y)
+    ilan.turn(70)
+    ilan.pid_gyro(33, Forward_Is_True=False) #ilan.run_straight(-33)
+    ilan.turn(80)
+    ilan.reset_wall_bottom_right()
 
 
 
@@ -388,8 +432,13 @@ def running ():
 
 
 
+sw = StopWatch()
 
-#ilan.pid_gyro(200, 150, True)
-# running()
-ilan.pid_follow_line(ilan.color_sensor_right, 98, 130, 1.355, True)
-# ilan.pid_follow_right_line_until_left_detect_line(150, 3, 3, True)
+# ilan.pid_follow_line(ilan.color_sensor_right, 98, 130, 1.355, True)
+ilan.reset_wall()
+ilan.move_wall_to_point(500, 500)
+ilan.pid_gyro(25, 150, True)
+ilan.pid_follow_right_line_until_left_detect_line(50, 3, 1.3)
+# green_airplane_and_Containers()
+# green_airplain_and_Containers_old()
+print("Run time[s] " + str(sw.time()/1000))

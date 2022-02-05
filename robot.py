@@ -71,9 +71,9 @@ class Robot:
         wait(300)
         
     # move the wall to the point specified
-    def move_wall_to_point(self, x:int,y:int, speed=-1000):
+    def move_wall_to_point(self, x:int,y:int, speed=-1200):
         # make sure wall does not try to extend beyond boundries
-        #print("x = " + str(self.wall_x_motor.angle()) + ", y = " + str(self.wall_y_motor.angle()))
+        
         x = min( x, self.WALL_MAX_ANGLE_X-10)
         y = min( y, self.WALL_MAX_ANGLE_Y-10)
         x = max( x, 10)
@@ -84,7 +84,8 @@ class Robot:
         # if y ended before x, wait for x to get to target
         # self.wall_x_motor.run_target(speed, x, Stop.HOLD, wait=True)
         # wait(3000)
-    
+        print("x = " + str(self.wall_x_motor.angle()) + ", y = " + str(self.wall_y_motor.angle()))
+        
     ######################## MEASURE WALL ###################################
     # ideally will be run only once to measure the angles of the wall extremes
     def measure_wall(self):
@@ -264,11 +265,12 @@ class Robot:
 
 ######################## PID FOLLOW RIGHT LINE UNTIL LEFT DETECT LINE ###################################
 
-    def pid_follow_right_line_until_left_detect_line(self, speed, lines_till_stop, Kp, white_is_right):
+    def pid_follow_right_line_until_left_detect_line(self, speed, lines_till_stop, Kp=1.3, white_is_right=True):
 
         "!!! NOT WORKING CODE !!!"
 
         self.robot.reset() 
+        self.gyro_sensor.reset_angle(0)
         # Calculate the light threshold. Choose values based on your measurements.
         #6,71
         BLACK = 6
@@ -291,6 +293,7 @@ class Robot:
         integral = 0
         derivative =0
         last_error = 0
+        speed = DRIVE_SPEED
 
         color_counter = 0
         last_color = 0
@@ -306,6 +309,9 @@ class Robot:
             turn_rate = PROPORTIONAL_GAIN * error + DERIVATIVE_GAIN * derivative + INTEGRAL_GAIN * integral
             if white_is_right:
                 turn_rate = turn_rate * -1
+            speed = DRIVE_SPEED
+            if last_color >= WHITE-5:
+                speed = speed * 0.2
             # Set the drive base speed and turn rate.
             self.robot.drive(DRIVE_SPEED, turn_rate)
             print("distance = " , self.robot.distance() , "  |  reflection = " , self.color_sensor_right.reflection() , "  |  error = " , error ,
@@ -315,13 +321,11 @@ class Robot:
             # You can wait for a short time or do other things in this loop.
             wait(5)            
 
-            if (self.color_sensor_left.reflection() <= 30 and last_color >= 60):
-                color_counter += 1
+            if (self.color_sensor_left.reflection() <= BLACK+5 and last_color >= WHITE-5):
+                color_counter = color_counter + 1
                 self.beep()
-                self.write("Line " + str(color_counter) + " Detected")
-
             last_color = self.color_sensor_left.reflection()
-            self.write("Color: " + str(last_color))
+            self.write("Clr: " + str(last_color) + " Ln: " + str(color_counter))
 
         #print(logger)    
         self.robot.stop()
@@ -381,7 +385,9 @@ class Robot:
 ######################## TURN ###################################
     def turn(self, angle, speed=100):
         self.gyro_sensor.reset_angle(0)
-        wait(500)
+        # 2022-02-05 Rotem was wait 500. Reduced to 10
+        wait(10)
+
 
         #פנייה ימינה - זווית פנייה חיובית
         if angle > 0:
