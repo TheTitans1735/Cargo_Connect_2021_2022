@@ -300,20 +300,50 @@ def take_container(port: int):
 def go_trucks2022_02_01():
 
     ilan.reset_wall() 
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 200)
-    ilan.wait_for_button("start", True)
-    ilan.pid_gyro(47.5, 300)
-    ilan.turn(90)
-    ilan.pid_gyro(43.5, 200)
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 50)
-    #ilan.pid_gyro(5, 150)
+    #move wall to wait for truck holder
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X -300, 350)
+    ilan.wait_for_button("place truck", True)
+    wait(200)
+    init_gyro = ilan.gyro_sensor.angle()
+    #gyro north
+    ilan.pid_gyro(52, 300)
+    current_gyro = ilan.gyro_sensor.angle()
+    ilan.turn(101)
+    #ilan.wait_for_button("Go east", True)
+    #gyro east
+    ilan.pid_gyro(32, 200)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X -300, 50)
+    ilan.pid_gyro(10, 100)
+    #lower wall and release it 
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X -300, 0)
+    #move wall left to be clear of truck
     ilan.reset_wall()
-    while ilan.color_sensor_right.color() != Color.BLACK:
-        ilan.right_motor.run(80)
-        ilan.left_motor.run(20)
-        wait(100)
-    ilan.right_motor.brake()
-    ilan.left_motor.brake()
+    # go forward in order to catch front truck
+    #ilan.pid_follow_line(ilan.color_sensor_right, 15, 150)
+    ilan.pid_gyro(13, 200)
+    # place wall behind cabing of front truck
+    ilan.move_wall_to_point( 0, 300)
+    ilan.move_wall_to_point( ilan.WALL_MAX_ANGLE_X, 300)
+    # push to bridge
+    ilan.turn(10)
+    ilan.pid_gyro(15, 100)
+    #ilan.pid_follow_line(ilan.color_sensor_right, 10, 150)
+    ilan.wait_for_button("go to bridge", True)
+    # lift wall to clear of trucks
+    ilan.move_wall_to_point( ilan.WALL_MAX_ANGLE_X, 400)
+    # move to second part of bridge
+    #ilan.pid_gyro(20, 200)
+    ilan.pid_follow_line(ilan.color_sensor_right, 20, 150)
+    # lift wall to pass second part of bridge
+    ilan.move_wall_to_point( ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y)
+    # move a bit forward to pass seconf part of bridge
+    #ilan.pid_gyro(10, 200)
+    ilan.pid_follow_line(ilan.color_sensor_right, 13, 150)
+    #lower wall to catch bridge part 2
+    ilan.move_wall_to_point( ilan.WALL_MAX_ANGLE_X, 400)
+    #go back to hit bridge part 2
+    ilan.pid_gyro(-10, 200)
+    ilan.wait_for_button("what's next?", True)
     ilan.pid_follow_line(ilan.color_sensor_right, 50, 150,Kp=1.7,Ki=0.02,Kd=0.08)
     ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 350)
     ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 350)
