@@ -116,10 +116,11 @@ def green_airplane_and_Containers():
     
     ilan.wait_for_button("10. start",True)
     wait(200)
-    sw.reset()
+    # sw.reset()
     
-    ilan.pid_gyro(25, 250)
-    ilan.pid_follow_line(ilan.color_sensor_right, 50, 100, 1.3, True)
+    ilan.pid_gyro(25, 600)
+    ilan.pid_follow_right_line_until_left_detect_line(3, 90)
+    ilan.pid_follow_line(ilan.color_sensor_right, 10, 80, 1.3, True)
     #turn engine over
     ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y)
     ilan.pid_gyro(24, Forward_Is_True=False)
@@ -400,8 +401,65 @@ def go_trucks2022_02_01():
     # wait(100)
     # ilan.pid_gyro(2000, 500)
 
+
+def go_trucks_2022_02_01():
+    ilan.gyro_sensor.reset_angle(0)
+
+    ilan.reset_wall() 
+    #move wall to wait for truck holder
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X -350, 350)
+    ilan.wait_for_button("place truck", True)
+    wait(200)
+    init_gyro = ilan.gyro_sensor.angle()
+    #gyro north
+    ilan.pid_gyro(55, 100)
+    current_gyro = ilan.gyro_sensor.angle()
+    ilan.turn(90)
+    #ilan.wait_for_button("Go east", True)
+    #gyro east
+    ilan.pid_gyro(32, 200)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X -350, 50)
+    ilan.pid_gyro(10, 100)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X -250, 50)
+    #lower wall and release it 
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X -250, 0)
+    #move wall left to be clear of truck
+    ilan.reset_wall()
+    # go forward in order to catch front truck
+    #ilan.pid_follow_line(ilan.color_sensor_right, 15, 150)
+    ilan.pid_gyro(13, 200)
+    # place wall behind cabing of front truck
+    ilan.move_wall_to_point( 0, 350)
+    ilan.move_wall_to_point( ilan.WALL_MAX_ANGLE_X, 350)
+    # push to bridge
+    ilan.turn(5)
+    ilan.pid_gyro(14, 100)
+    #ilan.pid_follow_line(ilan.color_sensor_right, 10, 150)
+    #5ilan.wait_for_button("go to bridge", True)
+    # lift wall to clear of trucks
+    ilan.move_wall_to_point( ilan.WALL_MAX_ANGLE_X, 450)
+    # move to second part of bridge
+    #ilan.pid_gyro(20, 200)
+    ilan.pid_follow_line(ilan.color_sensor_right, 20, 150)
+    # lift wall to pass second part of bridge
+    ilan.move_wall_to_point( ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y)
+    # move a bit forward to pass seconf part of bridge
+    #ilan.pid_gyro(10, 200)
+    ilan.pid_follow_line(ilan.color_sensor_right, 13, 150)
+    #lower wall to catch bridge part 2
+    ilan.move_wall_to_point( ilan.WALL_MAX_ANGLE_X, 400)
+    #go back to hit bridge part 2
+    ilan.pid_gyro(10, 200,False)
+    ilan.wait_for_button("what's next?", True)
+    
+    ilan.pid_follow_line(ilan.color_sensor_right, 50, 150,Kp=1.7,Ki=0.02,Kd=0.08)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 350)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 350)
+    ilan.pid_follow_line(ilan.color_sensor_right, 20, 150,Ki=0.06)
+
+
 def running ():
-    ilan.write("Container L | Wing C | __ R")
+    ilan.write("Container L | Wing C | Green AP R")
     while True:
 
         # מחכה ללחיצת כפתור
@@ -424,22 +482,16 @@ def running ():
             return
 
         elif Button.RIGHT in ilan.ev3.buttons.pressed():
-            ilan.write("No Run")
-            
-            # return
+            ilan.write("Green Airplane & Containers")
+            green_airplane_and_Containers()
 
-        
-
+            return
 
 
-sw = StopWatch()
 
 # ilan.pid_follow_line(ilan.color_sensor_right, 98, 130, 1.355, True)
-ilan.reset_wall()
-ilan.move_wall_to_point(500, 500)
-ilan.pid_gyro(25, 150, True)
-ilan.pid_follow_right_line_until_left_detect_line(50, 3, 1.3)
-# green_airplane_and_Containers()
-# green_airplain_and_Containers_old()
-print("Run time[s] " + str(sw.time()/1000))
-
+# running()
+# ilan.pid_gyro(30)
+# ilan.pid_follow_right_line_until_left_detect_line(6, 90)
+green_airplane_and_Containers()
+# ilan.pid_gyro(200, 200)

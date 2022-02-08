@@ -41,3 +41,7 @@ ilan = Robot()
 # ilan.right_motor.brake()
 # ilan.left_motor.brake()
 
+# while True:
+    # ilan.robot.drive(100, 0)
+    # wait(10)
+

@@ -166,9 +166,57 @@ class Robot:
 
 ######################## PID FOLLOW LINE ###################################
 
-    def pid_follow_line(self, line_sensor, distance, speed, Kp = 1.3, Ki = 0.01, Kd = 0.07, white_is_right = True):
+    def pid_follow_line(self,line_sensor, distance, speed, Kp, white_is_right):
+        self.robot.reset() 
+        # Calculate the light threshold. Choose values based on your measurements.
+        #6,71
+        BLACK = 6
+        WHITE = 71
+        threshold = (BLACK + WHITE) / 2
+        self.robot.reset()
+        #logger = DataLog('error', 'integral','derivative','turn_rate')
+        # Set the drive speed at 100 millimeters per second.
+        DRIVE_SPEED = speed
 
-        "!!! NOT WORKING CODE !!!"
+        # Set the gain of the proportional line controller. This means that for every
+        # percentage point of light deviating from the threshold, we set the turn
+        # rate of the drivebase to 1.2 degrees per second.
+
+        # For example, if the light value deviates from the threshold by 10, the robot
+        # steers at 10*1.2 = 12 degrees per second.
+        PROPORTIONAL_GAIN = Kp
+        DERIVATIVE_GAIN = 0.06
+        INTEGRAL_GAIN = 0.007
+        integral = 0
+        derivative =0
+        last_error = 0
+
+        
+        # Start following the line endlessly.
+        #while True:
+        while (self.robot.distance() < distance*10):
+            # Calculate the deviation from the threshold.
+            error = line_sensor.reflection() - threshold
+            integral = integral + error
+            derivative = error - last_error
+            
+            # Calculate the turn rate.
+            turn_rate = PROPORTIONAL_GAIN * error + DERIVATIVE_GAIN * derivative + INTEGRAL_GAIN * integral
+            if white_is_right:
+                turn_rate = turn_rate * -1
+            # Set the drive base speed and turn rate.
+            self.robot.drive(DRIVE_SPEED, turn_rate)
+            print("distance = " , self.robot.distance() , " reflection = " , line_sensor.reflection() , " error = " , error ,
+                " integral = " , integral , " derivative = " , derivative , " turn_rate = " , turn_rate)
+            last_error = error
+            # You can wait for a short time or do other things in this loop.
+            wait(10)
+        #print(logger)    
+        self.robot.stop()
+
+
+        "!!! END OF NOT WORKING CODE !!!"
+
         # self.robot.reset() 
         # # Calculate the light threshold. Choose values based on your measurements.
         # #6,71
@@ -179,20 +227,17 @@ class Robot:
         # #logger = DataLog('error', 'integral','derivative','turn_rate')
         # # Set the drive speed at 100 millimeters per second.
         # DRIVE_SPEED = speed
-
         # # Set the gain of the proportional line controller. This means that for every
         # # percentage point of light deviating from the threshold, we set the turn
         # # rate of the drivebase to 1.2 degrees per second.
-
         # # For example, if the light value deviates from the threshold by 10, the robot
         # # steers at 10*1.2 = 12 degrees per second.
         # PROPORTIONAL_GAIN = Kp
-        # DERIVATIVE_GAIN = Kd
-        # INTEGRAL_GAIN = Ki
+        # DERIVATIVE_GAIN = 0.07
+        # INTEGRAL_GAIN = 0.01
         # integral = 0
         # derivative =0
         # last_error = 0
-
         
         # # Start following the line endlessly.
         # #while True:
@@ -208,23 +253,23 @@ class Robot:
         #         turn_rate = turn_rate * -1
         #     # Set the drive base speed and turn rate.
         #     self.robot.drive(DRIVE_SPEED, turn_rate)
-        #     print("distance = " , self.robot.distance() , "  |  reflection = " , line_sensor.reflection() , "  |  error = " , error ,
-        #         "  |  integral = " , integral , "  |  derivative = " , derivative , "  |  turn_rate = " , turn_rate, "  |  gyro = ", self.gyro_sensor.angle())
+        #     print("distance = " , self.robot.distance() , " reflection = " , line_sensor.reflection() , " error = " , error ,
+        #         " integral = " , integral , " derivative = " , derivative , " turn_rate = " , turn_rate)
         #     last_error = error
         #     # You can wait for a short time or do other things in this loop.
         #     wait(10)
         # #print(logger)    
         # self.robot.stop()
 
-        "!!! END OF NOT WORKING CODE !!!"
 
+    def pid_follow_line_2022_02_08(self, distance, speed, line_sensor, stop_condition = lambda: False, Kp = 1.3 , white_is_right = True):
         self.robot.reset() 
         # Calculate the light threshold. Choose values based on your measurements.
         #6,71
         BLACK = 6
         WHITE = 71
         threshold = (BLACK + WHITE) / 2
-        self.robot.reset()
+        #self.robot.reset()
         #logger = DataLog('error', 'integral','derivative','turn_rate')
         # Set the drive speed at 100 millimeters per second.
         DRIVE_SPEED = speed
@@ -254,128 +299,40 @@ class Robot:
                 turn_rate = turn_rate * -1
             # Set the drive base speed and turn rate.
             self.robot.drive(DRIVE_SPEED, turn_rate)
-            print("distance = " , self.robot.distance() , " reflection = " , line_sensor.reflection() , " error = " , error ,
-                " integral = " , integral , " derivative = " , derivative , " turn_rate = " , turn_rate)
+            print("distance = " , self.robot.distance() , "  |  reflection = " , line_sensor.reflection() , "  |  error = " , error ,
+                "  |  integral = " , integral , "  |  derivative = " , derivative , "  |  turn_rate = " , turn_rate, "  |  gyro = ", self.gyro_sensor.angle())
             last_error = error
+
+            # עוצר במקרה שזיהה תנאי עצירה
+            if stop_condition():
+                break
+
             # You can wait for a short time or do other things in this loop.
             wait(10)
+            
         #print(logger)    
         self.robot.stop()
 
 
 ######################## PID FOLLOW RIGHT LINE UNTIL LEFT DETECT LINE ###################################
 
-    def pid_follow_right_line_until_left_detect_line(self, speed, lines_till_stop, Kp=1.3, white_is_right=True):
-
-        "!!! NOT WORKING CODE !!!"
-
-        self.robot.reset() 
-        self.gyro_sensor.reset_angle(0)
-        # Calculate the light threshold. Choose values based on your measurements.
-        #6,71
-        BLACK = 6
-        WHITE = 71
-        threshold = (BLACK + WHITE) / 2
-        self.robot.reset()
-        #logger = DataLog('error', 'integral','derivative','turn_rate')
-        # Set the drive speed at 100 millimeters per second.
-        DRIVE_SPEED = speed
-
-        # Set the gain of the proportional line controller. This means that for every
-        # percentage point of light deviating from the threshold, we set the turn
-        # rate of the drivebase to 1.2 degrees per second.
-
-        # For example, if the light value deviates from the threshold by 10, the robot
-        # steers at 10*1.2 = 12 degrees per second.
-        PROPORTIONAL_GAIN = Kp
-        DERIVATIVE_GAIN = 0.07
-        INTEGRAL_GAIN = 0.01
-        integral = 0
-        derivative =0
-        last_error = 0
-        speed = DRIVE_SPEED
-
-        color_counter = 0
-        last_color = 0
-        # Start following the line endlessly.
-        #while True:
-        while (color_counter < lines_till_stop):
-            # Calculate the deviation from the threshold.
-            error = self.color_sensor_right.reflection() - threshold
-            integral = integral + error
-            derivative = error - last_error
-            
-            # Calculate the turn rate.
-            turn_rate = PROPORTIONAL_GAIN * error + DERIVATIVE_GAIN * derivative + INTEGRAL_GAIN * integral
-            if white_is_right:
-                turn_rate = turn_rate * -1
-            speed = DRIVE_SPEED
-            if last_color >= WHITE-5:
-                speed = speed * 0.2
-            # Set the drive base speed and turn rate.
-            self.robot.drive(DRIVE_SPEED, turn_rate)
-            print("distance = " , self.robot.distance() , "  |  reflection = " , self.color_sensor_right.reflection() , "  |  error = " , error ,
-                "  |  integral = " , integral , "  |  derivative = " , derivative , "  |  turn_rate = " , turn_rate, 
-                "  |  gyro = ", self.gyro_sensor.angle(), " | rcolor = ", str(self.color_sensor_left.reflection()))
-            last_error = error
-            # You can wait for a short time or do other things in this loop.
-            wait(5)            
-
-            if (self.color_sensor_left.reflection() <= BLACK+5 and last_color >= WHITE-5):
-                color_counter = color_counter + 1
-                self.beep()
-            last_color = self.color_sensor_left.reflection()
-            self.write("Clr: " + str(last_color) + " Ln: " + str(color_counter))
-
-        #print(logger)    
-        self.robot.stop()
-
-        "!!! END OF NOT WORKING CODE !!!"
-
-        self.robot.reset() 
-        # Calculate the light threshold. Choose values based on your measurements.
-        #6,71
-        BLACK = 6
-        WHITE = 71
-        threshold = (BLACK + WHITE) / 2
-        self.robot.reset()
-        #logger = DataLog('error', 'integral','derivative','turn_rate')
-        # Set the drive speed at 100 millimeters per second.
-        DRIVE_SPEED = speed
-        # Set the gain of the proportional line controller. This means that for every
-        # percentage point of light deviating from the threshold, we set the turn
-        # rate of the drivebase to 1.2 degrees per second.
-        # For example, if the light value deviates from the threshold by 10, the robot
-        # steers at 10*1.2 = 12 degrees per second.
-        PROPORTIONAL_GAIN = Kp
-        DERIVATIVE_GAIN = 0.07
-        INTEGRAL_GAIN = 0.01
-        integral = 0
-        derivative =0
-        last_error = 0
+    def pid_follow_right_line_until_left_detect_line(self, lines_till_stop = 1, speed = 90, kp = 1.3):
         
-        # Start following the line endlessly.
-        #while True:
-        while (abs(self.robot.distance()) < distance*10):
-            # Calculate the deviation from the threshold.
-            error = line_sensor.reflection() - threshold
-            integral = integral + error
-            derivative = error - last_error
-            
-            # Calculate the turn rate.
-            turn_rate = PROPORTIONAL_GAIN * error + DERIVATIVE_GAIN * derivative + INTEGRAL_GAIN * integral
-            if white_is_right:
-                turn_rate = turn_rate * -1
-            # Set the drive base speed and turn rate.
-            self.robot.drive(DRIVE_SPEED, turn_rate)
-            print("distance = " , self.robot.distance() , " reflection = " , line_sensor.reflection() , " error = " , error ,
-                " integral = " , integral , " derivative = " , derivative , " turn_rate = " , turn_rate)
-            last_error = error
-            # You can wait for a short time or do other things in this loop.
-            wait(10)
-        #print(logger)    
-        self.robot.stop()
+        # מגדיר את תנאי העצירה
+        stop_on_white = lambda : self.color_sensor_left.color() == Color.WHITE
+        stop_on_black = lambda : self.color_sensor_left.color() == Color.BLACK
 
+        # מוצא קווים ככמות הפרמטר
+        for i in range (0, lines_till_stop):
+            
+            if (i > 0):
+                self.pid_follow_line_2022_02_08(10, speed, self.color_sensor_right, Kp=kp)
+                
+            self.pid_follow_line_2022_02_08(150, speed, self.color_sensor_right, stop_on_white, kp, True)
+            self.beep()
+            self.pid_follow_line_2022_02_08(2, 40, self.color_sensor_right, stop_on_black, kp, True)
+            self.beep()
+            
 
 
 
