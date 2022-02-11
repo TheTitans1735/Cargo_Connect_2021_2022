@@ -19,6 +19,7 @@ class Robot:
 
         self.color_sensor_left = ColorSensor(Port.S2)
         self.color_sensor_right = ColorSensor(Port.S1)
+    
         self.gyro_sensor= GyroSensor(Port.S3)
         self.wall_x_motor = Motor(Port.D) 
         self.wall_y_motor = Motor(Port.A,Direction.COUNTERCLOCKWISE) 
@@ -31,7 +32,10 @@ class Robot:
 
         ######################## RESET WALL ###################################
     def reset_wall(self):
+
+        """"מאפס את הקיר לצד שמאל למטה"""
         speed_x = -800
+
         speed_y = -1200
         # if upper_right:
         #     speed_x = -1 * speed_x
@@ -48,7 +52,10 @@ class Robot:
 
     ######################### MOVE WALL #################################
     def reset_wall_bottom_right(self):
+
+        """"מאפס את הקיר לצג ימין למטה"""
         speed_x = 800
+
         speed_y = -1200
         # if upper_right:
         #     speed_x = -1 * speed_x
@@ -89,6 +96,9 @@ class Robot:
     ######################## MEASURE WALL ###################################
     # ideally will be run only once to measure the angles of the wall extremes
     def measure_wall(self):
+
+        """"פונקציה שבעזרתה בדקנו מה האיקס והוואי של הקיר בפינות"""
+
         self.reset_wall()
         max_x = self.wall_x_motor.run_until_stalled(800,Stop.HOLD, duty_limit=20)
         max_y = self.wall_y_motor.run_until_stalled(800,Stop.HOLD, duty_limit=1)
@@ -98,12 +108,18 @@ class Robot:
 
     ######################## WRITE ON SCREEN ###################################
     def write(self, my_text):
+
+        """"גם מדפיס על המחשב וגם על הרובט"""
+
         self.ev3.screen.clear()
         self.ev3.screen.draw_text(1, 1, my_text, text_color=Color.BLACK, background_color=None)
         print(my_text)
 
     ###################### WRITE ON EV3 SCREEN WITH WRAP########################
     def write2(self, my_text):
+
+        """"פונקציה יותר משוכללת של הפונקציה הקודמת"""
+
         self.ev3.screen.clear()
         current_line = ""
         current_y=1
@@ -117,15 +133,25 @@ class Robot:
         print(my_text)
     
     def beep(self):
+
+        """"אילן עושה ביפ"""
+
         self.ev3.speaker.beep()
 
     
     def say(self, text, voice='m1', volume=100):
+
+        """"אילן אומר את הטקסט.
+        ניתן לשלוט על הווליום ואפילו לשנות את המבטא של אילן."""
+
         self.ev3.speaker.set_volume(volume)
         self.ev3.speaker.set_speech_options(voice)
         self.ev3.speaker.say(text)
 
-    def pid_gyro(self,Td, Ts = 150, Forward_Is_True = True, Kp = 3, Ki= 0.025, Kd = 3):
+
+    # ------------------ PID Gyro ------------------ 
+
+    def pid_gyro(self,Td, Ts = 150, Forward_Is_True = True, Kp = 3.06, Ki= 0.027, Kd = 3.02):
         direction_indicator = -1
         speed_indicator = -1       #משתנה שנועד כדי לכפול אותו במהירות ובתיקון השגיאה כדי שנוכל לנסוע אחורה במידת הצורך          
         if Forward_Is_True:             #אם נוסעים קדימה - תכפול באחד. אחורה - תכפול במינוס אחד
@@ -164,9 +190,9 @@ class Robot:
         self.robot.stop()
 
 
-######################## PID FOLLOW LINE ###################################
+    # ------------------ PID Follow Line ------------------ 
 
-    def pid_follow_line(self,line_sensor, distance, speed, Kp, white_is_right):
+    def pid_follow_line(self,line_sensor, distance, speed, Kp=1.3, white_is_right=True, Ki=0.007, Kd=0.06):
         self.robot.reset() 
         # Calculate the light threshold. Choose values based on your measurements.
         #6,71
@@ -185,8 +211,8 @@ class Robot:
         # For example, if the light value deviates from the threshold by 10, the robot
         # steers at 10*1.2 = 12 degrees per second.
         PROPORTIONAL_GAIN = Kp
-        DERIVATIVE_GAIN = 0.06
-        INTEGRAL_GAIN = 0.007
+        DERIVATIVE_GAIN = Kd
+        INTEGRAL_GAIN = Ki
         integral = 0
         derivative =0
         last_error = 0
@@ -214,8 +240,6 @@ class Robot:
         #print(logger)    
         self.robot.stop()
 
-
-        "!!! END OF NOT WORKING CODE !!!"
 
         # self.robot.reset() 
         # # Calculate the light threshold. Choose values based on your measurements.
@@ -261,6 +285,8 @@ class Robot:
         # #print(logger)    
         # self.robot.stop()
 
+
+    # ------------------ New PID Follow Line ------------------
 
     def pid_follow_line_2022_02_08(self, distance, speed, line_sensor, stop_condition = lambda: False, Kp = 1.3 , white_is_right = True):
         self.robot.reset() 
@@ -329,9 +355,8 @@ class Robot:
                 self.pid_follow_line_2022_02_08(10, speed, self.color_sensor_right, Kp=kp)
                 
             self.pid_follow_line_2022_02_08(150, speed, self.color_sensor_right, stop_on_white, kp, True)
-            self.beep()
-            self.pid_follow_line_2022_02_08(2, 40, self.color_sensor_right, stop_on_black, kp, True)
-            self.beep()
+            self.pid_follow_line_2022_02_08(1, speed, self.color_sensor_right, Kp=kp)
+            self.pid_follow_line_2022_02_08(5, 40, self.color_sensor_right, stop_on_black, kp, True)
             
 
 
