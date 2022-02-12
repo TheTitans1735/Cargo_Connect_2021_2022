@@ -106,31 +106,17 @@ class Robot:
         self.wall_y_motor.stop()
         self.wall_x_motor.stop()
 
-    ######################## WRITE ON SCREEN ###################################
-    def write(self, my_text):
-
-        """"גם מדפיס על המחשב וגם על הרובט"""
-
-        self.ev3.screen.clear()
-        self.ev3.screen.draw_text(1, 1, my_text, text_color=Color.BLACK, background_color=None)
-        print(my_text)
 
     ###################### WRITE ON EV3 SCREEN WITH WRAP########################
-    def write2(self, my_text):
-
-        """"פונקציה יותר משוכללת של הפונקציה הקודמת"""
-
+    def write(self, my_text):
+        " מדפיס טקסט נתון במחשב ועל מסך הרובוט "
         self.ev3.screen.clear()
-        current_line = ""
-        current_y=1
-        for elem in my_text:
-            if ev3dev.Font.DEFAULT.text_width(current_line + " ") > self.ev3.screen.width:   
-                #we need to write this line
-                self.ev3.screen.draw_text(current_y, 1, current_line, text_color=Color.BLACK, background_color=None)        
-                current_line = ""
-                current_y = current_y + ev3dev.Font.DEFAULT.text_height(my_text) + 1
-            current_line = current_line + elem
+
         print(my_text)
+        
+        lines = my_text.split("\n")
+        for i in range(0, len(lines)):
+            self.ev3.screen.draw_text(1, i * 20, lines[i], text_color = Color.BLACK, background_color=None)
     
     def beep(self):
 
@@ -251,7 +237,7 @@ class Robot:
                     right_sensor_flag = True
                     target_reflection = self.color_sensor_right.reflection()
                     self.right_motor.brake()
-                    
+
                 elif self.color_sensor_left.color() == color:
                     left_sensor_flag = True
                     target_reflection = self.color_sensor_left.reflection()
