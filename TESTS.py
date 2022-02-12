@@ -45,3 +45,7 @@ ilan = Robot()
     # ilan.robot.drive(100, 0)
     # wait(10)
 
+ilan.wait_for_button("straighten forward black")
+ilan.straighten_on_color(50)
+ilan.wait_for_button("straighten backward black")
+ilan.straighten_on_color(50, False,)
