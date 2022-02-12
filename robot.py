@@ -190,6 +190,62 @@ class Robot:
         self.robot.stop()
 
 
+    # ------------------ Straight on line ------------------
+
+    def straight_on_line(self,Td, Ts = 150, Forward_Is_True = True, Kp = 3.06, Ki= 0.027, Kd = 3.02):
+
+        BLACK = 6
+        WHITE = 71
+
+        direction_indicator = -1
+        speed_indicator = -1       #משתנה שנועד כדי לכפול אותו במהירות ובתיקון השגיאה כדי שנוכל לנסוע אחורה במידת הצורך          
+        if Forward_Is_True:             #אם נוסעים קדימה - תכפול באחד. אחורה - תכפול במינוס אחד
+            direction_indicator = -1
+            speed_indicator = 1   
+        self.robot.reset() 
+        self.gyro_sensor.reset_angle(0)
+
+        #Td = 1000 # target distance
+        #Ts = 150 # target speed of robot in mm/s
+        #Kp = 3 #  the Constant 'K' for the 'p' proportional controller
+
+        integral = 0 # initialize
+        #Ki = 0.025 #  the Constant 'K' for the 'i' integral term
+
+        derivative = 0 # initialize
+        lastError = 0 # initialize
+        #Kd = 3 #  the Constant 'K' for the 'd' derivative term
+        #print(robot.distance())
+
+        right_sensor_flag = False
+        left_sensor_flag = False        
+        while (abs(self.robot.distance()) < Td*10):
+
+            error = self.gyro_sensor.angle() # proportional 
+            print("distance: " + str(self.robot.distance()) + " gyro: " + str(self.gyro_sensor.angle()))
+            if (error == 0):
+                integral = 0
+            else:
+                integral = integral + error    
+            derivative = error - lastError  
+        
+            correction = (Kp*(error) + Ki*(integral) + Kd*derivative) * -1
+        
+            self.robot.drive(Ts * speed_indicator , correction * direction_indicator * -1) 
+
+            lastError = error  
+            
+            if self.color_sensor_right.reflection() == WHITE:
+                right_sensor_flag = True
+
+            if self.color_sensor_left.reflection() == WHITE:
+                left_sensor_flag = True
+        
+            #print("error " + str(error) + "; integral " + str(integral) + "; correction " + str(correction)  )    
+            
+        self.robot.stop()
+
+
     # ------------------ PID Follow Line ------------------ 
 
     def pid_follow_line(self,line_sensor, distance, speed, Kp=1.3, white_is_right=True, Ki=0.007, Kd=0.06):
@@ -288,7 +344,7 @@ class Robot:
 
     # ------------------ New PID Follow Line ------------------
 
-    def pid_follow_line_2022_02_08(self, distance, speed, line_sensor, stop_condition = lambda: False, Kp = 1.3 , white_is_right = True):
+    def pid_follow_line_2022_02_08(self, distance, speed, line_sensor, stop_condition = lambda: False, Kp = 1.31 , white_is_right = True, Kd=0.07):
         self.robot.reset() 
         # Calculate the light threshold. Choose values based on your measurements.
         #6,71
@@ -305,7 +361,7 @@ class Robot:
         # For example, if the light value deviates from the threshold by 10, the robot
         # steers at 10*1.2 = 12 degrees per second.
         PROPORTIONAL_GAIN = Kp
-        DERIVATIVE_GAIN = 0.07
+        DERIVATIVE_GAIN = Kd
         INTEGRAL_GAIN = 0.01
         integral = 0
         derivative =0
