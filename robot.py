@@ -420,4 +420,14 @@ class Robot:
         self.right_motor.brake()
         self.left_motor.brake()
         # self.robot.stop()
-        print("Gyro angle:" + str(self.gyro_sensor.angle())) 
+        print("Gyro angle:" + str(self.gyro_sensor.angle()))
+
+
+    # def turn_till_color(self, color_sensor, color, turn_right = True, speed = 100):
+    #     if turn_right == False:
+    #         speed = speed * -1
+
+    #     self.left_motor.run(speed)
+    #     self.left_motor.run(speed * -1)
+
+    #     while color_sensor.

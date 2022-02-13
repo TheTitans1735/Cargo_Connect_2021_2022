@@ -304,11 +304,30 @@ def crane_run():
     ilan.wait_for_button("Go to crane", my_debug)
     ilan.pid_follow_line(20, 100, ilan.color_sensor_right)
 
-    # go back to the mission
-    ilan.wait_for_button("Go back to mission", my_debug)
-    ilan.pid_gyro(1, 90, False)
+    # # go back to the mission
+    # ilan.wait_for_button("Go back to mission", my_debug)
+    # ilan.pid_gyro(1, 90, False)
+    # ilan.turn(-90)
+    # ilan.wait_for_button("Go a little back, True")
+    # ilan.pid_gyro(0.8, 90, False)
+
+    ilan.pid_gyro(4, 150, False)
+    # while ilan.color_sensor_right.reflection() > 8:
+    #     ilan.robot.drive(-100, ilan.gyro_sensor.angle()*-1)
+    # ilan.robot.stop()
+
+    ilan.wait_for_button("Go back until black line", my_debug)
+    while ilan.color_sensor_left.reflection() > 8:
+        ilan.robot.drive(-120, ilan.gyro_sensor.angle()*-1)
+    ilan.robot.stop()
+
+    ilan.wait_for_button("Go forward", my_debug)
+    ilan.pid_gyro(18)
+
+    ilan.wait_for_button("Turn to mission", my_debug)
     ilan.turn(-90)
-    ilan.pid_gyro(0.8, 90, False)
+
+
 
     # move wall back, place containers
     ilan.wait_for_button("place containers", my_debug)
@@ -329,7 +348,7 @@ TEXT_MENU = """Choose Run:
   O - Crane run 
   V - East run far 
   ^ - East run far"""
-  
+
 def running ():
     while True:
 
