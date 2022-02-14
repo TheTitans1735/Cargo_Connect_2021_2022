@@ -53,26 +53,34 @@ ilan = Robot()
 
 # 2022-13-02 - test go helicopter from containers
 
-ilan.wait_for_button("straighten backward black",debug=False)
-#ilan.pid_gyro(50,Forward_Is_True=False)
-while ilan.color_sensor_right.reflection() > 8:
-    ilan.robot.drive(-120, ilan.gyro_sensor.angle()*-1)
+# ilan.wait_for_button("straighten backward black",debug=False)
+# #ilan.pid_gyro(50,Forward_Is_True=False)
+# while ilan.color_sensor_right.reflection() > 8:
+#     ilan.robot.drive(-120, ilan.gyro_sensor.angle()*-1)
+# ilan.robot.stop()
+
+# while ilan.color_sensor_left.reflection() < 70:
+#     ilan.left_motor.run(80)
+#     ilan.right_motor.run(-80)
+# ilan.robot.stop()
+
+# ilan.pid_gyro(23,Forward_Is_True=False)
+# wait(200)
+# ilan.pid_gyro(15)
+
+# while ilan.color_sensor_left.reflection() > 8:
+#     ilan.left_motor.run(80)
+#     ilan.right_motor.run(-80)
+# ilan.robot.stop()
+
+# ilan.turn(-2)
+
+# ilan.pid_follow_line(30, 150, ilan.color_sensor_left, white_is_right = False)
+
+while ilan.color_sensor_right.color() != Color.BLACK:
+    ilan.robot.drive(120, ilan.gyro_sensor.angle()*-1)
+
 ilan.robot.stop()
 
-while ilan.color_sensor_left.reflection() < 70:
-    ilan.left_motor.run(80)
-    ilan.right_motor.run(-80)
-ilan.robot.stop()
-
-ilan.pid_gyro(23,Forward_Is_True=False)
-wait(200)
-ilan.pid_gyro(15)
-
-while ilan.color_sensor_left.reflection() > 8:
-    ilan.left_motor.run(80)
-    ilan.right_motor.run(-80)
-ilan.robot.stop()
-
-ilan.turn(-2)
-
-ilan.pid_follow_line(30, 150, ilan.color_sensor_left, white_is_right = False)
+ilan.wait_for_button("drive")
+ilan.pid_gyro(0.5, 50)

@@ -1,3 +1,4 @@
+
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import (Motor, ColorSensor,GyroSensor)
 from pybricks.parameters import Port, Stop, Direction, Button, Color
@@ -31,9 +32,32 @@ class Robot:
         #max x= -1445 max y= -1365
 
         ######################## RESET WALL ###################################
+
+    def check_gyro(self):
+        """
+        פונקציה לבדיקה האם הגיירו מאופס, אם לא משמיע אזעקה עד שהוא מאופס.
+        """
+    
+        try:
+            current_gyro = self.gyro_sensor.angle()
+            wait(500)
+            while current_gyro != self.gyro_sensor.angle():
+                for _ in range(3):
+                    self.ev3.speaker.play_file("GENERAL_ALERT.wav")
+                    wait(10)
+                wait(10)
+        except:
+            self.ev3.speaker.play_file("GENERAL_ALERT.wav")
+            wait(10)
+        
+            
+            
+        return True
+    
     def reset_wall(self):
 
         """"מאפס את הקיר לצד שמאל למטה"""
+        #self.check_gyro()
         speed_x = -800
 
         speed_y = -1200
@@ -57,6 +81,7 @@ class Robot:
         speed_x = 800
 
         speed_y = -1200
+        #self.check_gyro()
         # if upper_right:
         #     speed_x = -1 * speed_x
         #     speed_y = -1 * speed_y
@@ -420,7 +445,7 @@ class Robot:
         self.right_motor.brake()
         self.left_motor.brake()
         # self.robot.stop()
-        print("Gyro angle:" + str(self.gyro_sensor.angle()))
+        # print("Gyro angle:" + str(self.gyro_sensor.angle()))
 
 
     # def turn_till_color(self, color_sensor, color, turn_right = True, speed = 100):

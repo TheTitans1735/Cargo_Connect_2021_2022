@@ -19,7 +19,7 @@ def green_airplane_and_Containers():
     #wait(2000)
     ilan.pid_follow_right_line_until_left_detect_line(3)
     
-    ilan.pid_follow_line(ilan.color_sensor_right, 5, 80, 1.3, True)
+    ilan.pid_follow_line(5, 80, ilan.color_sensor_right, Kp=1.3, white_is_right = True)
     #turn engine over
     ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y - 50)
     ilan.pid_gyro(27, Forward_Is_True=False)
@@ -304,42 +304,54 @@ def crane_run():
     ilan.wait_for_button("Go to crane", my_debug)
     ilan.pid_follow_line(20, 100, ilan.color_sensor_right)
 
-    # # go back to the mission
-    # ilan.wait_for_button("Go back to mission", my_debug)
-    # ilan.pid_gyro(1, 90, False)
-    # ilan.turn(-90)
-    # ilan.wait_for_button("Go a little back, True")
-    # ilan.pid_gyro(0.8, 90, False)
-
+    # get away from crane
     ilan.pid_gyro(4, 150, False)
-    # while ilan.color_sensor_right.reflection() > 8:
-    #     ilan.robot.drive(-100, ilan.gyro_sensor.angle()*-1)
-    # ilan.robot.stop()
 
+    # straighten on black line
     ilan.wait_for_button("Go back until black line", my_debug)
     while ilan.color_sensor_left.reflection() > 8:
         ilan.robot.drive(-120, ilan.gyro_sensor.angle()*-1)
     ilan.robot.stop()
 
+    wait(500)
+    
+    # go to containers mission
     ilan.wait_for_button("Go forward", my_debug)
     ilan.pid_gyro(18)
 
     ilan.wait_for_button("Turn to mission", my_debug)
     ilan.turn(-90)
 
+    # move back so wall doesn't clash with mission
+    ilan.pid_gyro(0.5, 60, False)
 
 
-    # move wall back, place containers
+    # move wall to place containers
     ilan.wait_for_button("place containers", my_debug)
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y / 2 -110)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y / 2 -110) # move wall right & down
 
-    # clear wall of containers
+    # clear arm of containers
     ilan.wait_for_button("Clear of containers", my_debug)
     ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y / 2) # wall max left
 
-    # drive backwards
+    # drive backwards from mission
     ilan.wait_for_button("Drive Gyro backwards", my_debug)
-    ilan.pid_gyro(22, 90, False)
+    ilan.pid_gyro(10, 90, False)
+
+    # 
+    ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y)
+    ilan.turn(-45)
+    ilan.pid_gyro(35, 150)
+    ilan.turn(-45)
+
+    ilan.gyro_sensor.reset_angle(0)
+    while ilan.color_sensor_right.color() != Color.BLACK:
+        ilan.robot.drive(120, ilan.gyro_sensor.angle()*-1)
+
+    ilan.robot.stop()
+
+    ilan.wait_for_button("gently knock down yellow", my_debug)
+    ilan.pid_gyro(1, 50)
 
 
 TEXT_MENU = """Choose Run: 
@@ -351,9 +363,9 @@ TEXT_MENU = """Choose Run:
 
 def running ():
     while True:
-
+        
         ilan.write(TEXT_MENU)
-
+        sw = StopWatch()
         # מחכה ללחיצת כפתור
         while not any(ilan.ev3.buttons.pressed()):
             wait(10)
@@ -363,30 +375,144 @@ def running ():
         # כפתור שמאלי - ראן לקיחת מכולות
         if Button.LEFT in ilan.ev3.buttons.pressed():
             ilan.write("wing Run")
+            sw.reset()
             wing_run()
-
+            sum_time = sw.time() + sum_time
+            print("!!!TIMER --- Current, Sum!!!")
+            print(sw.time(), sum_time)
         elif Button.RIGHT in ilan.ev3.buttons.pressed():
             ilan.write("Green Airplane & Containers")
+            sw.reset()
             green_airplane_and_Containers()
+            sum_time = sw.time() + sum_time
+            print("!!!TIMER --- Current, Sum!!!")
+            print(sw.time(), sum_time)
 
         elif Button.DOWN in ilan.ev3.buttons.pressed():
             ilan.write("East run close")
+            sw.reset()
             east_run(True)
+            sum_time = sw.time() + sum_time
+            print("!!!TIMER --- Current, Sum!!!")
+            print(sw.time(), sum_time)
 
         elif Button.UP in ilan.ev3.buttons.pressed():
             ilan.write("East run far")
+            sw.reset()
             east_run(False)
+            sum_time = sw.time() + sum_time
+            print("!!!TIMER --- Current, Sum!!!")
+            print(sw.time(), sum_time)
 
         elif Button.CENTER in ilan.ev3.buttons.pressed():
             ilan.write("Crane run")
+            sw.reset()
             crane_run()
+            sum_time = sw.time() + sum_time
+            print("!!!TIMER --- Current, Sum!!!")
+            print(sw.time(), sum_time)
+
+def go_trucks_14_02_2022_meshopar():
+    ilan.gyro_sensor.reset_angle(0)
+    ilan.reset_wall() 
+    my_debug = True
+
+    #move wall to wait for truck holder
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X -250, 350)
+    ilan.wait_for_button("place truck", True)
+    wait(200)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X -350, 350)
+    init_gyro = ilan.gyro_sensor.angle()
+
+    #gyro north
+    ilan.wait_for_button("Go north with gyro", my_debug)
+    ilan.pid_gyro(55.6, 150)
+    current_gyro = ilan.gyro_sensor.angle()
+    ilan.turn(90)
+    #ilan.wait_for_button("Go east", True)
+
+    #gyro east
+    ilan.wait_for_button("Go east with gyro", my_debug)
+    ilan.pid_gyro(32 - 11, 200)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X -350, 50)
+    ilan.pid_gyro(10, 100)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X -250, 50)
+
+    #lower wall and release it 
+    ilan.wait_for_button("Release truck", False)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X -250, 0)
+
+    #move wall left to be clear of truck
+    ilan.wait_for_button("Clear of truck", my_debug)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2 - 100, 0)
+    
+    # go forward in order to catch front truck
+    ilan.wait_for_button("Catch front truck", my_debug)
+    ilan.pid_gyro(11, 200)
+    # ilan.pid_gyro(2, 100) 
+    # ilan.pid_follow_line(11, 150, ilan.color_sensor_right, Kp=1.34, Ki=0.015, Kd = 0.089) 
+
+    # place wall behind cabing of front truck
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2 - 100, 350)
+    ilan.move_wall_to_point( ilan.WALL_MAX_ANGLE_X, 350)
+
+    # push to bridge
+    ilan.wait_for_button("Take truck to bridge", my_debug)
+    ilan.turn(3)
+    ilan.pid_gyro(15, 100)
+    # ilan.pid_follow_line(17, 150, ilan.color_sensor_right, Kd = 0.089)
+    
+    # lift wall to clear of trucks
+    ilan.wait_for_button("Clear of trucks", my_debug)
+    ilan.beep()
+    ilan.pid_gyro(2, Forward_Is_True = False)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X - 200, 300)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X - 200, 450)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 450)
+
+    # knock down first door and move onto the other
+    ilan.wait_for_button("Knock down first door", my_debug)
+    ilan.pid_gyro(14)
+
+    #ilan.pid_follow_line(19, 150, ilan.color_sensor_right, Kd = 0.085)
+
+    # go back to the line
+    ilan.wait_for_button("Go back to line", my_debug)
+    wait(400)
+    ilan.gyro_sensor.reset_angle(0)
+    ilan.turn(-4) 
+    ilan.pid_gyro(2.5, 100) 
+    ilan.turn(ilan.gyro_sensor.angle() * -1)
+
+    # lift wall to be able to pass second part of the bridge
+    ilan.wait_for_button("Lift wall", my_debug)
+    ilan.move_wall_to_point( ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y) 
+
+    # follow line past the second door
+    ilan.wait_for_button("Go to second door", my_debug)
+    wait(300)
+    ilan.pid_follow_line(19, 150, ilan.color_sensor_right, Kd = 0.085)
+
+    #lower wall to catch bridge part 2
+    ilan.wait_for_button("Push second door", my_debug)
+    ilan.move_wall_to_point( ilan.WALL_MAX_ANGLE_X, 400)
+
+    #go back to hit bridge part 2
+    ilan.pid_gyro(10, 200,False)
+
+    # ilan.wait_for_button("go till line", True)
+    # ilan.pid_follow_right_line_until_left_detect_color(1, 70)
+
+    ## FINISH TRUCKS
+
 
 
 # Start run's stopwatch
-sw = StopWatch()
+go_trucks_14_02_2022_meshopar()
+take_containers(True)
 
 # Activate all runs program
-running()
+# running()
 
 # Print run's time
-print("Run time is: " + str(sw.time()))
+# print("Run time is: " + str(sw.time()))
