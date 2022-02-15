@@ -5,6 +5,7 @@ from pybricks.parameters import Port, Stop, Direction, Button, Color
 from pybricks.tools import wait, StopWatch, DataLog
 from pybricks.robotics import DriveBase
 from pybricks.media import ev3dev
+import csv
 
 class Robot:
     """all Robot actions """
@@ -33,6 +34,29 @@ class Robot:
 
         ######################## RESET WALL ###################################
 
+    
+    
+    def push_wall_values(self):
+        """
+        פונקציה זו כותבת לקובץ טקסט את הפוזיציה הנוכחית של הקיר
+    
+        """
+        with open('wall_values.txt', 'w+') as f:
+            f.write(str(self.wall_x_motor.angle()) + "," + str(self.wall_y_motor.angle()))
+            
+        
+    def update_angles_from_file(self):
+        """
+        פונקציה שמעדכנת את ערך הפוזיציה הנוכחית של הקיר לפי מה שנכתב בקובץ לאחרונה.
+        """
+        with open("wall_values.txt") as f:
+            content = f.readline()
+            x_value, y_value = content.split(",")
+
+            self.wall_x_motor.reset_angle(int(x_value))
+            self.wall_y_motor.reset_angle(int(y_value))
+            
+    
     def check_gyro(self):
         """
         פונקציה לבדיקה האם הגיירו מאופס, אם לא משמיע אזעקה עד שהוא מאופס.
@@ -69,6 +93,8 @@ class Robot:
         
         self.wall_x_motor.reset_angle(0)
         self.wall_y_motor.reset_angle(0)
+
+        self.push_wall_values()
         # if upper_right:
         #     self.wall_x_motor.reset_angle(self.WALL_MAX_ANGLE_X)
         #     self.wall_y_motor.reset_angle(self.WALL_MAX_ANGLE_Y)
@@ -89,6 +115,7 @@ class Robot:
         self.wall_y_motor.run_until_stalled(speed_y,Stop.HOLD, duty_limit=85)
         self.wall_x_motor.reset_angle(self.WALL_MAX_ANGLE_X)
         self.wall_y_motor.reset_angle(0)
+        self.push_wall_values()
         # if upper_right:
         #     self.wall_x_motor.reset_angle(self.WALL_MAX_ANGLE_X)
         #     self.wall_y_motor.reset_angle(self.WALL_MAX_ANGLE_Y)
@@ -105,7 +132,7 @@ class Robot:
     # move the wall to the point specified
     def move_wall_to_point(self, x:int,y:int, speed=-1200):
         # make sure wall does not try to extend beyond boundries
-        
+        self.update_angles_from_file()
         x = min( x, self.WALL_MAX_ANGLE_X-10)
         y = min( y, self.WALL_MAX_ANGLE_Y-10)
         x = max( x, 10)
@@ -116,6 +143,7 @@ class Robot:
         # if y ended before x, wait for x to get to target
         # self.wall_x_motor.run_target(speed, x, Stop.HOLD, wait=True)
         # wait(3000)
+        self.push_wall_values()
         print("x = " + str(self.wall_x_motor.angle()) + ", y = " + str(self.wall_y_motor.angle()))
         
     ######################## MEASURE WALL ###################################
@@ -448,11 +476,15 @@ class Robot:
         # print("Gyro angle:" + str(self.gyro_sensor.angle()))
 
 
-    # def turn_till_color(self, color_sensor, color, turn_right = True, speed = 100):
-    #     if turn_right == False:
-    #         speed = speed * -1
+    def turn_until_color(self, line_sensor, color = Color.BLACK, turn_right = True, speed = 100):
+        if turn_right == False:
+            speed = speed * -1
 
-    #     self.left_motor.run(speed)
-    #     self.left_motor.run(speed * -1)
+        while line_sensor.color() != color:
+            self.left_motor.run(speed)
+            self.left_motor.run(speed * -1)
 
-    #     while color_sensor.
+        self.right_motor.brake()
+        self.left_motor.brake()
+
+        
