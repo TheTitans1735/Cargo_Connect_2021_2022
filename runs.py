@@ -3,7 +3,7 @@
 from robot import *
 # Write code here
 ilan = Robot()
-
+ilan.reset_wall()
 
 def green_airplane_and_Containers():
     my_debug = False
@@ -202,7 +202,7 @@ def go_trucks():
 
 def go_trucks_15_02_2022_meshopar():
     ilan.gyro_sensor.reset_angle(0)
-    ilan.reset_wall() 
+    # ilan.reset_wall() 
     my_debug = False
 
     #move wall to wait for truck holder
@@ -380,7 +380,7 @@ def crane_run():
     my_debug  = False
     
     # resets the wall so it doesn't collide
-    ilan.reset_wall()
+    # ilan.reset_wall()
     ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y)
     ilan.wait_for_button("Start run", False)
 
@@ -481,6 +481,7 @@ def running ():
             sum_time = sw.time() + sum_time
             print("!!!TIMER --- Current, Sum!!!")
             print(sw.time(), sum_time)
+
         elif Button.RIGHT in ilan.ev3.buttons.pressed():
             ilan.write("Green Airplane & Containers")
             sw.reset()
