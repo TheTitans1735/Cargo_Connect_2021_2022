@@ -77,10 +77,5 @@ ilan = Robot()
 
 # ilan.pid_follow_line(30, 150, ilan.color_sensor_left, white_is_right = False)
 
-while ilan.color_sensor_right.color() != Color.BLACK:
-    ilan.robot.drive(120, ilan.gyro_sensor.angle()*-1)
-
-ilan.robot.stop()
-
-ilan.wait_for_button("drive")
-ilan.pid_gyro(0.5, 50)
+# ilan.reset_wall()
+ilan.move_wall_to_point(100,500)

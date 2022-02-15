@@ -27,9 +27,9 @@ class Robot:
         self.wall_y_motor = Motor(Port.A,Direction.COUNTERCLOCKWISE) 
 
         #self.WALL_MAX_ANGLE_X = 1440 # need to be measured
-        self.WALL_MAX_ANGLE_X = 870
+        self.WALL_MAX_ANGLE_X = 860
         #self.WALL_MAX_ANGLE_Y = 1350 # need to be measured
-        self.WALL_MAX_ANGLE_Y = 750
+        self.WALL_MAX_ANGLE_Y = 740
         #max x= -1445 max y= -1365
 
         ######################## RESET WALL ###################################
@@ -133,18 +133,18 @@ class Robot:
     def move_wall_to_point(self, x:int,y:int, speed=-1200):
         # make sure wall does not try to extend beyond boundries
         self.update_angles_from_file()
-        x = min( x, self.WALL_MAX_ANGLE_X-10)
-        y = min( y, self.WALL_MAX_ANGLE_Y-10)
+        x = min( x, self.WALL_MAX_ANGLE_X)
+        y = min( y, self.WALL_MAX_ANGLE_Y)
         x = max( x, 10)
         y = max( y, 10)
         #print(str(x),str(y))
         self.wall_x_motor.run_target(speed, x, Stop.BRAKE, wait=True)
-        self.wall_y_motor.run_target(speed, y, Stop.BRAKE, wait=True)
+        self.wall_y_motor.run_target(speed, y+5, Stop.BRAKE, wait=True) # מוסיפים 5 בגלל שציר וואי פועל עם גלגלי שיניים אחרים שמשנים לו טיפה את המעלות שהוא מגיע אליהם
         # if y ended before x, wait for x to get to target
         # self.wall_x_motor.run_target(speed, x, Stop.HOLD, wait=True)
         # wait(3000)
         self.push_wall_values()
-        print("x = " + str(self.wall_x_motor.angle()) + ", y = " + str(self.wall_y_motor.angle()))
+        print("x = " + str(self.wall_x_motor.angle()) + ", y = "  + str(self.wall_y_motor.angle()))
         
     ######################## MEASURE WALL ###################################
     # ideally will be run only once to measure the angles of the wall extremes
