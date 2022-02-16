@@ -49,7 +49,7 @@ class Robot:
         """
         פונקציה שמעדכנת את ערך הפוזיציה הנוכחית של הקיר לפי מה שנכתב בקובץ לאחרונה.
         """
-        with open("wall_values.txt") as f:
+        with open('wall_values.txt') as f:
             content = f.readline()
             x_value, y_value = content.split(",")
 
