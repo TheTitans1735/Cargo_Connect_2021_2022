@@ -78,4 +78,20 @@ ilan = Robot()
 # ilan.pid_follow_line(30, 150, ilan.color_sensor_left, white_is_right = False)
 
 # ilan.reset_wall()
-ilan.move_wall_to_point(100,500)
+
+
+
+
+# ilan.update_angles_from_file()
+# ilan.reset_wall()
+# sw = StopWatch()
+
+# while sw.time() < 8000:
+#     ilan.robot.drive(80,0)
+#     ilan.wall_x_motor.run_target(-300, 500, Stop.BRAKE, wait=False)
+#     ilan.wall_y_motor.run_target(-300, 500, Stop.BRAKE, wait=False)
+    
+#     print(ilan.wall_x_motor.angle())
+#     print(ilan.wall_y_motor.angle())
+
+ilan.PID_while_move_wall(650, 650, drive_distance=80, seconds_to_start_wall=0.5,Forward_Is_True=False)

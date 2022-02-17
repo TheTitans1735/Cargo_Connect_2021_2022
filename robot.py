@@ -92,6 +92,8 @@ class Robot:
             #print("error " + str(error) + "; integral " + str(integral) + "; correction " + str(correction)  )    
             
         self.robot.stop()
+        self.wall_x_motor.stop()
+        self.wall_y_motor.stop()
         self.push_wall_values()
         if self.wall_x_motor.angle() != x or self.wall_y_motor.angle() != y:                # מקרה קצה שבו הזזת הקיר לא הושלמה בתום המרחק
             self.move_wall_to_point(x,y)
