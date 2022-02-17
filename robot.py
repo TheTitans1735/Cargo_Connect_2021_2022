@@ -1,4 +1,5 @@
 
+
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import (Motor, ColorSensor,GyroSensor)
 from pybricks.parameters import Port, Stop, Direction, Button, Color
@@ -34,7 +35,69 @@ class Robot:
 
         ######################## RESET WALL ###################################
 
-    
+    def PID_while_move_wall(self, x:int,y:int, drive_distance , drive_speed = 150 , seconds_to_start_wall = 0,wall_speed=-1200 , Forward_Is_True = True, Kp = 3.06, Ki= 0.027, Kd = 3.02):
+        
+        self.update_angles_from_file()
+        x = min( x, self.WALL_MAX_ANGLE_X)
+        y = min( y, self.WALL_MAX_ANGLE_Y)
+        x = max( x, 10)
+        y = max( y, 10)
+        #print(str(x),str(y))
+         # מוסיפים 5 בגלל שציר וואי פועל עם גלגלי שיניים אחרים שמשנים לו טיפה את המעלות שהוא מגיע אליהם
+        # if y ended before x, wait for x to get to target
+        # self.wall_x_motor.run_target(speed, x, Stop.HOLD, wait=True)
+        # wait(3000)
+        
+        
+
+
+        ##################################____PID PART____#############################
+        direction_indicator = -1
+        speed_indicator = -1       #משתנה שנועד כדי לכפול אותו במהירות ובתיקון השגיאה כדי שנוכל לנסוע אחורה במידת הצורך          
+        if Forward_Is_True:             #אם נוסעים קדימה - תכפול באחד. אחורה - תכפול במינוס אחד
+            direction_indicator = -1
+            speed_indicator = 1   
+        self.robot.reset() 
+        self.gyro_sensor.reset_angle(0)
+        #Td = 1000 # target distance
+        #Ts = 150 # target speed of robot in mm/s
+        #Kp = 3 #  the Constant 'K' for the 'p' proportional controller
+
+        integral = 0 # initialize
+        #Ki = 0.025 #  the Constant 'K' for the 'i' integral term
+
+        derivative = 0 # initialize
+        lastError = 0 # initialize
+        #Kd = 3 #  the Constant 'K' for the 'd' derivative term
+        #print(robot.distance())
+        sw_for_wall_timing = StopWatch()
+        while (abs(self.robot.distance()) < drive_distance*10 or self.wall_x_motor.speed() != 0 and self.wall_y_motor.speed() != 0):
+            error = self.gyro_sensor.angle() # proportional 
+            print("distance: " + str(self.robot.distance()) + " gyro: " + str(self.gyro_sensor.angle()))
+            if (error == 0):
+                integral = 0
+            else:
+                integral = integral + error    
+            derivative = error - lastError  
+        
+            correction = (Kp*(error) + Ki*(integral) + Kd*derivative) * -1
+
+            self.robot.drive(drive_speed * speed_indicator , correction * direction_indicator * -1)
+            if sw_for_wall_timing.time() > seconds_to_start_wall * 1000: 
+                self.wall_x_motor.run_target(wall_speed, x, Stop.BRAKE, wait=False)         #לולאה שתפקידה לתזמן את תחילת פעולת הקיר
+                self.wall_y_motor.run_target(wall_speed, y, Stop.BRAKE, wait=False)
+            
+            lastError = error  
+        
+            #print("error " + str(error) + "; integral " + str(integral) + "; correction " + str(correction)  )    
+            
+        self.robot.stop()
+        self.push_wall_values()
+        if self.wall_x_motor.angle() != x or self.wall_y_motor.angle() != y:                # מקרה קצה שבו הזזת הקיר לא הושלמה בתום המרחק
+            self.move_wall_to_point(x,y)
+        print("distance: " + str(self.robot.distance()) + " gyro: " + str(self.gyro_sensor.angle()))
+        print("wall_x: " + str(self.wall_x_motor.angle()) + " wall_y: " + str(self.wall_y_motor.angle()))
+        
     
     def push_wall_values(self):
         """
@@ -42,6 +105,7 @@ class Robot:
     
         """
         with open('wall_values.txt', 'w+') as f:
+            wait(50)
             f.write(str(self.wall_x_motor.angle()) + "," + str(self.wall_y_motor.angle()))
             
         
@@ -52,7 +116,7 @@ class Robot:
         with open('wall_values.txt') as f:
             content = f.readline()
             x_value, y_value = content.split(",")
-
+            wait(50)
             self.wall_x_motor.reset_angle(int(x_value))
             self.wall_y_motor.reset_angle(int(y_value))
             
@@ -90,7 +154,7 @@ class Robot:
         #     speed_y = -1 * speed_y
         self.wall_y_motor.run_until_stalled(speed_y,Stop.HOLD, duty_limit=85)
         self.wall_x_motor.run_until_stalled(speed_x,Stop.HOLD, duty_limit=5)
-        
+        wait(100)
         self.wall_x_motor.reset_angle(0)
         self.wall_y_motor.reset_angle(0)
 
@@ -139,10 +203,11 @@ class Robot:
         y = max( y, 10)
         #print(str(x),str(y))
         self.wall_x_motor.run_target(speed, x, Stop.BRAKE, wait=True)
-        self.wall_y_motor.run_target(speed, y+5, Stop.BRAKE, wait=True) # מוסיפים 5 בגלל שציר וואי פועל עם גלגלי שיניים אחרים שמשנים לו טיפה את המעלות שהוא מגיע אליהם
+        self.wall_y_motor.run_target(speed, y, Stop.BRAKE, wait=True) # מוסיפים 5 בגלל שציר וואי פועל עם גלגלי שיניים אחרים שמשנים לו טיפה את המעלות שהוא מגיע אליהם
         # if y ended before x, wait for x to get to target
         # self.wall_x_motor.run_target(speed, x, Stop.HOLD, wait=True)
         # wait(3000)
+        wait(100)
         self.push_wall_values()
         print("x = " + str(self.wall_x_motor.angle()) + ", y = "  + str(self.wall_y_motor.angle()))
         
