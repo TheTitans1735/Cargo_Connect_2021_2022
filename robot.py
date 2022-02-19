@@ -106,21 +106,23 @@ class Robot:
         פונקציה זו כותבת לקובץ טקסט את הפוזיציה הנוכחית של הקיר
     
         """
-        with open('wall_values.txt', 'w+') as f:
-            wait(50)
-            f.write(str(self.wall_x_motor.angle()) + "," + str(self.wall_y_motor.angle()))
+        # with open('wall_values.txt', 'w+') as f:
+        #     wait(50)
+        #     f.write(str(self.wall_x_motor.angle()) + "," + str(self.wall_y_motor.angle()))
+        pass
             
         
     def update_angles_from_file(self):
         """
         פונקציה שמעדכנת את ערך הפוזיציה הנוכחית של הקיר לפי מה שנכתב בקובץ לאחרונה.
         """
-        with open('wall_values.txt') as f:
-            content = f.readline()
-            x_value, y_value = content.split(",")
-            wait(50)
-            self.wall_x_motor.reset_angle(int(x_value))
-            self.wall_y_motor.reset_angle(int(y_value))
+        # with open('wall_values.txt') as f:
+        #     content = f.readline()
+        #     x_value, y_value = content.split(",")
+        #     wait(50)
+        #     self.wall_x_motor.reset_angle(int(x_value))
+        #     self.wall_y_motor.reset_angle(int(y_value))
+        pass
             
     
     def check_gyro(self):
@@ -186,17 +188,20 @@ class Robot:
         #     self.wall_x_motor.reset_angle(self.WALL_MAX_ANGLE_X)
         #     self.wall_y_motor.reset_angle(self.WALL_MAX_ANGLE_Y)
         print("x = " + str(self.wall_x_motor.angle()) + ", y = " + str(self.wall_y_motor.angle()))
+
+
     #waiting for button and showing text - for debugging
-    def wait_for_button(self,text,debug=True):
+    def wait_for_button(self, text, debug = True):
         self.write(text)
         if not debug:
             return
         while not any(self.ev3.buttons.pressed()):
             wait(10)
-        wait(300)
+            wait(300)
         
+
     # move the wall to the point specified
-    def move_wall_to_point(self, x:int,y:int, speed=-1200):
+    def move_wall_to_point(self, x:int,y:int, speed=-1200, x_wait = True, y_wait = True):
         # make sure wall does not try to extend beyond boundries
         self.update_angles_from_file()
         x = min( x, self.WALL_MAX_ANGLE_X)
@@ -204,8 +209,8 @@ class Robot:
         x = max( x, 10)
         y = max( y, 10)
         #print(str(x),str(y))
-        self.wall_x_motor.run_target(speed, x, Stop.BRAKE, wait=True)
-        self.wall_y_motor.run_target(speed, y, Stop.BRAKE, wait=True) # מוסיפים 5 בגלל שציר וואי פועל עם גלגלי שיניים אחרים שמשנים לו טיפה את המעלות שהוא מגיע אליהם
+        self.wall_x_motor.run_target(speed, x, Stop.BRAKE, wait = x_wait)
+        self.wall_y_motor.run_target(speed, y, Stop.BRAKE, wait = y_wait) # מוסיפים 5 בגלל שציר וואי פועל עם גלגלי שיניים אחרים שמשנים לו טיפה את המעלות שהוא מגיע אליהם
         # if y ended before x, wait for x to get to target
         # self.wall_x_motor.run_target(speed, x, Stop.HOLD, wait=True)
         # wait(3000)
