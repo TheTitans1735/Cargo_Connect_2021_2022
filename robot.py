@@ -197,23 +197,25 @@ class Robot:
             return
         while not any(self.ev3.buttons.pressed()):
             wait(10)
-            wait(300)
-        
+            
 
     # move the wall to the point specified
     def move_wall_to_point(self, x:int,y:int, speed=-1200, x_wait = True, y_wait = True):
-        # make sure wall does not try to extend beyond boundries
+        # get the wall's current position from file
         self.update_angles_from_file()
+
+        # make sure wall does not try to extend beyond boundries
         x = min( x, self.WALL_MAX_ANGLE_X)
         y = min( y, self.WALL_MAX_ANGLE_Y)
         x = max( x, 10)
         y = max( y, 10)
-        #print(str(x),str(y))
+        
+        # move motors until wall reaches the target position
+        # motors can move together or continue to next function based on wait paremiter 
         self.wall_x_motor.run_target(speed, x, Stop.BRAKE, wait = x_wait)
-        self.wall_y_motor.run_target(speed, y, Stop.BRAKE, wait = y_wait) # מוסיפים 5 בגלל שציר וואי פועל עם גלגלי שיניים אחרים שמשנים לו טיפה את המעלות שהוא מגיע אליהם
-        # if y ended before x, wait for x to get to target
-        # self.wall_x_motor.run_target(speed, x, Stop.HOLD, wait=True)
-        # wait(3000)
+        self.wall_y_motor.run_target(speed, y, Stop.BRAKE, wait = y_wait) 
+        
+        
         wait(100)
         self.push_wall_values()
         print("x = " + str(self.wall_x_motor.angle()) + ", y = "  + str(self.wall_y_motor.angle()))

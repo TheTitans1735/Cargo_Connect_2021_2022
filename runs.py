@@ -10,7 +10,7 @@ def green_airplane_and_Containers():
     my_debug = False
     wall_debug = False
     
-    # אילן שם את המכולות בעיגול וחזר אחורה למטוס
+    # איפוס הקיר וסידור ההלבשה
     ilan.wait_for_button("wall bottom right", wall_debug)
     ilan.reset_wall_bottom_right()
     
@@ -18,15 +18,19 @@ def green_airplane_and_Containers():
     wait(200)
     
     ilan.pid_gyro(25, 200)
-    # ilan.pid_follow_right_line_until_left_detect_line(3) *********
 
-    ilan.pid_follow_right_line_until_left_detect_color()
+    # נסיעה למשימה - עד זיהוי קו אחד
+    ilan.pid_follow_right_line_until_left_detect_color(1, 90 + 10)
     ilan.pid_follow_line(2, 80, ilan.color_sensor_right, Kp=1.3, white_is_right = True)
-    #turn engine over
+
+    # הפיכת המנוע
     ilan.wait_for_button("turn engine over", wall_debug)
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y - 50)
-    ilan.pid_gyro(25, Forward_Is_True=False)
-    
+    # ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y - 50)
+
+    #נסיעה חזרה לאחור
+    # ilan.pid_gyro(25, Forward_Is_True = False)
+    ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y - 50, 25, Forward_Is_True = False)
+     
     ### הורדת המכולה מהמטוס - שלב 1 ###
     # שמאלה
     ilan.wait_for_button("go left & up", wall_debug)
@@ -42,11 +46,11 @@ def green_airplane_and_Containers():
 
     # ימינה
     ilan.wait_for_button("right", wall_debug)
-    ilan.move_wall_to_point(500, 300, -1500)
+    # ilan.move_wall_to_point(500, 300, -1500)
 
     # למעלה עד הסוף
     ilan.wait_for_button("full up", wall_debug)
-    ilan.move_wall_to_point(500, ilan.WALL_MAX_ANGLE_Y, -1500)
+    ilan.move_wall_to_point(500, ilan.WALL_MAX_ANGLE_Y, -1500, x_wait = False) ## new code *****
 
     ### הורדת המכולה מהמטוס - שלב 2 ###
     # שמאלה, למטה
@@ -57,11 +61,11 @@ def green_airplane_and_Containers():
 
     # למעלה
     ilan.wait_for_button("up", wall_debug)
-    ilan.move_wall_to_point(0, 650, -1500)
+    # ilan.move_wall_to_point(0, 650, -1500) *****
 
     # ימינה + למעלה
     ilan.wait_for_button("right and up", wall_debug)
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 700, -1500)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 700 - 100, -1500)
 
     # הסתובב
     ilan.wait_for_button("turn to take container", my_debug)
@@ -83,7 +87,7 @@ def green_airplane_and_Containers():
     ilan.wait_for_button("turn right", my_debug)
     ilan.turn(70,250)
     ilan.wait_for_button("go home", my_debug)
-    ilan.pid_gyro(33, 500, Forward_Is_True=False)
+    ilan.PID_while_move_wall(0, ilan.WALL_MAX_ANGLE_Y, 33, 500, Forward_Is_True = False)
     ilan.wait_for_button("turn into base", my_debug)
     ilan.turn(80, 200)
     # ilan.wait_for_button("140. wall reset right",my_debug)
@@ -113,7 +117,8 @@ def wing_run():
     # חזרה הביתה
     ilan.pid_gyro(10, 100, False)
     ilan.turn(5)
-    ilan.pid_gyro(55, 500, False, 3.05) 
+    # ilan.pid_gyro(55, 500, False, 3.05) 
+    ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X, 0, 55, 500, Forward_Is_True = False, Kp = 3.05)
     # ilan.pid_gyro(3, 100, Forward_Is_True = False)
     
 
@@ -279,8 +284,8 @@ def take_containers(close_or_far):
     ilan.pid_gyro(30, 400)
     
     # Go back right, catch blue
-    ilan.turn(57 - 5, 150)
-    ilan.pid_gyro(50, 300)
+    ilan.turn(57 - 4, 150)
+    ilan.PID_while_move_wall(0, 0, 50, 300, 2)
     # ilan.turn(-50, 300)
     # ilan.pid_gyro(15, 300)
 
@@ -298,76 +303,91 @@ def east_run(close_or_far):
 
 
 def crane_run():
-    my_debug  = True
+    my_debug  = False
     
     # resets the wall so it doesn't collide
-    ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y)
+    # ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y)
     ilan.wait_for_button("Start run", False)
 
     # drive to the line
-    ilan.pid_gyro(27)
+    ilan.PID_while_move_wall(0, ilan.WALL_MAX_ANGLE_Y, 27, 150, wall_speed = -1500)
 
     # follow the line to the mission (detect 2 lines) & turn to mission
-    ilan.pid_follow_right_line_until_left_detect_color(2, 120, True)
+    ilan.pid_follow_right_line_until_left_detect_color(2, 120, False    )
     ilan.pid_gyro(2, 100) #new
-    ilan.turn(-90, 100)
+    ilan.turn(-93, 180)
+
+    # turn to line
+    ilan.wait_for_button("Turn to line", my_debug)
+    wait(100)
+    while ilan.color_sensor_right.reflection() > 40:
+        ilan.right_motor.run(25)
+        ilan.left_motor.run(-25)
+    ilan.right_motor.brake()
+    ilan.left_motor.brake()
 
     # follow the line & drive to get closer to mission
     ilan.wait_for_button("Follow line & gyro to mission", my_debug)
-    ilan.pid_follow_line(12, 100, ilan.color_sensor_right, white_is_right = True) 
-    ilan.pid_gyro(12, 100)
+    ilan.pid_follow_line(12, 90, ilan.color_sensor_right, white_is_right = True) 
+    ilan.pid_gyro(12, 150)
 
     # turn to crane
     ilan.wait_for_button("Turn to crane", my_debug)
-    ilan.turn(90)
+    ilan.turn(90, 170)
 
     # move to crane
     ilan.wait_for_button("Go to crane", my_debug)
+    wait(100)
     while ilan.color_sensor_right.reflection() > 40:
-        ilan.right_motor.run(20)
-        ilan.left_motor.run(-20)
+        ilan.right_motor.run(25)
+        ilan.left_motor.run(-25)
+    ilan.right_motor.brake()
+    ilan.left_motor.brake()    
 
     ilan.pid_follow_line(20, 100, ilan.color_sensor_right)
 
     # get away from crane
-    ilan.pid_gyro(4, 150, False)
+    ilan.pid_gyro(4, 250, False)
 
     # straighten on black line
     ilan.wait_for_button("Go back until black line", my_debug)
     while ilan.color_sensor_left.reflection() > 8:
-        ilan.robot.drive(-120, ilan.gyro_sensor.angle()*-1)
+        ilan.robot.drive(-150, ilan.gyro_sensor.angle()*-1)
     ilan.robot.stop()
 
-    wait(500)
+    wait(100)
     
     # go to containers mission
     ilan.wait_for_button("Go forward", my_debug)
-    ilan.pid_gyro(18)
+    ilan.pid_gyro(18 - 2, 250)
 
     ilan.wait_for_button("Turn to mission", my_debug)
-    ilan.turn(-90)
+    ilan.turn(-90, 150)
+    # wait(100)
 
     # move back so wall doesn't clash with mission
-    ilan.pid_gyro(0.5, 60, False)
+    # ilan.pid_gyro(0.5, 60, False)
+    ilan.pid_gyro(0.5, 60)
 
 
     # move wall to place containers
     ilan.wait_for_button("place containers", my_debug)
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y / 2 -110) # move wall right & down
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y / 2 - 130) # move wall right & down
 
     # clear arm of containers
     ilan.wait_for_button("Clear of containers", my_debug)
-    ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y / 2) # wall max left
+    ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y / 2 - 130) # wall max left
 
     # drive backwards from mission
     ilan.wait_for_button("Drive Gyro backwards", my_debug)
-    ilan.pid_gyro(10, 90, False)
+    # ilan.pid_gyro(10, 90, False)
+    ilan.PID_while_move_wall(0, ilan.WALL_MAX_ANGLE_Y, 10, 150, Forward_Is_True = False)
 
     # 
-    ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y)
-    ilan.turn(-45)
-    ilan.pid_gyro(35, 150)
-    ilan.turn(-45)
+    # ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y)
+    ilan.turn(-45, 180)
+    ilan.pid_gyro(37, 250)
+    ilan.turn(-45, 180)
 
     ilan.gyro_sensor.reset_angle(0)
     while ilan.color_sensor_right.color() != Color.BLACK:
@@ -376,7 +396,7 @@ def crane_run():
     ilan.robot.stop()
 
     ilan.wait_for_button("gently knock down yellow", my_debug)
-    ilan.pid_gyro(1, 50)
+    ilan.pid_gyro(1.5, 50)
 
 
 TEXT_MENU = """Choose Run: 
@@ -400,7 +420,7 @@ def running ():
 
         # מחכה ללחיצת כפתור
         while not any(ilan.ev3.buttons.pressed()):
-            wait(10)
+            wait(60)
         
         # כפתור שמאלי - ראן לקיחת מכולות
         if Button.LEFT in ilan.ev3.buttons.pressed():
@@ -460,4 +480,5 @@ def running ():
             # print(sw.time(), sum_time)
 # ilan.say("Let's Start!")
 running()
+
 

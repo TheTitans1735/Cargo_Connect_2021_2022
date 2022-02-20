@@ -44,10 +44,10 @@
 		}
 		, 
 		{
-			"name": "TESTS Download and Run",
+			"name": "ready Download and Run",
 			"type": "ev3devBrowser",
 			"request": "launch",
-			"program": "/home/robot/${workspaceRootFolderName}/TESTS.py",
+			"program": "/home/robot/${workspaceRootFolderName}/ready.py",
 			"interactiveTerminal": false
 		}
 	]
