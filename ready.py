@@ -45,5 +45,5 @@ def get_ready():
 
         # elif Button.UP in ilan.ev3.buttons.pressed():
             
-
-           
+# clean_wheels()      
+ilan.turn(-90)

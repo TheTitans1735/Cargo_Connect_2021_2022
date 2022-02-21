@@ -168,7 +168,7 @@ class Robot:
         #     self.wall_y_motor.reset_angle(self.WALL_MAX_ANGLE_Y)
         print("x = " + str(self.wall_x_motor.angle()) + ", y = " + str(self.wall_y_motor.angle()))
 
-    ######################### MOVE WALL #################################
+    ######################### RESET WALL BOTTON RIGHT #################################
     def reset_wall_bottom_right(self):
 
         """"מאפס את הקיר לצג ימין למטה"""
@@ -212,8 +212,9 @@ class Robot:
         
         # move motors until wall reaches the target position
         # motors can move together or continue to next function based on wait paremiter 
-        self.wall_x_motor.run_target(speed, x, Stop.BRAKE, wait = x_wait)
         self.wall_y_motor.run_target(speed, y, Stop.BRAKE, wait = y_wait) 
+        self.wall_x_motor.run_target(speed, x, Stop.BRAKE, wait = x_wait)
+        
         
         
         wait(100)
@@ -282,8 +283,10 @@ class Robot:
         derivative = 0 # initialize
         lastError = 0 # initialize
         #Kd = 3 #  the Constant 'K' for the 'd' derivative term
-        #print(robot.distance())
+        
         while (abs(self.robot.distance()) < Td*10):
+            wait(20) #ע"מ לא לגזול את כל המשאבים
+
             error = self.gyro_sensor.angle() # proportional 
             print("distance: " + str(self.robot.distance()) + " gyro: " + str(self.gyro_sensor.angle()))
             if (error == 0):
@@ -297,8 +300,7 @@ class Robot:
             self.robot.drive(Ts * speed_indicator , correction * direction_indicator * -1) 
 
             lastError = error  
-        
-            #print("error " + str(error) + "; integral " + str(integral) + "; correction " + str(correction)  )    
+          
             
         self.robot.stop()
         
@@ -346,8 +348,8 @@ class Robot:
         self.robot.stop()
 
 
-    # ------------------ Straighten on Color ------------------
-    def straighten_on_color(self, speed = 90, drive_forward = True, color = Color.BLACK):
+    # ------------------ Straighten on Black ------------------
+    def straighten_on_black(self, speed = 90, drive_forward = True):
         if drive_forward == False:
             speed = speed * -1
 
@@ -360,12 +362,12 @@ class Robot:
 
         while(right_sensor_flag == False or left_sensor_flag == False):
             if target_reflection == -1:
-                if self.color_sensor_right.color() == color:
+                if self.color_sensor_right.color() == Color.BLACK:
                     right_sensor_flag = True
                     target_reflection = self.color_sensor_right.reflection()
                     self.right_motor.brake()
 
-                elif self.color_sensor_left.color() == color:
+                elif self.color_sensor_left.color() == Color.BLACK:
                     left_sensor_flag = True
                     target_reflection = self.color_sensor_left.reflection()
                     self.left_motor.brake()
@@ -503,6 +505,7 @@ class Robot:
 
             #נוסע כמעט עד ערך הזווית במהירות מלאה
             while self.gyro_sensor.angle() <= angle * 0.8:
+                print("degree: " + str(self.gyro_sensor.angle()))
                 self.right_motor.run(speed=(-1 * speed))
                 self.left_motor.run(speed=speed)
             self.right_motor.brake()
@@ -510,6 +513,7 @@ class Robot:
 
             #נוסע את שארית ערך הזווית במהירות מופחתת - פי 0.2
             while self.gyro_sensor.angle() < angle:
+                print("degree: " + str(self.gyro_sensor.angle()))
                 self.right_motor.run(speed=(-0.2 * speed))
                 self.left_motor.run(speed=speed*0.2)
             self.right_motor.brake()
@@ -517,15 +521,19 @@ class Robot:
             
             #תיקון איטי נוסף למקרה שצריך
             while self.gyro_sensor.angle() > angle:
+                print("degree: " + str(self.gyro_sensor.angle()))
                 self.right_motor.run(20)
                 self.left_motor.run(-20)
-                wait(10)  
+                wait(10)
+
+          
 
         #פנייה שמאלה - זווית פנייה שלילית
         elif angle < 0:  
             
             #נוסע כמעט עד ערך הזווית במהירות מלאה, הגלגלים נעים בכיוון הפוך
             while self.gyro_sensor.angle() >= angle * 0.8:
+                print("degree: " + str(self.gyro_sensor.angle()))
                 self.right_motor.run(speed=(speed))
                 self.left_motor.run(speed=speed*-1)
             self.right_motor.brake()
@@ -533,19 +541,22 @@ class Robot:
 
             #נוסע את שארית ערך הזווית במהירות מופחתת - פי 0.2
             while self.gyro_sensor.angle() > angle:
+                print("degree: " + str(self.gyro_sensor.angle()))
                 self.right_motor.run(speed=(0.2 * speed))
                 self.left_motor.run(speed=speed*-0.2)
-            self.right_motor.brake()
-            self.left_motor.brake()
+            self.right_motor.stop()
+            self.left_motor.stop()
 
             #תיקון איטי נוסף למקרה שצריך
             while self.gyro_sensor.angle() > angle:
+                print("degree: " + str(self.gyro_sensor.angle()))
                 self.right_motor.run(-20)
                 self.left_motor.run(20)
                 wait(10)  
    
-        self.right_motor.brake()
-        self.left_motor.brake()
+        self.right_motor.stop()
+        self.left_motor.stop()
+        print("final degree: " + str(self.gyro_sensor.angle()))
         # self.robot.stop()
         # print("Gyro angle:" + str(self.gyro_sensor.angle()))
 
@@ -558,7 +569,7 @@ class Robot:
             self.left_motor.run(speed)
             self.left_motor.run(speed * -1)
 
-        self.right_motor.brake()
-        self.left_motor.brake()
+        self.right_motor.stop()
+        self.left_motor.stop()
 
         
