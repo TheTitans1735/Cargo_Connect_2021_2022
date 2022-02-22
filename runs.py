@@ -27,12 +27,18 @@ def green_airplane_and_Containers():
     # הפיכת המנוע
     ilan.wait_for_button("turn engine over", wall_debug)
     #נסיעה חזרה לאחור + קיר
-    ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X - 150, ilan.WALL_MAX_ANGLE_Y - 50, 25 - 15, Forward_Is_True = False)
+    ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X - 150, ilan.WALL_MAX_ANGLE_Y - 50, 10, Forward_Is_True = False)
 
-    # חדש - פנייה כדי לתפוס את המסוק ***
-    ilan.turn(30, 150)
+    # חדש - פנייה ימינה על מנת להשיג זווית ***
+    ilan.turn(15, 150)
 
-    ilan.pid_gyro(3 + 17, 150, False)
+    # נסיעה אחורה
+    ilan.pid_gyro(15, 150, False)
+
+    # פנייה לתפיסת המטוס, נסיעה לפנים
+    ilan.turn(-15, 150)
+    # ilan.pid_gyro(5, 150)
+
      
     ### הורדת המכולה מהמטוס - שלב 1 ###
     # שמאלה
@@ -90,6 +96,98 @@ def green_airplane_and_Containers():
     ilan.wait_for_button("go home", my_debug)
     ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X / 2, ilan.WALL_MAX_ANGLE_Y - 200, 33, 500, Forward_Is_True = False)
 
+    ilan.wait_for_button("turn into base", my_debug)
+    ilan.turn(80, 200)
+    # ilan.wait_for_button("140. wall reset right",my_debug)
+
+
+def green_airplane_2022_02_21():
+    my_debug = False
+    wall_debug = False
+
+    # איפוס הקיר וסידור ההלבשה
+    ilan.wait_for_button("wall bottom right", wall_debug)
+  
+    ilan.reset_wall_bottom_right()
+    
+    
+    ilan.wait_for_button("Place container", True)
+    wait(200)
+    # ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X - 150, 0) ##TESTING
+    # ilan.pid_gyro(25, 200)
+    ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X - 150, 0, 25, 200)
+    # נסיעה למשימה - עד זיהוי קו אחד
+    ilan.pid_follow_right_line_until_left_detect_color(1, 90 + 10, white_is_right=True)
+    # ilan.pid_follow_line(2, 80, ilan.color_sensor_right, Kp=1.3, white_is_right = True) ***
+    ilan.pid_gyro(2,80)
+    # הפיכת המנוע
+    ilan.wait_for_button("turn engine over", wall_debug)
+    # ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y - 50)
+    #נסיעה חזרה לאחור
+    # ilan.pid_gyro(25, Forward_Is_True = False)
+    
+    # ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y - 50, 5, Forward_Is_True = False)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y - 50, x_wait=False, y_wait=False)
+    ilan.pid_gyro(5, Forward_Is_True=False)
+    
+    ilan.turn(15)
+    
+    ilan.pid_gyro(5,80,False)
+    ilan.turn(-15)
+    
+    ilan.pid_gyro(15,80,False)
+    ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y, -1500, False, False)
+     
+    ### הורדת המכולה מהמטוס - שלב 1 ###
+    # שמאלה
+    ilan.wait_for_button("go left & up", wall_debug)
+    
+    # למטה
+    ilan.wait_for_button("down", wall_debug)
+    ilan.move_wall_to_point(0, 100, -1500)
+    # למעלה
+    ilan.wait_for_button("up", wall_debug)
+    ilan.move_wall_to_point(0,  300, -1500)
+    # ימינה
+    ilan.wait_for_button("right", wall_debug)
+    # ilan.move_wall_to_point(500, 300, -1500)
+    # למעלה עד הסוף
+    ilan.wait_for_button("full up", wall_debug)
+    ilan.move_wall_to_point(500, ilan.WALL_MAX_ANGLE_Y, -1500, x_wait = False) ## new code *****
+    ### הורדת המכולה מהמטוס - שלב 2 ###
+    # שמאלה, למטה
+    ilan.wait_for_button("left", wall_debug)
+    ilan.move_wall_to_point(80, ilan.WALL_MAX_ANGLE_Y, -1500)
+    ilan.wait_for_button("down", wall_debug)
+    ilan.move_wall_to_point(80, 0, -1500)
+    # למעלה
+    ilan.wait_for_button("up", wall_debug)
+    # ilan.move_wall_to_point(0, 650, -1500) *****
+    # ימינה + למעלה
+    ilan.wait_for_button("right and up", wall_debug)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 700 - 100, -1500,x_wait=False)
+    # הסתובב
+    ilan.wait_for_button("turn to take container", my_debug)
+    ilan.turn(10,150)
+    ilan.pid_gyro(10)
+    ilan.turn(-15,150)
+
+    ilan.wait_for_button("down", wall_debug)
+    # ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 180)
+    ilan.wait_for_button("left & down", wall_debug)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X-550, 180, x_wait=False, y_wait=False)
+    ilan.wait_for_button("go back", wall_debug)
+    ilan.pid_gyro(7,Forward_Is_True = False)
+
+    ilan.beep()
+
+    ilan.wait_for_button("go right & up", wall_debug)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X - 550, ilan.WALL_MAX_ANGLE_Y / 2, x_wait=False, y_wait= False)
+    ilan.wait_for_button("turn right", my_debug)
+    ilan.turn(70,250)
+    ilan.wait_for_button("go home", my_debug)
+  
+    ilan.PID_while_move_wall(0, ilan.WALL_MAX_ANGLE_Y - 200, 33, 500, Forward_Is_True = False)
     ilan.wait_for_button("turn into base", my_debug)
     ilan.turn(80, 200)
     # ilan.wait_for_button("140. wall reset right",my_debug)
@@ -405,69 +503,71 @@ def running ():
     sum_time = 0 # זמן כולל
     
     while True:
-        
-        # מדפיס את טקסט הריצות על הרובוט ועל מסך המחשב
-        ilan.write(TEXT_MENU)
+        try:
+            # מדפיס את טקסט הריצות על הרובוט ועל מסך המחשב
+            ilan.write(TEXT_MENU)
 
-        # מחכה ללחיצת כפתור
-        while not any(ilan.ev3.buttons.pressed()):
-            wait(60)
-        
-        # כפתור שמאלי - ראן לקיחת מכולות
-        if Button.LEFT in ilan.ev3.buttons.pressed():
-            ilan.write("wing Run")
-            sw.reset() # מאפס את שעון המשימה
+            # מחכה ללחיצת כפתור
+            while not any(ilan.ev3.buttons.pressed()):
+                wait(60)
             
-            wing_run() # הפעלת הראן
+            # כפתור שמאלי - ראן לקיחת מכולות
+            if Button.LEFT in ilan.ev3.buttons.pressed():
+                ilan.write("wing Run")
+                sw.reset() # מאפס את שעון המשימה
+                
+                wing_run() # הפעלת הראן
 
-            sum_time = sw.time() + sum_time
-            # print("!!!TIMER --- Current, Sum!!!")
-            # print(sw.time(), sum_time)
-            ilan.write("!!! Timer !!! \n    Mission time: " + str(sw.time()) + " \n Total time: " + str(sum_time))
+                sum_time = sw.time() + sum_time
+                # print("!!!TIMER --- Current, Sum!!!")
+                # print(sw.time(), sum_time)
+                ilan.write("!!! Timer !!! \n    Mission time: " + str(sw.time()) + " \n Total time: " + str(sum_time))
 
-        elif Button.RIGHT in ilan.ev3.buttons.pressed():
-            ilan.write("Green Airplane & Containers")
-            sw.reset() # מאפס את שעון המשימה
+            elif Button.RIGHT in ilan.ev3.buttons.pressed():
+                ilan.write("Green Airplane & Containers")
+                sw.reset() # מאפס את שעון המשימה
 
-            green_airplane_and_Containers() # הפעלת הראן
+                # green_airplane_and_Containers() # הפעלת הראן
+                green_airplane_2022_02_21()
 
-            sum_time = sw.time() + sum_time
-            # print("!!!TIMER --- Current, Sum!!!")
-            # print(sw.time(), sum_time)
-            ilan.write("!!! Timer !!! \n    Mission time: " + str(sw.time()) + " \n Total time: " + str(sum_time))
+                sum_time = sw.time() + sum_time
+                # print("!!!TIMER --- Current, Sum!!!")
+                # print(sw.time(), sum_time)
+                ilan.write("!!! Timer !!! \n    Mission time: " + str(sw.time()) + " \n Total time: " + str(sum_time))
 
-        elif Button.DOWN in ilan.ev3.buttons.pressed():
-            ilan.write("East run close")
-            sw.reset() # מאפס את שעון המשימה
+            elif Button.DOWN in ilan.ev3.buttons.pressed():
+                ilan.write("East run close")
+                sw.reset() # מאפס את שעון המשימה
 
-            east_run(True) # הפעלת הראן (מכולות קרובות)
+                east_run(True) # הפעלת הראן (מכולות קרובות)
 
-            sum_time = sw.time() + sum_time
-            # print("!!!TIMER --- Current, Sum!!!")
-            # print(str(sw.time()) + " , " + str(sum_time))
-            ilan.write("!!! Timer !!! \n    Mission time: " + str(sw.time()) + " \n Total time: " + str(sum_time))
-
-
-        elif Button.UP in ilan.ev3.buttons.pressed():
-            ilan.write("East run far")
-            sw.reset() # מאפס את שעון המשימה
-
-            east_run(False) # הפעלת הרא (מכולות רחוקות)
-
-            sum_time = sw.time() + sum_time
-            # print("!!!TIMER --- Current, Sum!!!")
-            # print(sw.time(), sum_time)
-            ilan.write("!!! Timer !!! \n    Mission time: " + str(sw.time()) + " \n Total time: " + str(sum_time))
+                sum_time = sw.time() + sum_time
+                # print("!!!TIMER --- Current, Sum!!!")
+                # print(str(sw.time()) + " , " + str(sum_time))
+                ilan.write("!!! Timer !!! \n    Mission time: " + str(sw.time()) + " \n Total time: " + str(sum_time))
 
 
-        elif Button.CENTER in ilan.ev3.buttons.pressed():
-            ilan.write("Crane run")
-            sw.reset() # מאפס את שעון המשימה
+            elif Button.UP in ilan.ev3.buttons.pressed():
+                ilan.write("East run far")
+                sw.reset() # מאפס את שעון המשימה
 
-            crane_run() # הפעלת הראן
+                east_run(False) # הפעלת הרא (מכולות רחוקות)
 
-            sum_time = sw.time() + sum_time
-            # print("!!!TIMER --- Current, Sum!!!")
-            # print(sw.time(), sum_time)
+                sum_time = sw.time() + sum_time
+                # print("!!!TIMER --- Current, Sum!!!")
+                # print(sw.time(), sum_time)
+                ilan.write("!!! Timer !!! \n    Mission time: " + str(sw.time()) + " \n Total time: " + str(sum_time))
 
+
+            elif Button.CENTER in ilan.ev3.buttons.pressed():
+                ilan.write("Crane run")
+                sw.reset() # מאפס את שעון המשימה
+
+                crane_run() # הפעלת הראן
+
+                sum_time = sw.time() + sum_time
+                # print("!!!TIMER --- Current, Sum!!!")
+                # print(sw.time(), sum_time)
+        except:
+            wait(2500)
 running()

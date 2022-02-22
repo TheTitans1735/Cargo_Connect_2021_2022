@@ -74,6 +74,8 @@ class Robot:
         #print(robot.distance())
         sw_for_wall_timing = StopWatch()
         while (abs(self.robot.distance()) < drive_distance*10 or self.wall_x_motor.speed() != 0 and self.wall_y_motor.speed() != 0):
+            self.check_forced_exit()
+
             error = self.gyro_sensor.angle() # proportional 
             print("distance: " + str(self.robot.distance()) + " gyro: " + str(self.gyro_sensor.angle()))
             if (error == 0):
@@ -193,10 +195,18 @@ class Robot:
 
 
     #waiting for button and showing text - for debugging
+    def check_forced_exit(self):
+        if len(self.ev3.buttons.pressed()) >= 2:
+            self.write("Forced Exit")
+            print("!!!!!!!!!!!!!!!!!!!! FORCED EXIT !!!!!!!!!!!!!!!!!!!!!!!!")
+            raise Exception("Forced Exit")
+        
     def wait_for_button(self, text, debug = True):
         self.write(text)
+        self.check_forced_exit()
         if not debug:
             return
+        
         while not any(self.ev3.buttons.pressed()):
             wait(10)
             
@@ -204,6 +214,8 @@ class Robot:
     # move the wall to the point specified
     def move_wall_to_point(self, x:int,y:int, speed=-1200, x_wait = True, y_wait = True):
         # get the wall's current position from file
+
+        # if self.stop_run = True
         self.update_angles_from_file()
 
         # make sure wall does not try to extend beyond boundries
@@ -213,9 +225,11 @@ class Robot:
         y = max( y, 10)
         
         # move motors until wall reaches the target position
+        self.wall_x_motor.run_target(speed, x, Stop.BRAKE, wait = x_wait)
+
         # motors can move together or continue to next function based on wait paremiter 
         self.wall_y_motor.run_target(speed, y, Stop.BRAKE, wait = y_wait) 
-        self.wall_x_motor.run_target(speed, x, Stop.BRAKE, wait = x_wait)
+        
         
         
         
@@ -268,7 +282,7 @@ class Robot:
     # ------------------ PID Gyro ------------------ 
 
     def pid_gyro(self,Td, Ts = 150, Forward_Is_True = True, Kp = 3.06, Ki= 0.027, Kd = 3.02):
-        # if self.stop
+        # if self.stop_run = True
         direction_indicator = -1
         speed_indicator = -1       #משתנה שנועד כדי לכפול אותו במהירות ובתיקון השגיאה כדי שנוכל לנסוע אחורה במידת הצורך          
         if Forward_Is_True:             #אם נוסעים קדימה - תכפול באחד. אחורה - תכפול במינוס אחד
@@ -289,6 +303,7 @@ class Robot:
         
         while (abs(self.robot.distance()) < Td*10):
             wait(20) #ע"מ לא לגזול את כל המשאבים
+            self.check_forced_exit()
 
             error = self.gyro_sensor.angle() # proportional 
             print("distance: " + str(self.robot.distance()) + " gyro: " + str(self.gyro_sensor.angle()))
@@ -332,6 +347,8 @@ class Robot:
         #Kd = 3 #  the Constant 'K' for the 'd' derivative term
         #print(robot.distance())
         while (self.color_sensor_right.color() != stop_color or self.color_sensor_left.color() != stop_color):
+            self.check_forced_exit()
+
             error = self.gyro_sensor.angle() # proportional 
             print("distance: " + str(self.robot.distance()) + " gyro: " + str(self.gyro_sensor.angle()))
             if (error == 0):
@@ -364,6 +381,8 @@ class Robot:
         target_reflection = -1
 
         while(right_sensor_flag == False or left_sensor_flag == False):
+            self.check_forced_exit()
+
             if target_reflection == -1:
                 if self.color_sensor_right.color() == Color.BLACK:
                     right_sensor_flag = True
@@ -428,6 +447,8 @@ class Robot:
         # Start following the line endlessly.
         #while True:
         while (abs(self.robot.distance()) < distance*10):
+            self.check_forced_exit()
+
             # Calculate the deviation from the threshold.
             error = line_sensor.reflection() - threshold
             integral = integral + error
@@ -508,6 +529,8 @@ class Robot:
 
             #נוסע כמעט עד ערך הזווית במהירות מלאה
             while self.gyro_sensor.angle() <= angle * 0.8:
+                self.check_forced_exit()
+
                 print("degree: " + str(self.gyro_sensor.angle()))
                 self.right_motor.run(speed=(-1 * speed))
                 self.left_motor.run(speed=speed)
@@ -516,6 +539,8 @@ class Robot:
 
             #נוסע את שארית ערך הזווית במהירות מופחתת - פי 0.2
             while self.gyro_sensor.angle() < angle:
+                self.check_forced_exit()
+                
                 print("degree: " + str(self.gyro_sensor.angle()))
                 self.right_motor.run(speed=(-0.2 * speed))
                 self.left_motor.run(speed=speed*0.2)
@@ -524,6 +549,8 @@ class Robot:
             
             #תיקון איטי נוסף למקרה שצריך
             while self.gyro_sensor.angle() > angle:
+                self.check_forced_exit()
+                
                 print("degree: " + str(self.gyro_sensor.angle()))
                 self.right_motor.run(20)
                 self.left_motor.run(-20)
@@ -536,6 +563,8 @@ class Robot:
             
             #נוסע כמעט עד ערך הזווית במהירות מלאה, הגלגלים נעים בכיוון הפוך
             while self.gyro_sensor.angle() >= angle * 0.8:
+                self.check_forced_exit()
+                
                 print("degree: " + str(self.gyro_sensor.angle()))
                 self.right_motor.run(speed=(speed))
                 self.left_motor.run(speed=speed*-1)
@@ -544,6 +573,7 @@ class Robot:
 
             #נוסע את שארית ערך הזווית במהירות מופחתת - פי 0.2
             while self.gyro_sensor.angle() > angle:
+                self.check_forced_exit()
                 print("degree: " + str(self.gyro_sensor.angle()))
                 self.right_motor.run(speed=(0.2 * speed))
                 self.left_motor.run(speed=speed*-0.2)
@@ -552,6 +582,7 @@ class Robot:
 
             #תיקון איטי נוסף למקרה שצריך
             while self.gyro_sensor.angle() > angle:
+                self.check_forced_exit()
                 print("degree: " + str(self.gyro_sensor.angle()))
                 self.right_motor.run(-20)
                 self.left_motor.run(20)
@@ -569,6 +600,8 @@ class Robot:
             speed = speed * -1
 
         while line_sensor.color() != color:
+            self.check_forced_exit()
+            
             self.left_motor.run(speed)
             self.left_motor.run(speed * -1)
 
