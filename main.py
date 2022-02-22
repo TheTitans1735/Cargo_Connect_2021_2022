@@ -5,8 +5,6 @@ import runs
 ilan = Robot()
 
 # Write your program here.
-menu = ["Reset Wall","Trucks","Wing","Blue Green","Cargo Plane"]
-i=0
 # ilan.ev3.speaker.beep()
 #functions.pid_gyro(1000)
 # Set up the Timer.  It is used to exit the input loop after 1 second.
@@ -20,6 +18,7 @@ i=0
 
 #Ilan moves the wall
 # ilan.pid_follow_line(ilan.color_sensor_right,4000,150,1.5, True)
+
 
 while False:
     #x=-1455

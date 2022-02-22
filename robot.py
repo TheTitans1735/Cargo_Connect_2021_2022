@@ -26,6 +26,8 @@ class Robot:
         self.gyro_sensor= GyroSensor(Port.S3)
         self.wall_x_motor = Motor(Port.D) 
         self.wall_y_motor = Motor(Port.A,Direction.COUNTERCLOCKWISE) 
+        
+        # self.stop_run = False חדש***
 
         #self.WALL_MAX_ANGLE_X = 1440 # need to be measured
         self.WALL_MAX_ANGLE_X = 860
@@ -266,6 +268,7 @@ class Robot:
     # ------------------ PID Gyro ------------------ 
 
     def pid_gyro(self,Td, Ts = 150, Forward_Is_True = True, Kp = 3.06, Ki= 0.027, Kd = 3.02):
+        # if self.stop
         direction_indicator = -1
         speed_indicator = -1       #משתנה שנועד כדי לכפול אותו במהירות ובתיקון השגיאה כדי שנוכל לנסוע אחורה במידת הצורך          
         if Forward_Is_True:             #אם נוסעים קדימה - תכפול באחד. אחורה - תכפול במינוס אחד
