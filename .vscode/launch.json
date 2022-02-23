@@ -36,10 +36,10 @@
 		}
 		, 
 		{
-			"name": "Runs Download and Run",
+			"name": "aRuns Download and Run",
 			"type": "ev3devBrowser",
 			"request": "launch",
-			"program": "/home/robot/${workspaceRootFolderName}/runs.py",
+			"program": "/home/robot/${workspaceRootFolderName}/aruns.py",
 			"interactiveTerminal": false
 		}
 		, 
