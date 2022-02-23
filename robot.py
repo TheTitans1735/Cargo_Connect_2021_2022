@@ -12,9 +12,11 @@ class Robot:
     """all Robot actions """
 
     def __init__(self):
+
         # Define Robot
         self.ev3 = EV3Brick()
-        # CONFIGURATION ILAN
+
+        ### CONFIGURATION ILAN ###
         self.left_motor = Motor(Port.C, Direction.COUNTERCLOCKWISE)
         self.right_motor = Motor(Port.B, Direction.COUNTERCLOCKWISE)
         self.robot = DriveBase(self.left_motor, self.right_motor, wheel_diameter=62.4, axle_track=122)
@@ -201,6 +203,7 @@ class Robot:
             print("!!!!!!!!!!!!!!!!!!!! FORCED EXIT !!!!!!!!!!!!!!!!!!!!!!!!")
             raise Exception("Forced Exit")
         
+
     def wait_for_button(self, text, debug = True):
         self.write(text)
         self.check_forced_exit()
@@ -487,6 +490,7 @@ class Robot:
 
         # מוצא קווים ככמות הפרמטר
         for i in range (0, lines_till_stop):
+            self.check_forced_exit()
             
             if (i > 0):
                 self.pid_follow_line(10, speed, self.color_sensor_right, Kp=kp)
@@ -506,6 +510,7 @@ class Robot:
 
         # מוצא קווים ככמות הפרמטר
         for i in range (0, lines_till_stop):
+            self.check_forced_exit()
             
             if (i > 0):
                 self.pid_follow_line(10, 80, self.color_sensor_right, Kp=kp, white_is_right = white_is_right)
@@ -595,6 +600,26 @@ class Robot:
         # print("Gyro angle:" + str(self.gyro_sensor.angle()))
 
 
+    # TURN UNTIL SECONDS
+    def turn_until_seconds(self, seconds, max_angle, speed = 150, turn_right = True):
+        "Right = True, Left = False"
+
+        if turn_right == False:
+            speed = speed * -1
+
+        sw = StopWatch()
+        self.gyro_sensor.reset_angle(0)
+
+        while sw.time() < seconds * 1000 and abs(self.gyro_sensor.angle()) < max_angle:
+            self.check_forced_exit()
+            
+            self.left_motor.run(speed)
+            self.right_motor.run(speed * -1)
+
+        self.right_motor.stop()
+        self.left_motor.stop()
+
+
     def turn_until_color(self, line_sensor, color = Color.BLACK, turn_right = True, speed = 100):
         if turn_right == False:
             speed = speed * -1
@@ -603,7 +628,7 @@ class Robot:
             self.check_forced_exit()
             
             self.left_motor.run(speed)
-            self.left_motor.run(speed * -1)
+            self.right_motor.run(speed * -1)
 
         self.right_motor.stop()
         self.left_motor.stop()

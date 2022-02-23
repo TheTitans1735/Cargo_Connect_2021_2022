@@ -3,16 +3,17 @@ from pybricks.tools import wait
 from robot import *
 
 ilan = Robot()
-# Write your program here.
+
 ilan.beep()
+
 # Set up the Timer.  It is used to exit the input loop after 1 second.
-ilan.reset_wall()
-# wait(1500)
-print("---")
-# ilan.move_wall_to_point(200,150)
-# wait(1500)
 timer = StopWatch()
+ilan.reset_wall()
+
+print("---")
+
 speed = 100 #start with
+
 ilan.write("Use buttons to move wall")
 while True:
     ilan.write(str(ilan.wall_x_motor.angle()) + "," + str(ilan.wall_y_motor.angle()))
