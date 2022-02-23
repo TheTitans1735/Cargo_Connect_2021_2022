@@ -2,7 +2,11 @@
 
 from pybricks.hubs import EV3Brick
 from robot import *
-# # Write code here
+
+"""
+Functions to get ready
+"""
+
 ilan = Robot()
 
 def clean_wheels():
@@ -14,9 +18,9 @@ def clean_wheels():
 
 TEXT_MENU = """Choose Action: 
   < - Clean Wheels
-  > - Light Sensor Calibration
+  > - 
   O - 
-  V -
+  V - 
   ^ - 
 """
             

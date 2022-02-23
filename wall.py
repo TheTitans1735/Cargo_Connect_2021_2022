@@ -2,23 +2,25 @@
 from pybricks.tools import wait
 from robot import *
 
-ilan = Robot()
+"""
+Move the wall accordingly to the buttons
+"""
 
+ilan = Robot()
 ilan.beep()
 
-# Set up the Timer.  It is used to exit the input loop after 1 second.
-timer = StopWatch()
+# Reset the wall & values
 ilan.reset_wall()
 
 print("---")
 
-speed = 100 #start with
+default_speed = 100
+speed = default_speed # Start with default speed
 
 ilan.write("Use buttons to move wall")
 while True:
+    # current angle
     ilan.write(str(ilan.wall_x_motor.angle()) + "," + str(ilan.wall_y_motor.angle()))
-    # Reset the Timer and the steps variable.
-    timer.reset()
     
     # Wait until any Brick Button is pressed.
     while not any(ilan.ev3.buttons.pressed()):
@@ -26,60 +28,47 @@ while True:
 
     # Respond to the Brick Button press.
     while True:
-        # Check whether Up Button is pressed, and increase the steps
-        # variable by 1 if it is.
+        
         if Button.RIGHT in ilan.ev3.buttons.pressed():
-            # Reset the Timer to enable entering multiple commands.
-            timer.reset()
-            #ilan.ev3.speaker.beep()
-            #ilan.wall_x_motor.run_time(speed, 180, then=Stop.BRAKE, wait=True)
-            ilan.wall_x_motor.dc(speed)
-            #ilan.write(str(ilan.wall_x_motor.angle()) + ", " + str(ilan.wall_y_motor.angle()))
+            """Move wall to right"""
             
-            # To avoid registering the same command again, wait until
-            # the Up Button is released before continuing.
-            #while Button.RIGHT in ilan.ev3.buttons.pressed():
-            #    wait(10)
+            # Move the motor
+            ilan.wall_x_motor.dc(speed)
+            ilan.write(str(ilan.wall_x_motor.angle()) + ", " + str(ilan.wall_y_motor.angle()))
+
+
         if Button.LEFT in ilan.ev3.buttons.pressed():
-            # Reset the Timer to enable entering multiple commands.
-            timer.reset()
-            #ilan.ev3.speaker.beep()
-            #ilan.wall_x_motor.run_time(speed * -1, 180, then=Stop.BRAKE, wait=True)
+            """Move wall to left"""
+
             ilan.wall_x_motor.dc(-speed)
             ilan.write(str(ilan.wall_x_motor.angle()) + ", " + str(ilan.wall_y_motor.angle()))
-            # To avoid registering the same command again, wait until
-            # the Up Button is released before continuing.
-            #while Button.RIGHT in ilan.ev3.buttons.pressed():
-            #    wait(10)
+           
+
         if Button.UP in ilan.ev3.buttons.pressed():
-            # Reset the Timer to enable entering multiple commands.
-            timer.reset()
-            #ilan.ev3.speaker.beep()
-            #ilan.wall_y_motor.run_time(speed , 180, then=Stop.BRAKE, wait=True)
+            """Move wall up"""
+
             ilan.wall_y_motor.dc(speed)
             ilan.write(str(ilan.wall_x_motor.angle()) + ", " + str(ilan.wall_y_motor.angle()))
-            # To avoid registering the same command again, wait until
-            # the Up Button is released before continuing.
-            #while Button.RIGHT in ilan.ev3.buttons.pressed():
-            #    wait(10)
-        if Button.DOWN in ilan.ev3.buttons.pressed():
-            # Reset the Timer to enable entering multiple commands.
-            timer.reset()
-            #ilan.ev3.speaker.beep()
-            #ilan.wall_y_motor.run_time(speed *-1, 180, then=Stop.BRAKE, wait=True)
-            ilan.wall_y_motor.dc(-speed)
 
+
+        if Button.DOWN in ilan.ev3.buttons.pressed():
+            """Move wall down"""
+
+            ilan.wall_y_motor.dc(-speed)
             ilan.write(str(ilan.wall_x_motor.angle()) + ", " + str(ilan.wall_y_motor.angle()))
-            # To avoid registering the same command again, wait until
-            # the Up Button is released before continuing.
-            #while Button.RIGHT in ilan.ev3.buttons.pressed():
-            #    wait(10)
+
+
         if Button.CENTER in ilan.ev3.buttons.pressed():
-            # Reset the Timer to enable entering multiple commands.
-            speed -= 10
+            """Lower wall's speed"""
+
+            speed = speed - 10
+
+            # If speed gets to 0, go to default speed
             if speed <= 0:
-                speed = 10
+                speed = default_speed
             
-            #ilan.write("speed = " + str(speed))
+            ilan.write("speed = " + str(speed))
+
         ilan.wall_y_motor.hold()
         ilan.wall_x_motor.hold()
+    

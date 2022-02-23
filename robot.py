@@ -1,5 +1,3 @@
-
-
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import (Motor, ColorSensor,GyroSensor)
 from pybricks.parameters import Port, Stop, Direction, Button, Color
@@ -8,36 +6,168 @@ from pybricks.robotics import DriveBase
 from pybricks.media import ev3dev
 import csv
 
+"""
+All Robot actions
+"""
 class Robot:
-    """all Robot actions """
 
+    ##### ROBOT TRAITS #####
+    
     def __init__(self):
 
-        # Define Robot
+        # define robot
         self.ev3 = EV3Brick()
 
-        ### CONFIGURATION ILAN ###
+        ## Ilan's Configuration ##
+        # motors
         self.left_motor = Motor(Port.C, Direction.COUNTERCLOCKWISE)
         self.right_motor = Motor(Port.B, Direction.COUNTERCLOCKWISE)
+
+        # robot
         self.robot = DriveBase(self.left_motor, self.right_motor, wheel_diameter=62.4, axle_track=122)
         self.robot.settings(straight_speed=200, straight_acceleration=100, turn_rate=100)
 
+        # color sensors
         self.color_sensor_left = ColorSensor(Port.S2)
         self.color_sensor_right = ColorSensor(Port.S1)
-    
+
+        # gyro sensor
         self.gyro_sensor= GyroSensor(Port.S3)
+
+        # wall's motors
         self.wall_x_motor = Motor(Port.D) 
         self.wall_y_motor = Motor(Port.A,Direction.COUNTERCLOCKWISE) 
-        
-        # self.stop_run = False חדש***
 
-        #self.WALL_MAX_ANGLE_X = 1440 # need to be measured
+        # define constant traits - wall's max angles
         self.WALL_MAX_ANGLE_X = 860
-        #self.WALL_MAX_ANGLE_Y = 1350 # need to be measured
         self.WALL_MAX_ANGLE_Y = 740
-        #max x= -1445 max y= -1365
+        
 
-        ######################## RESET WALL ###################################
+
+    ##### RESET WALL #####
+
+    def reset_wall(self):
+        """"
+        מאפס את הקיר לצד שמאל למטה
+        """
+
+        # define x & y motor's speed
+        speed_x = -800
+        speed_y = -1200
+
+        # move the wall to max values
+        self.wall_y_motor.run_until_stalled(speed_y,Stop.HOLD, duty_limit=85)
+        self.wall_x_motor.run_until_stalled(speed_x,Stop.HOLD, duty_limit=5)
+        wait(100)
+
+        # make wall's 0 angle current angle
+        self.wall_x_motor.reset_angle(0)
+        self.wall_y_motor.reset_angle(0)
+
+        # enter the current wall values into the file
+        self.push_wall_values()
+        
+        # write current angles
+        self.write("x = " + str(self.wall_x_motor.angle()) + "\ny = " + str(self.wall_y_motor.angle()))
+
+
+
+    ##### RESET WALL BOTTON RIGHT #####
+
+    def reset_wall_bottom_right(self):
+        """"
+        מאפס את הקיר לצד ימין למטה
+        """
+
+        # define x & y motor's speed
+        speed_x = 800
+        speed_y = -1200
+        
+        # move the wall to max values
+        self.wall_y_motor.run_until_stalled(speed_y,Stop.HOLD, duty_limit=85)
+        self.wall_x_motor.run_until_stalled(speed_x,Stop.HOLD, duty_limit=5)
+        wait(100)
+
+        # make wall's 0 angle current angle
+        self.wall_x_motor.reset_angle(self.WALL_MAX_ANGLE_X)
+        self.wall_y_motor.reset_angle(0)
+
+        # enter the current wall values into the file
+        self.push_wall_values()
+        
+        # write current angles
+        self.write("x = " + str(self.wall_x_motor.angle()) + "\ny = " + str(self.wall_y_motor.angle()))
+
+
+
+    ##### PUSH WALL'S CURRENT VALUES #####
+
+    def push_wall_values(self):
+        """
+        כתיבת ערך הפוזיציה הנוכחית של הקיר בקובץ טקסט    
+        """
+        # with open('wall_values.txt', 'w+') as f:
+        #     wait(50)
+        #     f.write(str(self.wall_x_motor.angle()) + "," + str(self.wall_y_motor.angle()))
+        pass
+            
+
+        
+    ##### UPDATE WALL'S CURRENT VALUES #####
+
+    def update_angles_from_file(self):
+        """
+        עדכון ערך הפוזיציה הנוכחית של הקיר לפי מה שנכתב בקובץ הטקסט
+        """
+        # with open('wall_values.txt') as f:
+        #     content = f.readline()
+        #     x_value, y_value = content.split(",")
+        #     wait(50)
+        #     self.wall_x_motor.reset_angle(int(x_value))
+        #     self.wall_y_motor.reset_angle(int(y_value))
+        pass
+
+
+    
+    ##### MOVE WALL TO POINT #####
+
+    def move_wall_to_point(self, x:int,y:int, speed=-1200, x_wait = True, y_wait = True):
+        """
+        הזזת הקיר לנקודה מסויימת בטווח התנועה שלו
+        """
+        # get the wall's current position from file
+        self.update_angles_from_file()
+
+        # make sure wall does not try to extend beyond boundries:
+        # define minimum and maximum values
+        x = min( x, self.WALL_MAX_ANGLE_X)
+        y = min( y, self.WALL_MAX_ANGLE_Y)
+        x = max( x, 10)
+        y = max( y, 10)
+        
+        # move motors until wall reaches the target position
+        # motors can move together or continue to next function based on wait paremiter 
+
+        self.wall_x_motor.run_target(speed, x, Stop.BRAKE, wait = x_wait)
+        self.wall_y_motor.run_target(speed, y, Stop.BRAKE, wait = y_wait) 
+        
+        
+        wait(100)
+        self.push_wall_values()
+        print("x = " + str(self.wall_x_motor.angle()) + ", y = "  + str(self.wall_y_motor.angle()))
+        
+    ######################## MEASURE WALL ###################################
+    # ideally will be run only once to measure the angles of the wall extremes
+    def measure_wall(self):
+
+        """"פונקציה שבעזרתה בדקנו מה האיקס והוואי של הקיר בפינות"""
+
+        self.reset_wall()
+        max_x = self.wall_x_motor.run_until_stalled(800,Stop.HOLD, duty_limit=20)
+        max_y = self.wall_y_motor.run_until_stalled(800,Stop.HOLD, duty_limit=1)
+        self.write("max x= " + str(max_x) + " max y= " + str(max_y))
+        self.wall_y_motor.stop()
+        self.wall_x_motor.stop()
 
     def PID_while_move_wall(self, x:int,y:int, drive_distance , drive_speed = 150 , seconds_to_start_wall = 0,wall_speed=-1200 , Forward_Is_True = True, Kp = 3.06, Ki= 0.027, Kd = 3.02):
         
@@ -107,28 +237,7 @@ class Robot:
         print("wall_x: " + str(self.wall_x_motor.angle()) + " wall_y: " + str(self.wall_y_motor.angle()))
         
     
-    def push_wall_values(self):
-        """
-        פונקציה זו כותבת לקובץ טקסט את הפוזיציה הנוכחית של הקיר
     
-        """
-        # with open('wall_values.txt', 'w+') as f:
-        #     wait(50)
-        #     f.write(str(self.wall_x_motor.angle()) + "," + str(self.wall_y_motor.angle()))
-        pass
-            
-        
-    def update_angles_from_file(self):
-        """
-        פונקציה שמעדכנת את ערך הפוזיציה הנוכחית של הקיר לפי מה שנכתב בקובץ לאחרונה.
-        """
-        # with open('wall_values.txt') as f:
-        #     content = f.readline()
-        #     x_value, y_value = content.split(",")
-        #     wait(50)
-        #     self.wall_x_motor.reset_angle(int(x_value))
-        #     self.wall_y_motor.reset_angle(int(y_value))
-        pass
             
     
     def check_gyro(self):
@@ -152,48 +261,7 @@ class Robot:
             
         return True
     
-    def reset_wall(self):
-
-        """"מאפס את הקיר לצד שמאל למטה"""
-        #self.check_gyro()
-        speed_x = -800
-
-        speed_y = -1200
-        # if upper_right:
-        #     speed_x = -1 * speed_x
-        #     speed_y = -1 * speed_y
-        self.wall_y_motor.run_until_stalled(speed_y,Stop.HOLD, duty_limit=85)
-        self.wall_x_motor.run_until_stalled(speed_x,Stop.HOLD, duty_limit=5)
-        wait(100)
-        self.wall_x_motor.reset_angle(0)
-        self.wall_y_motor.reset_angle(0)
-
-        self.push_wall_values()
-        # if upper_right:
-        #     self.wall_x_motor.reset_angle(self.WALL_MAX_ANGLE_X)
-        #     self.wall_y_motor.reset_angle(self.WALL_MAX_ANGLE_Y)
-        print("x = " + str(self.wall_x_motor.angle()) + ", y = " + str(self.wall_y_motor.angle()))
-
-    ######################### RESET WALL BOTTON RIGHT #################################
-    def reset_wall_bottom_right(self):
-
-        """"מאפס את הקיר לצג ימין למטה"""
-        speed_x = 800
-
-        speed_y = -1200
-        #self.check_gyro()
-        # if upper_right:
-        #     speed_x = -1 * speed_x
-        #     speed_y = -1 * speed_y
-        self.wall_x_motor.run_until_stalled(speed_x,Stop.HOLD, duty_limit=5)
-        self.wall_y_motor.run_until_stalled(speed_y,Stop.HOLD, duty_limit=85)
-        self.wall_x_motor.reset_angle(self.WALL_MAX_ANGLE_X)
-        self.wall_y_motor.reset_angle(0)
-        self.push_wall_values()
-        # if upper_right:
-        #     self.wall_x_motor.reset_angle(self.WALL_MAX_ANGLE_X)
-        #     self.wall_y_motor.reset_angle(self.WALL_MAX_ANGLE_Y)
-        print("x = " + str(self.wall_x_motor.angle()) + ", y = " + str(self.wall_y_motor.angle()))
+    
 
 
     #waiting for button and showing text - for debugging
@@ -215,43 +283,7 @@ class Robot:
             
 
     # move the wall to the point specified
-    def move_wall_to_point(self, x:int,y:int, speed=-1200, x_wait = True, y_wait = True):
-        # get the wall's current position from file
-
-        # if self.stop_run = True
-        self.update_angles_from_file()
-
-        # make sure wall does not try to extend beyond boundries
-        x = min( x, self.WALL_MAX_ANGLE_X)
-        y = min( y, self.WALL_MAX_ANGLE_Y)
-        x = max( x, 10)
-        y = max( y, 10)
-        
-        # move motors until wall reaches the target position
-        self.wall_x_motor.run_target(speed, x, Stop.BRAKE, wait = x_wait)
-
-        # motors can move together or continue to next function based on wait paremiter 
-        self.wall_y_motor.run_target(speed, y, Stop.BRAKE, wait = y_wait) 
-        
-        
-        
-        
-        wait(100)
-        self.push_wall_values()
-        print("x = " + str(self.wall_x_motor.angle()) + ", y = "  + str(self.wall_y_motor.angle()))
-        
-    ######################## MEASURE WALL ###################################
-    # ideally will be run only once to measure the angles of the wall extremes
-    def measure_wall(self):
-
-        """"פונקציה שבעזרתה בדקנו מה האיקס והוואי של הקיר בפינות"""
-
-        self.reset_wall()
-        max_x = self.wall_x_motor.run_until_stalled(800,Stop.HOLD, duty_limit=20)
-        max_y = self.wall_y_motor.run_until_stalled(800,Stop.HOLD, duty_limit=1)
-        self.write("max x= " + str(max_x) + " max y= " + str(max_y))
-        self.wall_y_motor.stop()
-        self.wall_x_motor.stop()
+    
 
 
     ###################### WRITE ON EV3 SCREEN WITH WRAP########################

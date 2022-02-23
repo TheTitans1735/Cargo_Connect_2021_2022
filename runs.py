@@ -1,6 +1,6 @@
 #!/usr/bin/env pybricks-micropython
 from robot import *
-# Write code here
+
 ilan = Robot()
 ilan.reset_wall_bottom_right()
       
@@ -350,7 +350,7 @@ def take_containers(close_or_far):
 
     # check if robot needs to go to close / far containers
     ilan.wait_for_button("Go Close or Far", my_debug)
-    cm_to_go_forward = 57
+    cm_to_go_forward = 57 - 1
     ilan.pid_gyro(cm_to_go_forward, 200)
 
     # Turn & drive to mission
@@ -364,7 +364,7 @@ def take_containers(close_or_far):
         # ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X, 0, 8,45)
 
     else:
-        ilan.move_wall_to_point(0 + 50, 0)
+        ilan.move_wall_to_point(0, 0)
         # ilan.PID_while_move_wall(0,0,8,80)
     ilan.pid_gyro(8, 80)
     
@@ -383,7 +383,7 @@ def take_containers(close_or_far):
     ilan.wait_for_button("Go Home", wall_debug)
     # ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 700)
     # ilan.pid_gyro(22, 150, Forward_Is_True = False)
-    ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y, 22, 150, 0.5, Forward_Is_True = False)
+    ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y, 22 - 1, 150, 0.5, Forward_Is_True = False)
     ilan.turn(90, 150)
     ilan.pid_gyro(89, 400)
 
@@ -394,8 +394,10 @@ def take_containers(close_or_far):
     # Go back right, catch blue
     ilan.turn(57, 150)
     ilan.pid_gyro(50, 500)
+
     # ilan.turn(-90, 400)
-    ilan.turn_until_seconds(0.7, 70, 400, False)
+    ilan.turn_until_seconds(0.7, 70, 400, False)                      
+    wait(1000)
     ilan.move_wall_to_point(0, 0, x_wait = False, y_wait = False)
     
 
@@ -493,8 +495,7 @@ def crane_run():
     ilan.turn(-45, 120)
 
     ilan.wait_for_button("Drive to parking mission", my_debug)
-
-    ilan.pid_gyro(37, 250)
+    ilan.pid_gyro(37.1, 250)
     
     ilan.say("I did it")
 
