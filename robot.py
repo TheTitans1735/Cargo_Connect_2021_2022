@@ -5,7 +5,8 @@ from pybricks.tools import wait, StopWatch, DataLog
 from pybricks.robotics import DriveBase
 from pybricks.media import ev3dev
 import csv
-
+import time
+#import datetime
 """
 All Robot actions
 """
@@ -236,8 +237,6 @@ class Robot:
         print("distance: " + str(self.robot.distance()) + " gyro: " + str(self.gyro_sensor.angle()))
         print("wall_x: " + str(self.wall_x_motor.angle()) + " wall_y: " + str(self.wall_y_motor.angle()))
         
-    
-    
             
     
     def check_gyro(self):
@@ -260,8 +259,7 @@ class Robot:
             
             
         return True
-    
-    
+
 
 
     #waiting for button and showing text - for debugging
@@ -458,6 +456,13 @@ class Robot:
 
     def pid_follow_line(self, distance, speed, line_sensor, stop_condition = lambda: False, Kp = 1.30 ,Ki = 0.01, white_is_right = True, Kd=0.07):
         self.robot.reset() 
+        initial_gyro_angle = self.gyro_sensor.angle()
+        # Start a stopwatch to measure elapsed time
+        watch = StopWatch()
+        #self.data =DataLog("Distance", "Reflection", "Error", "PROPORTIONAL_GAIN", "INTEGRAL_GAIN", "DERIVATIVE_GAIN", "integral", "derivative", "turn_rate", "gyro", "speed", "white_is_right","Gyro_Offset","MS_From_Start" timestamp=True)
+        log_file_name = time.strftime("%Y_%m_%d_%H_%M_%S")
+        print(log_file_name)
+        self.data =DataLog("Distance", "Reflection", "Error", "PROPORTIONAL_GAIN", "INTEGRAL_GAIN", "DERIVATIVE_GAIN", "integral", "derivative", "turn_rate", "gyro", "speed", "white_is_right","Gyro_Offset","MS_From_Start",name=log_file_name,timestamp=False)
         # Calculate the light threshold. Choose values based on your measurements.
         #6,71
         BLACK = 6
@@ -498,7 +503,7 @@ class Robot:
             print("distance = " , self.robot.distance() , "  |  reflection = " , line_sensor.reflection() , "  |  error = " , error ,
                 "  |  integral = " , integral , "  |  derivative = " , derivative , "  |  turn_rate = " , turn_rate, "  |  gyro = ", self.gyro_sensor.angle())
             last_error = error
-
+            self.data.log(self.robot.distance(), line_sensor.reflection(), error, PROPORTIONAL_GAIN, INTEGRAL_GAIN, DERIVATIVE_GAIN, integral, derivative, turn_rate, self.gyro_sensor.angle(), speed, white_is_right,self.gyro_sensor.angle()- initial_gyro_angle,watch.time())
             # עוצר במקרה שזיהה תנאי עצירה
             if stop_condition():
                 break
@@ -510,33 +515,12 @@ class Robot:
         self.robot.stop()
 
 
-######################## PID FOLLOW RIGHT LINE UNTIL LEFT DETECT LINE ###################################
-
-    def pid_follow_right_line_until_left_detect_line(self, lines_till_stop = 1, speed = 90, kp = 1.3):
+    ##### PID FOLLOW RIGHT LINE UNTIL LEFT DETECT COLOR #####
+    def pid_follow_right_line_until_left_detect_color(self, lines_till_stop, follow_color_sensor, detection_color_sensor, speed = 90, white_is_right = True, stop_color = Color.BLACK, kp = 1.3):
         my_debug = False
 
         # מגדיר את תנאי העצירה
-        stop_on_white = lambda : self.color_sensor_left.color() == Color.WHITE
-        stop_on_black = lambda : self.color_sensor_left.color() == Color.BLACK
-        self.wait_for_button("Start Follow", my_debug)
-
-        # מוצא קווים ככמות הפרמטר
-        for i in range (0, lines_till_stop):
-            self.check_forced_exit()
-            
-            if (i > 0):
-                self.pid_follow_line(10, speed, self.color_sensor_right, Kp=kp)
-
-            self.pid_follow_line(150, speed, self.color_sensor_right, stop_condition = stop_on_white, Kp = kp)
-            self.pid_follow_line(1, speed, self.color_sensor_right, Kp=kp)    
-            self.pid_follow_line(5, 40, self.color_sensor_right, stop_condition = stop_on_black, Kp = kp)
-            
-            
-    def pid_follow_right_line_until_left_detect_color(self ,lines_till_stop = 1, speed = 90, white_is_right = True, stop_color = Color.BLACK, kp = 1.3):
-        my_debug = False
-
-        # מגדיר את תנאי העצירה
-        stop_on_black = lambda : self.color_sensor_left.color() == stop_color
+        stop_on_black = lambda : detection_color_sensor.color() == stop_color
 
         self.wait_for_button("Start Follow", my_debug)
 
@@ -545,9 +529,9 @@ class Robot:
             self.check_forced_exit()
             
             if (i > 0):
-                self.pid_follow_line(10, 80, self.color_sensor_right, Kp=kp, white_is_right = white_is_right)
+                self.pid_follow_line(10, 80, follow_color_sensor, Kp=kp, white_is_right = white_is_right)
             
-            self.pid_follow_line(150, speed, self.color_sensor_right, stop_condition = stop_on_black, Kp = kp, white_is_right = white_is_right)
+            self.pid_follow_line(150, speed, follow_color_sensor, stop_condition = stop_on_black, Kp = kp, white_is_right = white_is_right)
             self.beep()
 
 
@@ -652,7 +636,7 @@ class Robot:
         self.left_motor.stop()
 
 
-    def turn_until_color(self, line_sensor, color = Color.BLACK, turn_right = True, speed = 100):
+    def turn_until_color (self, line_sensor, color = Color.BLACK, turn_right = True, speed = 100):
         if turn_right == False:
             speed = speed * -1
 
@@ -665,4 +649,33 @@ class Robot:
         self.right_motor.stop()
         self.left_motor.stop()
 
-        
+
+
+    ##### LEARN THE BEST VALUES FOR PID FOLLOW LINE #####
+    def learn_pid_line_values (self, line_sensor, distace = 150, speed = 100, value_checking = "Kp", kp = 1.3, ki = 0.01, kd = 0.07, num_of_loops = 20):
+
+        # Create the file to write in with following catagories:
+        # Direction - Forward / Backward | Time passed from last end of the line | Distance passed from last end of the line |
+        # Current Kp value | Current Ki value | Current Kd value | Current Gyro angle |
+        pid_line_values = DataLog ('Direction', 'Time from line end', 'Distance from line end',
+        'Kp', 'Ki', 'Kd', 'Gyro angle', name = 'Learn Pid Values', timestamp = True)
+
+        while True:
+
+            for i in range(0, num_of_loops):
+                self.pid_follow_line(distace, speed, line_sensor, Kp = kp, Ki = ki, Kd = kd)
+                wait(200)
+                self.turn(180, 200)
+
+                self.pid_follow_line(distace, speed, line_sensor, Kp = kp, Ki = ki, Kd = kd, white_is_right = False)
+                wait(200)
+                self.turn(200, 200)
+
+            if value_checking == "Kp" or value_checking == "kp":
+                kp = kp + 0.01
+
+            elif value_checking == "Ki" or value_checking == "ki":
+                ki = ki + 0.01
+
+            elif value_checking == "Kd" or value_checking == "kd":
+                kd = kd + 0.01

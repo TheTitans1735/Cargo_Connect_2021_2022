@@ -586,10 +586,48 @@ def running ():
             print("Error: {}".format(ex))
             wait(2500)
 
-running()
+# running()
 # ilan.turn_until_seconds(2, 80, 400)
 
 # ilan.beep()
 # wait(2000)
 
 # ilan.turn_until_seconds(2, 80, 400, False)
+
+ilan.reset_wall()
+ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, ilan.WALL_MAX_ANGLE_Y)
+loop_start_value = 1.25
+loop_end_value = 1.35
+loop_step_size = 0.01
+loop_current_value = loop_start_value
+#run_log_file_name = time.strftime("%Y_%m_%d_%H_%M_%S")
+#print(run_log_file_name)
+while loop_current_value < loop_end_value:
+    ilan.wait_for_button("check angle from line", False)
+    # ilan.pid_follow_right_line_until_left_detect_color(3, ilan.color_sensor_left, ilan.color_sensor_right, white_is_right = False, speed = 100)
+    ilan.pid_follow_line(150, 100, ilan.color_sensor_right,Kp=loop_current_value)
+
+    ilan.wait_for_button("check distance from line end", False)
+    ilan.turn(180, 200)
+    # ilan.pid_follow_right_line_until_left_detect_color(3, ilan.color_sensor_right, ilan.color_sensor_left, speed = 100)
+    ilan.pid_follow_line(150, 100, ilan.color_sensor_left, white_is_right = False,Kp=loop_current_value)
+
+    ilan.wait_for_button("check distance from line end", False)
+    ilan.turn(200, 200)
+    loop_current_value += loop_step_size  
+
+    
+# for i in range(1.1, 1.4, 0.01):
+#     ilan.wait_for_button("check angle from line", False)
+#     # ilan.pid_follow_right_line_until_left_detect_color(3, ilan.color_sensor_left, ilan.color_sensor_right, white_is_right = False, speed = 100)
+#     ilan.pid_follow_line(150, 100, ilan.color_sensor_right)
+
+#     ilan.wait_for_button("check distance from line end", False)
+#     ilan.turn(180, 200)
+#     # ilan.pid_follow_right_line_until_left_detect_color(3, ilan.color_sensor_right, ilan.color_sensor_left, speed = 100)
+#     ilan.pid_follow_line(150, 100, ilan.color_sensor_left, white_is_right = False)
+
+#     ilan.wait_for_button("check distance from line end", False)
+#     ilan.turn(200, 200)  
+    
+

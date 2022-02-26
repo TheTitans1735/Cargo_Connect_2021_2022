@@ -24,5 +24,5 @@ TEXT_MENU = """Choose Action:
   ^ - 
 """
             
-clean_wheels()      
+# clean_wheels()      
 # ilan.turn(-90)
