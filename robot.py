@@ -148,215 +148,209 @@ class Robot:
         
         # move motors until wall reaches the target position
         # motors can move together or continue to next function based on wait paremiter 
-
         self.wall_x_motor.run_target(speed, x, Stop.BRAKE, wait = x_wait)
         self.wall_y_motor.run_target(speed, y, Stop.BRAKE, wait = y_wait) 
         
-        
         wait(100)
         self.push_wall_values()
+
+        # print current wall values
         print("x = " + str(self.wall_x_motor.angle()) + ", y = "  + str(self.wall_y_motor.angle()))
         
-    ######################## MEASURE WALL ###################################
+
+
+    ##### MEASURE WALL #####
+
     # ideally will be run only once to measure the angles of the wall extremes
     def measure_wall(self):
 
         """"פונקציה שבעזרתה בדקנו מה האיקס והוואי של הקיר בפינות"""
 
         self.reset_wall()
+
+        # run the motor to extreme
         max_x = self.wall_x_motor.run_until_stalled(800,Stop.HOLD, duty_limit=20)
         max_y = self.wall_y_motor.run_until_stalled(800,Stop.HOLD, duty_limit=1)
-        self.write("max x= " + str(max_x) + " max y= " + str(max_y))
+
         self.wall_y_motor.stop()
         self.wall_x_motor.stop()
 
-    def PID_while_move_wall(self, x:int,y:int, drive_distance , drive_speed = 150 , seconds_to_start_wall = 0,wall_speed=-1200 , Forward_Is_True = True, Kp = 3.06, Ki= 0.027, Kd = 3.02):
+        # print current wall values
+        self.write("max x= " + str(max_x) + " max y= " + str(max_y))
+
+
+
+    ##### PID Gyro #####
+
+    def pid_gyro(self, Td, Ts = 150, Forward_Is_True = True, Kp = 3.06, Ki= 0.027, Kd = 3.02):
+
+        direction_indicator = -1
+        speed_indicator = -1       #משתנה שנועד כדי לכפול אותו במהירות ובתיקון השגיאה כדי שנוכל לנסוע אחורה במידת הצורך     
+
+        if Forward_Is_True:             #אם נוסעים קדימה - תכפול באחד. אחורה - תכפול במינוס אחד
+            direction_indicator = -1
+            speed_indicator = 1   
+
+        # reset
+        self.robot.reset() 
+        self.gyro_sensor.reset_angle(0)
+
+        # Td = 1000 # target distance
+        # Ts = 150 # target speed of robot in mm/s
+
+        # Kp = 3 #  the Constant 'K' for the 'p' proportional controller
+        # Ki = 0.025 #  the Constant 'K' for the 'i' integral term
+        # Kd = 3 #  the Constant 'K' for the 'd' derivative term
+
+        # initialize
+        integral = 0 
+        derivative = 0 
+        lastError = 0 
+
+        ## Start Loop ##
+        while (abs(self.robot.distance()) < Td * 10):
+            wait(20) #ע"מ לא לגזול את כל המשאבים
+            self.check_forced_exit()
+
+            # P - Proportional
+            # תיקון השגיאה המיידית
+            # הגדר את השגיאה כזווית הנוכחית של הג'יירו
+            error = self.gyro_sensor.angle() 
+
+            print("distance: " + str(self.robot.distance()) + " gyro: " + str(self.gyro_sensor.angle()))
+
+            # I - Integral
+            # תיקון השגיאה המצטברת
+            # אם ישנה שגיאה, הוסף אותה לאינטגרל
+            if (error == 0):
+                integral = 0
+
+            else:
+                integral = integral + error    
+
+            # D - Derivative
+            # תיקון השגיאה העתידית
+            # הגדר את הדריבטיב כשגיאה הנוכחית - השגיאה האחרונה
+            derivative = error - lastError  
+            
+            # הגדרת זווית הפנייה הדרושה בנסיעה
+            # הכפלת כל חלק במשקל התיקון שלו
+            correction = (Kp * (error) + Ki * (integral) + Kd * derivative) * -1
+
+            # נסיעה לפי המהירות וזווית הנסיעה של התיקון
+            self.robot.drive(Ts * speed_indicator , correction * direction_indicator * -1)
+
+            # הגדר את השגיאה האחרונה כשגיאה הנוכחית
+            lastError = error  
+          
+        # עצור את הרובוט
+        self.robot.stop()
+
+
+
+    ##### PID GYRO WHILE MOVE WALL #####
+
+    def PID_while_move_wall(self, x:int, y:int, drive_distance, drive_speed = 150, seconds_to_start_wall = 0, wall_speed =- 1200,
+                            Forward_Is_True = True, Kp = 3.06, Ki= 0.027, Kd = 3.02):
         
         self.update_angles_from_file()
+
+        # define minimum and maximum wall values
         x = min( x, self.WALL_MAX_ANGLE_X)
         y = min( y, self.WALL_MAX_ANGLE_Y)
         x = max( x, 10)
         y = max( y, 10)
-        #print(str(x),str(y))
-         # מוסיפים 5 בגלל שציר וואי פועל עם גלגלי שיניים אחרים שמשנים לו טיפה את המעלות שהוא מגיע אליהם
-        # if y ended before x, wait for x to get to target
-        # self.wall_x_motor.run_target(speed, x, Stop.HOLD, wait=True)
-        # wait(3000)
-        
-        
+        # add 10 because y axis might get stuck while going down
+         
 
+        ## PID Gyro Part ##
 
-        ##################################____PID PART____#############################
         direction_indicator = -1
-        speed_indicator = -1       #משתנה שנועד כדי לכפול אותו במהירות ובתיקון השגיאה כדי שנוכל לנסוע אחורה במידת הצורך          
+        speed_indicator = -1       #משתנה שנועד כדי לכפול אותו במהירות ובתיקון השגיאה כדי שנוכל לנסוע אחורה במידת הצורך   
+
         if Forward_Is_True:             #אם נוסעים קדימה - תכפול באחד. אחורה - תכפול במינוס אחד
             direction_indicator = -1
             speed_indicator = 1   
+
+        # reset
         self.robot.reset() 
         self.gyro_sensor.reset_angle(0)
-        #Td = 1000 # target distance
-        #Ts = 150 # target speed of robot in mm/s
-        #Kp = 3 #  the Constant 'K' for the 'p' proportional controller
 
-        integral = 0 # initialize
-        #Ki = 0.025 #  the Constant 'K' for the 'i' integral term
+        # Td = 1000 # target distance
+        # Ts = 150 # target speed of robot in mm/s
 
-        derivative = 0 # initialize
-        lastError = 0 # initialize
-        #Kd = 3 #  the Constant 'K' for the 'd' derivative term
-        #print(robot.distance())
+        # Kp = 3 #  the Constant 'K' for the 'p' proportional controller
+        # Ki = 0.025 #  the Constant 'K' for the 'i' integral term
+        # Kd = 3 #  the Constant 'K' for the 'd' derivative term
+
+        # initialize
+        integral = 0 
+        derivative = 0 
+        lastError = 0 
+
+        # start stopwatch to use if user wants to start moving the wall a couple seconds after starting to drive
         sw_for_wall_timing = StopWatch()
-        while (abs(self.robot.distance()) < drive_distance*10 or self.wall_x_motor.speed() != 0 and self.wall_y_motor.speed() != 0):
+
+        ## Start Loop ##
+        while (abs(self.robot.distance()) < drive_distance * 10 or self.wall_x_motor.speed() != 0 and self.wall_y_motor.speed() != 0):
             self.check_forced_exit()
 
-            error = self.gyro_sensor.angle() # proportional 
+            # P - Proportional
+            # תיקון השגיאה המיידית
+            # הגדר את השגיאה כזווית הנוכחית של הג'יירו
+            error = self.gyro_sensor.angle() 
+
             print("distance: " + str(self.robot.distance()) + " gyro: " + str(self.gyro_sensor.angle()))
+
+            # I - Integral
+            # תיקון השגיאה המצטברת
+            # אם ישנה שגיאה, הוסף אותה לאינטגרל
             if (error == 0):
                 integral = 0
+
             else:
                 integral = integral + error    
-            derivative = error - lastError  
-        
-            correction = (Kp*(error) + Ki*(integral) + Kd*derivative) * -1
 
-            self.robot.drive(drive_speed * speed_indicator , correction * direction_indicator * -1)
-            if sw_for_wall_timing.time() > seconds_to_start_wall * 1000: 
-                self.wall_x_motor.run_target(wall_speed, x, Stop.BRAKE, wait=False)         #לולאה שתפקידה לתזמן את תחילת פעולת הקיר
-                self.wall_y_motor.run_target(wall_speed, y, Stop.BRAKE, wait=False)
+            # D - Derivative
+            # תיקון השגיאה העתידית
+            # הגדר את הדריבטיב כשגיאה הנוכחית - השגיאה האחרונה
+            derivative = error - lastError  
             
+            # הגדרת זווית הפנייה הדרושה בנסיעה
+            # הכפלת כל חלק במשקל התיקון שלו
+            correction = (Kp * (error) + Ki * (integral) + Kd * derivative) * -1
+
+            # נסיעה לפי המהירות וזווית הנסיעה של התיקון
+            self.robot.drive(drive_speed * speed_indicator , correction * direction_indicator * -1)
+
+            # הפעלת הקיר (במקרה שהזמן להמתנה להפעלת הקיר עבר)
+            if sw_for_wall_timing.time() > seconds_to_start_wall * 1000: 
+                self.wall_x_motor.run_target(wall_speed, x, Stop.BRAKE, wait = False)     
+                self.wall_y_motor.run_target(wall_speed, y, Stop.BRAKE, wait = False)
+            
+            # הגדרת השגיאה האחרונה כשגיאה הנוכחית
             lastError = error  
         
-            #print("error " + str(error) + "; integral " + str(integral) + "; correction " + str(correction)  )    
-            
+        # עצירת הרובוט והקיר          
         self.robot.stop()
         self.wall_x_motor.stop()
         self.wall_y_motor.stop()
+
         self.push_wall_values()
-        if self.wall_x_motor.angle() != x or self.wall_y_motor.angle() != y:                # מקרה קצה שבו הזזת הקיר לא הושלמה בתום המרחק
-            self.move_wall_to_point(x,y)
+
+        # במקרה והנסיעה הסתיימה לפני שהזזת הקיר הושלמה, הזז את הקיר לנקודה הרצוייה
+        if self.wall_x_motor.angle() != x or self.wall_y_motor.angle() != y:                
+            self.move_wall_to_point(x, y)
+
+        # הדפסת נתוני הנסיעה וערכי הקיר הנוכחיים
         print("distance: " + str(self.robot.distance()) + " gyro: " + str(self.gyro_sensor.angle()))
         print("wall_x: " + str(self.wall_x_motor.angle()) + " wall_y: " + str(self.wall_y_motor.angle()))
         
-            
-    
-    def check_gyro(self):
-        """
-        פונקציה לבדיקה האם הגיירו מאופס, אם לא משמיע אזעקה עד שהוא מאופס.
-        """
-    
-        try:
-            current_gyro = self.gyro_sensor.angle()
-            wait(500)
-            while current_gyro != self.gyro_sensor.angle():
-                for _ in range(3):
-                    self.ev3.speaker.play_file("GENERAL_ALERT.wav")
-                    wait(10)
-                wait(10)
-        except:
-            self.ev3.speaker.play_file("GENERAL_ALERT.wav")
-            wait(10)
-        
-            
-            
-        return True
 
 
-
-    #waiting for button and showing text - for debugging
-    def check_forced_exit(self):
-        if len(self.ev3.buttons.pressed()) >= 2:
-            self.write("Forced Exit")
-            print("!!!!!!!!!!!!!!!!!!!! FORCED EXIT !!!!!!!!!!!!!!!!!!!!!!!!")
-            raise Exception("Forced Exit")
-        
-
-    def wait_for_button(self, text, debug = True):
-        self.write(text)
-        self.check_forced_exit()
-        if not debug:
-            return
-        
-        while not any(self.ev3.buttons.pressed()):
-            wait(10)
-            
-
-    # move the wall to the point specified
-    
-
-
-    ###################### WRITE ON EV3 SCREEN WITH WRAP########################
-    def write(self, my_text):
-        " מדפיס טקסט נתון במחשב ועל מסך הרובוט "
-        self.ev3.screen.clear()
-
-        print(my_text)
-        
-        lines = my_text.split("\n")
-        for i in range(0, len(lines)):
-            self.ev3.screen.draw_text(1, i * 20, lines[i], text_color = Color.BLACK, background_color=None)
-    
-    def beep(self):
-
-        """"אילן עושה ביפ"""
-
-        self.ev3.speaker.beep()
-
-    
-    def say(self, text, voice='m1', volume=100):
-
-        """"אילן אומר את הטקסט.
-        ניתן לשלוט על הווליום ואפילו לשנות את המבטא של אילן."""
-
-        self.ev3.speaker.set_volume(volume)
-        self.ev3.speaker.set_speech_options(voice)
-        self.ev3.speaker.say(text)
-
-
-    # ------------------ PID Gyro ------------------ 
-
-    def pid_gyro(self,Td, Ts = 150, Forward_Is_True = True, Kp = 3.06, Ki= 0.027, Kd = 3.02):
-        # if self.stop_run = True
-        direction_indicator = -1
-        speed_indicator = -1       #משתנה שנועד כדי לכפול אותו במהירות ובתיקון השגיאה כדי שנוכל לנסוע אחורה במידת הצורך          
-        if Forward_Is_True:             #אם נוסעים קדימה - תכפול באחד. אחורה - תכפול במינוס אחד
-            direction_indicator = -1
-            speed_indicator = 1   
-        self.robot.reset() 
-        self.gyro_sensor.reset_angle(0)
-        #Td = 1000 # target distance
-        #Ts = 150 # target speed of robot in mm/s
-        #Kp = 3 #  the Constant 'K' for the 'p' proportional controller
-
-        integral = 0 # initialize
-        #Ki = 0.025 #  the Constant 'K' for the 'i' integral term
-
-        derivative = 0 # initialize
-        lastError = 0 # initialize
-        #Kd = 3 #  the Constant 'K' for the 'd' derivative term
-        
-        while (abs(self.robot.distance()) < Td*10):
-            wait(20) #ע"מ לא לגזול את כל המשאבים
-            self.check_forced_exit()
-
-            error = self.gyro_sensor.angle() # proportional 
-            print("distance: " + str(self.robot.distance()) + " gyro: " + str(self.gyro_sensor.angle()))
-            if (error == 0):
-                integral = 0
-            else:
-                integral = integral + error    
-            derivative = error - lastError  
-        
-            correction = (Kp*(error) + Ki*(integral) + Kd*derivative) * -1
-        
-            self.robot.drive(Ts * speed_indicator , correction * direction_indicator * -1) 
-
-            lastError = error  
           
-            
-        self.robot.stop()
-        
+    ##### PID GYRO UNTIL COLOR #####
 
-    # ------------------ PID Gyro until color ------------------
     def pid_gyro_until_color(self, stop_color = Color.BLACK, Ts = 150, Forward_Is_True = True, Kp = 3.06, Ki= 0.027, Kd = 3.02):
         
         direction_indicator = -1
@@ -366,42 +360,63 @@ class Robot:
             direction_indicator = -1
             speed_indicator = 1   
 
+        # reset
         self.robot.reset() 
         self.gyro_sensor.reset_angle(0)
-        #Td = 1000 # target distance
-        #Ts = 150 # target speed of robot in mm/s
-        #Kp = 3 #  the Constant 'K' for the 'p' proportional controller
 
-        integral = 0 # initialize
-        #Ki = 0.025 #  the Constant 'K' for the 'i' integral term
+        # Td = 1000 # target distance
+        # Ts = 150 # target speed of robot in mm/s
 
-        derivative = 0 # initialize
-        lastError = 0 # initialize
-        #Kd = 3 #  the Constant 'K' for the 'd' derivative term
-        #print(robot.distance())
+        # Kp = 3 #  the Constant 'K' for the 'p' proportional controller
+        # Ki = 0.025 #  the Constant 'K' for the 'i' integral term
+        # Kd = 3 #  the Constant 'K' for the 'd' derivative term
+
+        # initialize
+        integral = 0 
+        derivative = 0 
+        lastError = 0 
+
         while (self.color_sensor_right.color() != stop_color or self.color_sensor_left.color() != stop_color):
             self.check_forced_exit()
 
-            error = self.gyro_sensor.angle() # proportional 
+            # P - Proportional
+            # תיקון השגיאה המיידית
+            # הגדר את השגיאה כזווית הנוכחית של הג'יירו
+            error = self.gyro_sensor.angle() 
+
             print("distance: " + str(self.robot.distance()) + " gyro: " + str(self.gyro_sensor.angle()))
+
+            # I - Integral
+            # תיקון השגיאה המצטברת
+            # אם ישנה שגיאה, הוסף אותה לאינטגרל
             if (error == 0):
                 integral = 0
+
             else:
                 integral = integral + error    
-            derivative = error - lastError  
-        
-            correction = (Kp*(error) + Ki*(integral) + Kd*derivative) * -1
-        
-            self.robot.drive(Ts * speed_indicator , correction * direction_indicator * -1) 
 
-            lastError = error  
-        
-            #print("error " + str(error) + "; integral " + str(integral) + "; correction " + str(correction)  )    
+            # D - Derivative
+            # תיקון השגיאה העתידית
+            # הגדר את הדריבטיב כשגיאה הנוכחית - השגיאה האחרונה
+            derivative = error - lastError  
             
+            # הגדרת זווית הפנייה הדרושה בנסיעה
+            # הכפלת כל חלק במשקל התיקון שלו
+            correction = (Kp * (error) + Ki * (integral) + Kd * derivative) * -1
+
+            # נסיעה לפי המהירות וזווית הנסיעה של התיקון
+            self.robot.drive(Ts * speed_indicator , correction * direction_indicator * -1)
+
+            # הגדר את השגיאה האחרונה כשגיאה הנוכחית
+            lastError = error  
+          
+        # עצור את הרובוט
         self.robot.stop()
 
 
-    # ------------------ Straighten on Black ------------------
+
+    ##### STRAIGHTEN ON BLACK #####
+
     def straighten_on_black(self, speed = 90, drive_forward = True):
         if drive_forward == False:
             speed = speed * -1
@@ -413,7 +428,7 @@ class Robot:
         left_sensor_flag = False
         target_reflection = -1
 
-        while(right_sensor_flag == False or left_sensor_flag == False):
+        while (right_sensor_flag == False or left_sensor_flag == False):
             self.check_forced_exit()
 
             if target_reflection == -1:
@@ -447,63 +462,81 @@ class Robot:
         self.write("R Left: " + str(self.color_sensor_left.reflection()))
         self.write("R Right: " + str(self.color_sensor_right.reflection()))
 
-            
+      
 
-            
-
-
-    # ------------------ PID Follow Line ------------------
+    ##### PID Follow Line #####
 
     def pid_follow_line(self, distance, speed, line_sensor, stop_condition = lambda: False, Kp = 1.30 ,Ki = 0.01, white_is_right = True, Kd=0.07):
+        
+        """ נסיעה על הקו עם מנגנון פיד """
         self.robot.reset() 
+
+        # define gyro angle robot starts driving in
         initial_gyro_angle = self.gyro_sensor.angle()
+
         # Start a stopwatch to measure elapsed time
         watch = StopWatch()
-        #self.data =DataLog("Distance", "Reflection", "Error", "PROPORTIONAL_GAIN", "INTEGRAL_GAIN", "DERIVATIVE_GAIN", "integral", "derivative", "turn_rate", "gyro", "speed", "white_is_right","Gyro_Offset","MS_From_Start" timestamp=True)
+
         log_file_name = time.strftime("%Y_%m_%d_%H_%M_%S")
+
+        # print file's name
         print(log_file_name)
         self.data =DataLog("Distance", "Reflection", "Error", "PROPORTIONAL_GAIN", "INTEGRAL_GAIN", "DERIVATIVE_GAIN", "integral", "derivative", "turn_rate", "gyro", "speed", "white_is_right","Gyro_Offset","MS_From_Start",name=log_file_name,timestamp=False)
+        
         # Calculate the light threshold. Choose values based on your measurements.
-        #6,71
         BLACK = 6
         WHITE = 71
+
         threshold = (BLACK + WHITE) / 2
-        #self.robot.reset()
-        #logger = DataLog('error', 'integral','derivative','turn_rate')
-        # Set the drive speed at 100 millimeters per second.
+
+        # set drive speed as speed of paremeter
         DRIVE_SPEED = speed
+
         # Set the gain of the proportional line controller. This means that for every
         # percentage point of light deviating from the threshold, we set the turn
         # rate of the drivebase to 1.2 degrees per second.
         # For example, if the light value deviates from the threshold by 10, the robot
         # steers at 10*1.2 = 12 degrees per second.
+
         PROPORTIONAL_GAIN = Kp
         DERIVATIVE_GAIN = Kd
         INTEGRAL_GAIN = Ki
+
         integral = 0
         derivative =0
         last_error = 0
         
-        # Start following the line endlessly.
-        #while True:
-        while (abs(self.robot.distance()) < distance*10):
+        ## Follow The Line Until Target Distance is Reached ##
+        while (abs(self.robot.distance()) < distance * 10):
             self.check_forced_exit()
 
-            # Calculate the deviation from the threshold.
-            error = line_sensor.reflection() - threshold
-            integral = integral + error
-            derivative = error - last_error
+            # Calculate the deviation from the threshold
+            error = line_sensor.reflection() - threshold # P
+            integral = integral + error # I
+            derivative = error - last_error # D
             
             # Calculate the turn rate.
             turn_rate = PROPORTIONAL_GAIN * error + DERIVATIVE_GAIN * derivative + INTEGRAL_GAIN * integral
+
+            # white is right - when following the line, you may follow the right side of the black line or the left side of it.
+            # based on that, change the turn rate of driving on the line
             if white_is_right:
                 turn_rate = turn_rate * -1
+
             # Set the drive base speed and turn rate.
             self.robot.drive(DRIVE_SPEED, turn_rate)
+
             print("distance = " , self.robot.distance() , "  |  reflection = " , line_sensor.reflection() , "  |  error = " , error ,
                 "  |  integral = " , integral , "  |  derivative = " , derivative , "  |  turn_rate = " , turn_rate, "  |  gyro = ", self.gyro_sensor.angle())
+            
+            # define the last error as current error
             last_error = error
-            self.data.log(self.robot.distance(), line_sensor.reflection(), error, PROPORTIONAL_GAIN, INTEGRAL_GAIN, DERIVATIVE_GAIN, integral, derivative, turn_rate, self.gyro_sensor.angle(), speed, white_is_right,self.gyro_sensor.angle()- initial_gyro_angle,watch.time())
+
+            # log the driving data into the file
+            self.data.log(self.robot.distance(), line_sensor.reflection(), error, PROPORTIONAL_GAIN, INTEGRAL_GAIN, DERIVATIVE_GAIN,
+                          integral, derivative, turn_rate, self.gyro_sensor.angle(), speed, white_is_right,
+                          self.gyro_sensor.angle() - initial_gyro_angle,watch.time())
+
             # עוצר במקרה שזיהה תנאי עצירה
             if stop_condition():
                 break
@@ -511,12 +544,16 @@ class Robot:
             # You can wait for a short time or do other things in this loop.
             wait(10)
             
-        #print(logger)    
+        # stop robot movement
         self.robot.stop()
 
 
+
     ##### PID FOLLOW RIGHT LINE UNTIL LEFT DETECT COLOR #####
-    def pid_follow_right_line_until_left_detect_color(self, lines_till_stop, follow_color_sensor, detection_color_sensor, speed = 90, white_is_right = True, stop_color = Color.BLACK, kp = 1.3):
+
+    def pid_follow_right_line_until_left_detect_color (self, lines_till_stop, follow_color_sensor, detection_color_sensor,
+                                                      speed = 90, white_is_right = True, stop_color = Color.BLACK, kp = 1.3):
+        """ סע על הקו השחור עד זיהוי כמות מסויימת של קווים שחורים עם חיישן הצבע השני """
         my_debug = False
 
         # מגדיר את תנאי העצירה
@@ -529,153 +566,368 @@ class Robot:
             self.check_forced_exit()
             
             if (i > 0):
+                # לאחר מציאת קו, סע 10 ס"מ במהירות נמוכה יותר כדי
+                # להתרחק מן הקו ולהיות בטוח מפני פניות
                 self.pid_follow_line(10, 80, follow_color_sensor, Kp=kp, white_is_right = white_is_right)
             
+            # נסיעה עד זיהוי תנאי העצירה - זיהוי הקו השחור
             self.pid_follow_line(150, speed, follow_color_sensor, stop_condition = stop_on_black, Kp = kp, white_is_right = white_is_right)
             self.beep()
 
 
-    def run_straight(self, distance):
+    ##### RUN STRAIGHT ####
+
+    def run_straight (self, distance):
         self.robot.straight(distance * 10)
 
-######################## TURN ###################################
-    def turn(self, angle, speed=100):
+
+
+    ##### TURN #####
+
+    def turn (self, angle, speed=100):
+        # איפוס חיישן הג'יירו
         self.gyro_sensor.reset_angle(0)
-        # 2022-02-05 Rotem was wait 500. Reduced to 10
         wait(10)
 
-
-        #פנייה ימינה - זווית פנייה חיובית
+        ## פנייה ימינה - זווית פנייה חיובית ##
         if angle > 0:
 
-            #נוסע כמעט עד ערך הזווית במהירות מלאה
+
+            # נוסע כמעט עד ערך הזווית במהירות מלאה
             while self.gyro_sensor.angle() <= angle * 0.8:
                 self.check_forced_exit()
 
+                # הדפסת ערך הזווית הנוכחית
                 print("degree: " + str(self.gyro_sensor.angle()))
-                self.right_motor.run(speed=(-1 * speed))
-                self.left_motor.run(speed=speed)
+
+                # פנייה במהירות מלאה
+                self.right_motor.run(speed = (-1 * speed))
+                self.left_motor.run(speed = speed)
+
+            # עצירת מנועי הרובוט
             self.right_motor.brake()
             self.left_motor.brake()
 
-            #נוסע את שארית ערך הזווית במהירות מופחתת - פי 0.2
+
+            #נוסע את שארית ערך הזווית במהירות מופחתת פי 0.2
             while self.gyro_sensor.angle() < angle:
                 self.check_forced_exit()
-                
+
+                # הדפסת ערך הזווית הנוכחית
                 print("degree: " + str(self.gyro_sensor.angle()))
-                self.right_motor.run(speed=(-0.2 * speed))
-                self.left_motor.run(speed=speed*0.2)
+
+                # פנייה במהירות כמעט מלאה
+                self.right_motor.run(speed = (-0.2 * speed))
+                self.left_motor.run(speed = speed * 0.2)
+
+            # עצירת מנועי הרובוט
             self.right_motor.brake()
             self.left_motor.brake()
             
-            #תיקון איטי נוסף למקרה שצריך
+
+            #  תיקון איטי נוסף במקרה הצורך
             while self.gyro_sensor.angle() > angle:
                 self.check_forced_exit()
                 
+                # הדפסת ערך הזווית הנוכחית
                 print("degree: " + str(self.gyro_sensor.angle()))
+
+                # פנייה במהירות נמוכה מאוד
                 self.right_motor.run(20)
                 self.left_motor.run(-20)
+                
                 wait(10)
 
-          
 
-        #פנייה שמאלה - זווית פנייה שלילית
+
+        ## פנייה שמאלה - זווית פנייה שלילית ##
         elif angle < 0:  
             
-            #נוסע כמעט עד ערך הזווית במהירות מלאה, הגלגלים נעים בכיוון הפוך
+            
+            # נוסע כמעט עד ערך הזווית במהירות מלאה, הגלגלים נעים בכיוון הפוך 
             while self.gyro_sensor.angle() >= angle * 0.8:
                 self.check_forced_exit()
                 
+                # הדפסת ערך הזווית הנוכחית
                 print("degree: " + str(self.gyro_sensor.angle()))
+
+                # פנייה במהירות מלאה
                 self.right_motor.run(speed=(speed))
                 self.left_motor.run(speed=speed*-1)
+
+            # עצירת מנועי הרובוט
             self.right_motor.brake()
             self.left_motor.brake()
 
-            #נוסע את שארית ערך הזווית במהירות מופחתת - פי 0.2
+
+            # נוסע את שארית ערך הזווית במהירות מופחתת פי 0.2
             while self.gyro_sensor.angle() > angle:
                 self.check_forced_exit()
+
+                # הדפסת ערך הזווית הנוכחית
                 print("degree: " + str(self.gyro_sensor.angle()))
+
+                # פנייה במהירות כמעט מלאה
                 self.right_motor.run(speed=(0.2 * speed))
                 self.left_motor.run(speed=speed*-0.2)
+
+            # עצירת מנועי הרובוט
             self.right_motor.stop()
             self.left_motor.stop()
 
-            #תיקון איטי נוסף למקרה שצריך
+
+            # תיקון איטי נוסף במקרה הצורך
             while self.gyro_sensor.angle() > angle:
                 self.check_forced_exit()
+
+                # הדפסת ערך הזווית הנוכחית
                 print("degree: " + str(self.gyro_sensor.angle()))
+
+                # פנייה במהירות איטית מאוד
                 self.right_motor.run(-20)
                 self.left_motor.run(20)
+
                 wait(10)  
    
+
+        # לאחר הפנייה, עצור את מנועי הרובוט
         self.right_motor.stop()
         self.left_motor.stop()
+
+        # הדפסת הזווית הסופית
         print("final degree: " + str(self.gyro_sensor.angle()))
-        # self.robot.stop()
-        # print("Gyro angle:" + str(self.gyro_sensor.angle()))
 
 
-    # TURN UNTIL SECONDS
+
+    ##### TURN UNTIL SECONDS ####
+
     def turn_until_seconds(self, seconds, max_angle, speed = 150, turn_right = True):
-        "Right = True, Left = False"
+        """Right = True, Left = False"""
 
+        # שנה את מהירות הפנייה בהתאם לרצון המשתמש לפנות ימינה או שמאלה
         if turn_right == False:
             speed = speed * -1
 
+        # הפעל שעון עצר
         sw = StopWatch()
-        self.gyro_sensor.reset_angle(0)
 
+        # איפוס חיישן הג'יירו
+        self.gyro_sensor.reset_angle(0)
+        
+        ## הפנייה ##
+        # פנייה עד כמות השניות / עד הגעה לזווית רצויה
         while sw.time() < seconds * 1000 and abs(self.gyro_sensor.angle()) < max_angle:
             self.check_forced_exit()
             
+            # הפעלת המנועים
             self.left_motor.run(speed)
             self.right_motor.run(speed * -1)
 
+        # עצירת המנועים
         self.right_motor.stop()
         self.left_motor.stop()
 
 
-    def turn_until_color (self, line_sensor, color = Color.BLACK, turn_right = True, speed = 100):
+
+    ##### TURN UNTIL COLOR #####
+
+    def turn_until_color (self, line_sensor, turn_right = True, speed = 100):
+
+        # שנה את מהירות הפנייה בהתאם לרצון המשתמש לפנות ימינה או שמאלה
         if turn_right == False:
             speed = speed * -1
 
-        while line_sensor.color() != color:
+        ## הפנייה ##
+        # פנייה עד זיהוי הצבע השחור
+        while line_sensor.reflection > 40:
             self.check_forced_exit()
             
+            # הפעלת המנועים
             self.left_motor.run(speed)
             self.right_motor.run(speed * -1)
 
+        # עצירת המנועים
         self.right_motor.stop()
         self.left_motor.stop()
 
 
 
     ##### LEARN THE BEST VALUES FOR PID FOLLOW LINE #####
-    def learn_pid_line_values (self, line_sensor, distace = 150, speed = 100, value_checking = "Kp", kp = 1.3, ki = 0.01, kd = 0.07, num_of_loops = 20):
+    def learn_pid_line_values (self, line_sensor, distance = 150, speed = 100, value_checking = "Kp", kp = 1.3, ki = 0.01, kd = 0.07, num_of_loops = 20):
 
         # Create the file to write in with following catagories:
         # Direction - Forward / Backward | Time passed from last end of the line | Distance passed from last end of the line |
         # Current Kp value | Current Ki value | Current Kd value | Current Gyro angle |
+
         pid_line_values = DataLog ('Direction', 'Time from line end', 'Distance from line end',
-        'Kp', 'Ki', 'Kd', 'Gyro angle', name = 'Learn Pid Values', timestamp = True)
+                                    'Kp', 'Ki', 'Kd', 'Gyro angle', name = 'Learn Pid Values', timestamp = True)
 
-        while True:
+        self.reset_wall()
+        self.move_wall_to_point(self.WALL_MAX_ANGLE_X / 2, self.WALL_MAX_ANGLE_Y)
 
-            for i in range(0, num_of_loops):
-                self.pid_follow_line(distace, speed, line_sensor, Kp = kp, Ki = ki, Kd = kd)
-                wait(200)
-                self.turn(180, 200)
+        # define values throughout the loop
+        loop_start_value = 1.25
+        loop_end_value = 1.35
+        loop_step_size = 0.01
 
-                self.pid_follow_line(distace, speed, line_sensor, Kp = kp, Ki = ki, Kd = kd, white_is_right = False)
-                wait(200)
-                self.turn(200, 200)
+        loop_current_value = loop_start_value
+        if value_checking == "Kp" or value_checking == "kp":
+            kp = loop_start_value
 
+        elif value_checking == "Ki" or value_checking == "ki":
+            ki = loop_start_value
+
+        elif value_checking == "Kd" or value_checking == "kd":
+            kd = loop_start_value
+
+
+        ## Start Loop ##
+        while loop_current_value < loop_end_value:
+            
+            # drive on the line forward
+            self.wait_for_button("1 Drive on the line forward", False)
+            self.pid_follow_line(distance, speed, self.color_sensor_right, Kp = kp, Ki = ki, Kd = kd)
+
+            # turn backwards
+            self.wait_for_button("2 Turn backwards", False)
+            self.turn(180, 200)
+
+            # drive on the line back to start
+            self.wait_for_button("drive on the line back to start", False)
+            self.pid_follow_line(distance, speed, self.color_sensor_left, white_is_right = False, Kp = kp, Ki = ki, Kd = kd)
+
+            # turn backwards
+            self.wait_for_button("3 Turn backwards")
+            self.turn(200, 200)
+            
             if value_checking == "Kp" or value_checking == "kp":
-                kp = kp + 0.01
+                kp = kp + loop_step_size
 
             elif value_checking == "Ki" or value_checking == "ki":
-                ki = ki + 0.01
+                ki = ki + loop_step_size
 
             elif value_checking == "Kd" or value_checking == "kd":
-                kd = kd + 0.01
+                kd = kd + loop_step_size
+
+        # pid_line_values = DataLog ('Direction', 'Time from line end', 'Distance from line end',
+        # 'Kp', 'Ki', 'Kd', 'Gyro angle', name = 'Learn Pid Values', timestamp = True)
+
+        # while True:
+
+        #     for i in range(0, num_of_loops):
+        #         self.pid_follow_line(distace, speed, line_sensor, Kp = kp, Ki = ki, Kd = kd)
+        #         wait(200)
+        #         self.turn(180, 200)
+
+        #         self.pid_follow_line(distace, speed, line_sensor, Kp = kp, Ki = ki, Kd = kd, white_is_right = False)
+        #         wait(200)
+        #         self.turn(200, 200)
+
+        #     if value_checking == "Kp" or value_checking == "kp":
+        #         kp = kp + 0.01
+
+        #     elif value_checking == "Ki" or value_checking == "ki":
+        #         ki = ki + 0.01
+
+        #     elif value_checking == "Kd" or value_checking == "kd":
+        #         kd = kd + 0.01
+
+
+
+    ##### CHECK GYRO #####
+
+    def check_gyro(self):
+        """
+        פונקציה לבדיקה האם הגיירו מאופס, אם לא משמיע אזעקה עד שהוא מאופס.
+        """
+    
+        try:
+            current_gyro = self.gyro_sensor.angle()
+            wait(500)
+            while current_gyro != self.gyro_sensor.angle():
+                for _ in range(3):
+                    self.ev3.speaker.play_file("GENERAL_ALERT.wav")
+                    wait(10)
+                wait(10)
+
+        except:
+            self.ev3.speaker.play_file("GENERAL_ALERT.wav")
+            wait(10)
+            
+        return True
+
+
+
+    ##### CHECK FORCED EXIT #####
+
+    #waiting for button and showing text - for debugging
+    def check_forced_exit(self):
+        if len(self.ev3.buttons.pressed()) >= 2:
+            self.write("Forced Exit")
+            print("!!!!!!!!!!!!!!!!!!!! FORCED EXIT !!!!!!!!!!!!!!!!!!!!!!!!")
+            raise Exception("Forced Exit")
+        
+
+
+    ##### WAIT FOR BUTTON #####
+
+    def wait_for_button(self, text, debug = True):
+        
+        # הדפסת הטקסט הנתון
+        self.write(text)
+        self.check_forced_exit()
+        
+        if not debug:
+            return
+        
+        # חכה ללחיצת כפתור
+        while not any(self.ev3.buttons.pressed()):
+            wait(10)
+                
+
+
+    ##### WRITE ON EV3 SCREEN #####
+
+    def write(self, my_text):
+        """ מדפיס טקסט נתון במחשב ועל מסך הרובוט """
+
+        # נקה את מסך הרובוט
+        self.ev3.screen.clear()
+
+        # הדפסת הטקסט במחשב
+        print(my_text)
+        
+        # הפרד את הטקסט לפי \n
+        lines = my_text.split("\n")
+
+        # הדפסת הטקסט על מסך הרובוט עם מרווחים בין כל שורה
+        for i in range(0, len(lines)):
+            self.ev3.screen.draw_text(1, i * 20, lines[i], text_color = Color.BLACK, background_color=None)
+    
+
+
+    ##### BEEP #####
+
+    def beep(self):
+
+        """"אילן עושה ביפ"""
+
+        self.ev3.speaker.beep()
+
+    
+
+    ##### SAY TEXT #####
+
+    def say(self, text, voice='m1', volume = 100):
+
+        """"אילן אומר את הטקסט.
+        ניתן לשלוט על הווליום ואפילו לשנות את המבטא של אילן."""
+        
+        # הגדרת הווליום של הבקר
+        self.ev3.speaker.set_volume(volume)
+
+        # הגדרת קול ההקראה
+        self.ev3.speaker.set_speech_options(voice)
+
+        # הבקר מקריא את הטקסט
+        self.ev3.speaker.say(text)
