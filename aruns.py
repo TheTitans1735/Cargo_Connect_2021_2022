@@ -3,104 +3,8 @@ from robot import *
 
 ilan = Robot()
 ilan.reset_wall_bottom_right()
-      
 
-def green_airplane_and_Containers():
-    my_debug = False
-    wall_debug = False
-
-    # איפוס הקיר וסידור ההלבשה
-    ilan.wait_for_button("wall bottom right", wall_debug)
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 0) # -100 קוד חדש ***
-    
-    ilan.wait_for_button("Place container", True)
-    wait(200)
-    
-    # ilan.pid_gyro(25, 200)
-    ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X - 150, 0, 25, 200)
-
-    # נסיעה למשימה - עד זיהוי קו אחד
-    ilan.pid_follow_right_line_until_left_detect_color(1, 100)
-    ilan.pid_follow_line(2, 80, ilan.color_sensor_right, Kp=1.3, white_is_right = True)
-
-    # הפיכת המנוע
-    ilan.wait_for_button("turn engine over", wall_debug)
-    #נסיעה חזרה לאחור + קיר
-    ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X - 150, ilan.WALL_MAX_ANGLE_Y - 50, 10, Forward_Is_True = False)
-
-    # חדש - פנייה ימינה על מנת להשיג זווית ***
-    ilan.turn(15, 150)
-
-    # נסיעה אחורה
-    ilan.pid_gyro(15, 150, False)
-
-    # פנייה לתפיסת המטוס, נסיעה לפנים
-    ilan.turn(-15, 150)
-    # ilan.pid_gyro(5, 150)
-
-     
-    ### הורדת המכולה מהמטוס - שלב 1 ###
-    # שמאלה
-    ilan.wait_for_button("1 go left & up", True)
-    ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y, -1500)
-
-    # למטה
-    ilan.wait_for_button("2 down", wall_debug)
-    ilan.move_wall_to_point(0, 100, -1500)
-
-    # למעלה
-    ilan.wait_for_button("3 little up", wall_debug)
-    ilan.move_wall_to_point(0,  300, -1500)
-
-    # ימינה
-    ilan.wait_for_button("4 right", wall_debug)
-    ilan.move_wall_to_point(500, 300, -1500, x_wait = False, y_wait = False)
-
-    # למעלה עד הסוף
-    ilan.wait_for_button("5 right & full up", False)
-    ilan.move_wall_to_point(500, ilan.WALL_MAX_ANGLE_Y, -1500, x_wait = False) ## new code *****
-
-    ### הורדת המכולה מהמטוס - שלב 2 ###
-    # שמאלה, למטה
-    ilan.wait_for_button("6 left", wall_debug)
-    ilan.move_wall_to_point(80, ilan.WALL_MAX_ANGLE_Y, -1500)
-
-    ilan.wait_for_button("7 down", wall_debug)
-    ilan.move_wall_to_point(80, 0, -1500)
-
-    # ימינה + למעלה
-    ilan.wait_for_button("8 right and up", wall_debug)
-    ilan.move_wall_to_point(80, 700 - 100, -1500)
-
-    # הסתובב
-    ilan.wait_for_button("9 turn to take container", my_debug)
-    ilan.turn(10 , 150) # + 3 קוד חדש
-    ilan.pid_gyro(10)
-    ilan.turn(-15, 150)
-    
-    ilan.wait_for_button("10 left & down", wall_debug)
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X-550, 180, x_wait = False, y_wait = False)
-    wait(500)
-    ilan.wait_for_button("11 go back", wall_debug)
-    ilan.pid_gyro(8,Forward_Is_True = False)
-    
-    ilan.beep()
-
-    ilan.wait_for_button("12 go right & up", wall_debug)
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X - 550, ilan.WALL_MAX_ANGLE_Y / 2, x_wait=False, y_wait= False)
-
-    ilan.wait_for_button("turn right", my_debug)
-    ilan.turn(70,250)
-
-    ilan.wait_for_button("go home", my_debug)
-    ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X / 2, ilan.WALL_MAX_ANGLE_Y - 200, 33, 500, Forward_Is_True = False)
-
-    ilan.wait_for_button("turn into base", my_debug)
-    ilan.turn(80, 200)
-    # ilan.wait_for_button("140. wall reset right",my_debug)
-
-
-def green_airplane_2022_02_21():
+def green_airplane_and_containers():
     my_debug = False
     wall_debug = False
 
@@ -115,7 +19,7 @@ def green_airplane_2022_02_21():
     ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X - 150, 0, 25, 200)
 
     # נסיעה למשימה - עד זיהוי קו אחד
-    ilan.pid_follow_right_line_until_left_detect_color(1, 90 + 10, white_is_right = True)
+    ilan.pid_follow_right_line_until_left_detect_color(1, ilan.color_sensor_right, ilan.color_sensor_left, 90 + 10, white_is_right = True)
     # ilan.pid_follow_line(2, 80, ilan.color_sensor_right, Kp=1.3, white_is_right = True) ***
     ilan.pid_gyro(2, 80)
 
@@ -199,8 +103,46 @@ def green_airplane_2022_02_21():
     ilan.PID_while_move_wall(0, ilan.WALL_MAX_ANGLE_Y - 200, 28, 500, Forward_Is_True = False)
 
     ilan.wait_for_button("turn into base", my_debug)
-    # ilan.turn(80, 400)
     ilan.turn_until_seconds(1, 80, 400)
+
+
+
+def green_airplane_and_containers_2022_02_27():
+    my_debug = False
+    wall_debug = False
+
+    # איפוס הקיר וסידור ההלבשה
+    ilan.wait_for_button("wall bottom right", wall_debug)
+    ilan.reset_wall_bottom_right()
+    
+    ilan.wait_for_button("Place container", True)
+    wait(50)
+
+    # נסיעה אל הקו, הזזת הקיר
+    ilan.wait_for_button("Drive to line + move wall", my_debug)
+    ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X - 150, 0, 25, 200)
+
+    #  נסיעה למשימה עם החיישן הימני - עד זיהוי קו אחד עם החיישן השמאלי
+    ilan.wait_for_button("Drive on the lin until detect line", my_debug)
+    ilan.pid_follow_right_line_until_left_detect_color(1, ilan.color_sensor_right, ilan.color_sensor_left, 90 + 10, white_is_right = True)
+
+    # נסיעה קצרה לפנים
+    ilan.pid_gyro(2, 80)
+
+    # הפיכת המנוע
+    ilan.wait_for_button("Turn engine over", wall_debug)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y / 2 - 100, x_wait = False, y_wait = False)
+
+    # נסיעה לאחור והזזת הקיר למעלה
+    ilan.wait_for_button("Drive backward, move wall up", wall_debug)
+    ilan.pid_gyro(3, 80, False)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y - 300) # הפעלת המנגנון הפנאומטי, הפלת החלק הצהוב
+
+    # נסיעה לאחור + הזזת קיר שמאלה ולמטה
+    ilan.wait_for_button("Drive backwrd, move wall left & down", wall_debug)
+    ilan.PID_while_move_wall(0, 0, 25, Forward_Is_True = False)
+    
+
 
 
 def wing_run():
@@ -423,7 +365,7 @@ def crane_run():
     ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X / 2, ilan.WALL_MAX_ANGLE_Y - 200, 27, 150, wall_speed = -1500) # *** x was 0, y was max angle, 
 
     # follow the line to the mission (detect 2 lines) & turn to mission
-    ilan.pid_follow_right_line_until_left_detect_color(2, 120, False    )
+    ilan.pid_follow_right_line_until_left_detect_color(2, ilan.color_sensor_right, ilan.color_sensor_left, 120, False)
     ilan.turn(-90, 180)
 
     # turn to line
@@ -541,7 +483,7 @@ def running ():
                 sw.reset() # מאפס את שעון המשימה
 
                 # green_airplane_and_Containers() # הפעלת הראן
-                green_airplane_2022_02_21()
+                green_airplane_and_containers()
 
                 sum_time = sw.time() + sum_time
                 # print("!!!TIMER --- Current, Sum!!!")
@@ -586,48 +528,7 @@ def running ():
             print("Error: {}".format(ex))
             wait(2500)
 
+
 # running()
-# ilan.turn_until_seconds(2, 80, 400)
 
-# ilan.beep()
-# wait(2000)
-
-# ilan.turn_until_seconds(2, 80, 400, False)
-
-ilan.reset_wall()
-ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, ilan.WALL_MAX_ANGLE_Y)
-loop_start_value = 1.25
-loop_end_value = 1.35
-loop_step_size = 0.01
-loop_current_value = loop_start_value
-#run_log_file_name = time.strftime("%Y_%m_%d_%H_%M_%S")
-#print(run_log_file_name)
-while loop_current_value < loop_end_value:
-    ilan.wait_for_button("check angle from line", False)
-    # ilan.pid_follow_right_line_until_left_detect_color(3, ilan.color_sensor_left, ilan.color_sensor_right, white_is_right = False, speed = 100)
-    ilan.pid_follow_line(150, 100, ilan.color_sensor_right,Kp=loop_current_value)
-
-    ilan.wait_for_button("check distance from line end", False)
-    ilan.turn(180, 200)
-    # ilan.pid_follow_right_line_until_left_detect_color(3, ilan.color_sensor_right, ilan.color_sensor_left, speed = 100)
-    ilan.pid_follow_line(150, 100, ilan.color_sensor_left, white_is_right = False,Kp=loop_current_value)
-
-    ilan.wait_for_button("check distance from line end", False)
-    ilan.turn(200, 200)
-    loop_current_value += loop_step_size  
-
-    
-# for i in range(1.1, 1.4, 0.01):
-#     ilan.wait_for_button("check angle from line", False)
-#     # ilan.pid_follow_right_line_until_left_detect_color(3, ilan.color_sensor_left, ilan.color_sensor_right, white_is_right = False, speed = 100)
-#     ilan.pid_follow_line(150, 100, ilan.color_sensor_right)
-
-#     ilan.wait_for_button("check distance from line end", False)
-#     ilan.turn(180, 200)
-#     # ilan.pid_follow_right_line_until_left_detect_color(3, ilan.color_sensor_right, ilan.color_sensor_left, speed = 100)
-#     ilan.pid_follow_line(150, 100, ilan.color_sensor_left, white_is_right = False)
-
-#     ilan.wait_for_button("check distance from line end", False)
-#     ilan.turn(200, 200)  
-    
-
+green_airplane_and_containers_2022_02_27()
