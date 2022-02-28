@@ -59,8 +59,8 @@ class Robot:
         speed_y = -1200
 
         # move the wall to max values
-        self.wall_y_motor.run_until_stalled(speed_y,Stop.HOLD, duty_limit=85)
-        self.wall_x_motor.run_until_stalled(speed_x,Stop.HOLD, duty_limit=5)
+        self.wall_y_motor.run_until_stalled(speed_y,Stop.HOLD, duty_limit=75)
+        self.wall_x_motor.run_until_stalled(speed_x,Stop.HOLD, duty_limit=15)
         wait(100)
 
         # make wall's 0 angle current angle
@@ -87,8 +87,8 @@ class Robot:
         speed_y = -1200
         
         # move the wall to max values
-        self.wall_y_motor.run_until_stalled(speed_y,Stop.HOLD, duty_limit=85)
-        self.wall_x_motor.run_until_stalled(speed_x,Stop.HOLD, duty_limit=5)
+        self.wall_y_motor.run_until_stalled(speed_y,Stop.HOLD, duty_limit=75)
+        self.wall_x_motor.run_until_stalled(speed_x,Stop.HOLD, duty_limit=15)
         wait(100)
 
         # make wall's 0 angle current angle
@@ -153,8 +153,7 @@ class Robot:
         self.wall_x_motor.run_target(speed, x, Stop.BRAKE, wait = x_wait)
         self.wall_y_motor.run_target(speed, y, Stop.BRAKE, wait = y_wait) 
         
-        wait(100)
-        self.push_wall_values()
+        
 
         # print current wall values
         print("x = " + str(self.wall_x_motor.angle()) + ", y = "  + str(self.wall_y_motor.angle()))
