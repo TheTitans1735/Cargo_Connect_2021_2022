@@ -331,6 +331,9 @@ def take_containers(close_or_far):
     # ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 700)
     # ilan.pid_gyro(22, 150, Forward_Is_True = False)
     ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y, 22 - 1, 150, 0.5, Forward_Is_True = False)
+    #2022-03-02 rotem move wall before driving to keep contaiers using wall
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X,ilan.WALL_MAX_ANGLE_Y)
+    ilan.pid_gyro(22-1,150,Forward_Is_True=False)
     ilan.turn(90, 150)
     ilan.pid_gyro(89, 400)
 
@@ -535,8 +538,9 @@ def running ():
             print("Error: {}".format(ex))
             wait(2500)
 
-
-running()
-
+# ilan.ev3.speaker.play_file("https://music.youtube.com/watch?v=gbXL4eg8MH0&feature=share")
+# running()
 # green_airplane_and_containers_WithPneumatic()
 # go_trucks_with_new_arm()
+ilan.learn_pid_line_values(ilan.color_sensor_right, 150, 120, "kp",kp=1.3, num_of_loops=1)
+# ilan.say("ze hajuk shehekpitz et hashpritz lahatzitz al hashpitz shel hakfitz baharitz hamesukan behor hahar")

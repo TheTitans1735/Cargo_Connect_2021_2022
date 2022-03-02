@@ -478,11 +478,11 @@ class Robot:
         # Start a stopwatch to measure elapsed time
         watch = StopWatch()
 
-        log_file_name = time.strftime("%Y_%m_%d_%H_%M_%S")
+        #log_file_name = time.strftime("%Y_%m_%d_%H_%M_%S")
 
         # print file's name
-        print(log_file_name)
-        self.data =DataLog("Distance", "Reflection", "Error", "PROPORTIONAL_GAIN", "INTEGRAL_GAIN", "DERIVATIVE_GAIN", "integral", "derivative", "turn_rate", "gyro", "speed", "white_is_right","Gyro_Offset","MS_From_Start",name=log_file_name,timestamp=False)
+        #print(log_file_name)
+        #self.data =DataLog("Distance", "Reflection", "Error", "PROPORTIONAL_GAIN", "INTEGRAL_GAIN", "DERIVATIVE_GAIN", "integral", "derivative", "turn_rate", "gyro", "speed", "white_is_right","Gyro_Offset","MS_From_Start",name=log_file_name,timestamp=False)
         
         # Calculate the light threshold. Choose values based on your measurements.
         BLACK = 6
@@ -506,7 +506,7 @@ class Robot:
         integral = 0
         derivative =0
         last_error = 0
-        
+        arr_results = []
         ## Follow The Line Until Target Distance is Reached ##
         while (abs(self.robot.distance()) < distance * 10):
             self.check_forced_exit()
@@ -534,10 +534,22 @@ class Robot:
             last_error = error
 
             # log the driving data into the file
-            self.data.log(self.robot.distance(), line_sensor.reflection(), error, PROPORTIONAL_GAIN, INTEGRAL_GAIN, DERIVATIVE_GAIN,
-                          integral, derivative, turn_rate, self.gyro_sensor.angle(), speed, white_is_right,
-                          self.gyro_sensor.angle() - initial_gyro_angle,watch.time())
-
+           # self.data.log(self.robot.distance(), line_sensor.reflection(), error, PROPORTIONAL_GAIN, INTEGRAL_GAIN, DERIVATIVE_GAIN,
+           #               integral, derivative, turn_rate, self.gyro_sensor.angle(), speed, white_is_right,
+           #               self.gyro_sensor.angle() - initial_gyro_angle,watch.time())
+           #2022-03-02 save run data in array and add to an array of arrays which will be the function return value
+            arr_result = self.robot.distance(), line_sensor.reflection(), error, PROPORTIONAL_GAIN, INTEGRAL_GAIN, DERIVATIVE_GAIN,integral, derivative, turn_rate, self.gyro_sensor.angle(), speed, white_is_right, self.gyro_sensor.angle() - initial_gyro_angle,watch.time()
+            arr_results.append(arr_result)
+                          
+            # arr_result.append(self.robot.distance())
+            # arr_result.append()
+            # arr_result.append()
+            # arr_result.append()
+            # arr_result.append()
+            # arr_result.append()
+            # arr_result.append()
+            # arr_result.append()
+            
             # עוצר במקרה שזיהה תנאי עצירה
             if stop_condition():
                 break
@@ -548,7 +560,19 @@ class Robot:
         # stop robot movement
         self.robot.stop()
 
+        return arr_results
 
+
+    def create_log_file(self):
+        log_file_name = time.strftime("%Y_%m_%d_%H_%M_%S")
+
+        # print file's name
+        print(log_file_name)
+        self.data =DataLog("Distance", "Reflection", "Error", "PROPORTIONAL_GAIN", "INTEGRAL_GAIN", "DERIVATIVE_GAIN", "integral", "derivative", "turn_rate", "gyro", "speed", "white_is_right","Gyro_Offset","MS_From_Start",name=log_file_name,timestamp=False)
+    
+    def write_to_log_file(self,message):
+        for a in message:
+            self.data.log(a)
 
     ##### PID FOLLOW RIGHT LINE UNTIL LEFT DETECT COLOR #####
 
@@ -765,7 +789,7 @@ class Robot:
 
         self.reset_wall()
         self.move_wall_to_point(self.WALL_MAX_ANGLE_X / 2, self.WALL_MAX_ANGLE_Y)
-
+        self.create_log_file()
         # define values throughout the loop
         loop_start_value = 1.25
         loop_end_value = 1.35
@@ -787,16 +811,16 @@ class Robot:
             
             # drive on the line forward
             self.wait_for_button("1 Drive on the line forward", False)
-            self.pid_follow_line(distance, speed, self.color_sensor_right, Kp = kp, Ki = ki, Kd = kd)
-
+            follow_line_results = self.pid_follow_line(distance, speed, self.color_sensor_right, Kp = kp, Ki = ki, Kd = kd)
+            self.write_to_log_file(follow_line_results)
             # turn backwards
             self.wait_for_button("2 Turn backwards", False)
             self.turn(180, 200)
 
             # drive on the line back to start
             self.wait_for_button("drive on the line back to start", False)
-            self.pid_follow_line(distance, speed, self.color_sensor_left, white_is_right = False, Kp = kp, Ki = ki, Kd = kd)
-
+            follow_line_results = self.pid_follow_line(distance, speed, self.color_sensor_left, white_is_right = False, Kp = kp, Ki = ki, Kd = kd)
+            self.write_to_log_file(follow_line_results)
             # turn backwards
             self.wait_for_button("3 Turn backwards")
             self.turn(200, 200)
