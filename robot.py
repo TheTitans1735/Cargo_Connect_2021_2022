@@ -1,13 +1,15 @@
 #!/usr/bin/env pybricks-micropython
 
-from pybricks.hubs import EV3Brick
-from pybricks.ev3devices import (Motor, ColorSensor,GyroSensor)
-from pybricks.parameters import Port, Stop, Direction, Button, Color
-from pybricks.tools import wait, StopWatch, DataLog
-from pybricks.robotics import DriveBase
-from pybricks.media import ev3dev
 import csv
 import time
+
+from pybricks.ev3devices import ColorSensor, GyroSensor, Motor
+from pybricks.hubs import EV3Brick
+from pybricks.media import ev3dev
+from pybricks.parameters import Button, Color, Direction, Port, Stop
+from pybricks.robotics import DriveBase
+from pybricks.tools import DataLog, StopWatch, wait
+
 #import datetime
 """
 All Robot actions
@@ -48,7 +50,20 @@ class Robot:
 
 
     ##### RESET WALL #####
+    def proportional_turn(turn_rate = 90, min_speed = 90, max_speed = 250):
+        pass
+        # p
+        # while abs(speed) > 1:
+        # error = target_angle - gyro.angle()
+        # speed = max(-100, min(100, error)) * 4
 
+        # # this part determines the minimal speed >>
+        # if abs(speed) < 3  and speed != 0: 
+        #     speed = 5 * abs(speed) / speed
+        
+        # tank_drive_on(speed, -speed)
+
+    # tank_drive_off()
     def reset_wall(self):
         """"
         מאפס את הקיר לצד שמאל למטה
@@ -243,7 +258,7 @@ class Robot:
 
             # הגדר את השגיאה האחרונה כשגיאה הנוכחית
             lastError = error  
-          
+        
         # עצור את הרובוט
         self.robot.stop()
 
@@ -262,7 +277,7 @@ class Robot:
         x = max( x, 10)
         y = max( y, 10)
         # add 10 because y axis might get stuck while going down
-         
+        
 
         ## PID Gyro Part ##
 
@@ -349,7 +364,7 @@ class Robot:
         
 
 
-          
+        
     ##### PID GYRO UNTIL COLOR #####
 
     def pid_gyro_until_color(self, stop_color = Color.BLACK, Ts = 150, Forward_Is_True = True, Kp = 3.06, Ki= 0.027, Kd = 3.02):
@@ -410,7 +425,7 @@ class Robot:
 
             # הגדר את השגיאה האחרונה כשגיאה הנוכחית
             lastError = error  
-          
+        
         # עצור את הרובוט
         self.robot.stop()
 
@@ -463,7 +478,7 @@ class Robot:
         self.write("R Left: " + str(self.color_sensor_left.reflection()))
         self.write("R Right: " + str(self.color_sensor_right.reflection()))
 
-      
+    
 
     ##### PID Follow Line #####
 
@@ -534,13 +549,13 @@ class Robot:
             last_error = error
 
             # log the driving data into the file
-           # self.data.log(self.robot.distance(), line_sensor.reflection(), error, PROPORTIONAL_GAIN, INTEGRAL_GAIN, DERIVATIVE_GAIN,
-           #               integral, derivative, turn_rate, self.gyro_sensor.angle(), speed, white_is_right,
-           #               self.gyro_sensor.angle() - initial_gyro_angle,watch.time())
-           #2022-03-02 save run data in array and add to an array of arrays which will be the function return value
+        # self.data.log(self.robot.distance(), line_sensor.reflection(), error, PROPORTIONAL_GAIN, INTEGRAL_GAIN, DERIVATIVE_GAIN,
+        #               integral, derivative, turn_rate, self.gyro_sensor.angle(), speed, white_is_right,
+        #               self.gyro_sensor.angle() - initial_gyro_angle,watch.time())
+        #2022-03-02 save run data in array and add to an array of arrays which will be the function return value
             arr_result = self.robot.distance(), line_sensor.reflection(), error, PROPORTIONAL_GAIN, INTEGRAL_GAIN, DERIVATIVE_GAIN,integral, derivative, turn_rate, self.gyro_sensor.angle(), speed, white_is_right, self.gyro_sensor.angle() - initial_gyro_angle,watch.time()
             arr_results.append(arr_result)
-                          
+                        
             # arr_result.append(self.robot.distance())
             # arr_result.append()
             # arr_result.append()
@@ -577,7 +592,7 @@ class Robot:
     ##### PID FOLLOW RIGHT LINE UNTIL LEFT DETECT COLOR #####
 
     def pid_follow_right_line_until_left_detect_color (self, lines_till_stop, follow_color_sensor, detection_color_sensor,
-                                                      speed = 90, white_is_right = True, stop_color = Color.BLACK, kp = 1.3):
+                                                    speed = 90, white_is_right = True, stop_color = Color.BLACK, kp = 1.3):
         """ סע על הקו השחור עד זיהוי כמות מסויימת של קווים שחורים עם חיישן הצבע השני """
         my_debug = False
 
@@ -713,7 +728,7 @@ class Robot:
                 self.left_motor.run(20)
 
                 wait(10)  
-   
+
 
         # לאחר הפנייה, עצור את מנועי הרובוט
         self.right_motor.stop()

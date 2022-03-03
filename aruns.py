@@ -106,7 +106,6 @@ def green_airplane_and_containers():
     ilan.turn_until_seconds(1, 80, 400)
 
 
-
 def green_airplane_and_containers_WithPneumatic():
     my_debug = False
     wall_debug = False
@@ -146,7 +145,6 @@ def green_airplane_and_containers_WithPneumatic():
     ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y-400)
     ilan.pid_gyro(30, 200, False)
     ilan.turn(-50)
-
 
 
 def wing_run():
@@ -328,12 +326,19 @@ def take_containers(close_or_far):
 
     # Go home
     ilan.wait_for_button("Go Home", wall_debug)
-    # ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, 700)
-    # ilan.pid_gyro(22, 150, Forward_Is_True = False)
-    ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y, 22 - 1, 150, 0.5, Forward_Is_True = False)
+
+    # ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y, 22 - 1, 150, 0.5, Forward_Is_True = False)
     #2022-03-02 rotem move wall before driving to keep contaiers using wall
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X,ilan.WALL_MAX_ANGLE_Y)
-    ilan.pid_gyro(22-1,150,Forward_Is_True=False)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y)
+
+    ilan.pid_gyro(5, 150, Forward_Is_True = False) # new code
+    ilan.turn(90, 150) # new code
+    ilan.pid_gyro(10, 150, Forward_Is_True = False) # new code
+
+    ilan.pid_gyro(10, 150, Forward_Is_True = True) # new code
+    ilan.turn(-90, 150) # new code
+
+    ilan.pid_gyro(21 - 3 - 5, 150, Forward_Is_True = False)
     ilan.turn(90, 150)
     ilan.pid_gyro(89, 400)
 
@@ -450,13 +455,13 @@ def crane_run():
     ilan.say("I did it")
 
 
-
 TEXT_MENU = """Choose Run: 
   < - Wing run 
   > - Green AP 
   O - Crane run 
   V - East run close 
   ^ - East run far"""
+
 
 def running ():
     """!! One Function To Rule Them All !!"""
@@ -542,5 +547,20 @@ def running ():
 # running()
 # green_airplane_and_containers_WithPneumatic()
 # go_trucks_with_new_arm()
-ilan.learn_pid_line_values(ilan.color_sensor_right, 150, 120, "kp",kp=1.3, num_of_loops=1)
-# ilan.say("ze hajuk shehekpitz et hashpritz lahatzitz al hashpitz shel hakfitz baharitz hamesukan behor hahar")
+# ilan.learn_pid_line_values(ilan.color_sensor_right, 150, 120, "kp",kp=1.3, num_of_loops=1)
+# ilan.move_wall_to_point(500,500)
+
+# ilan.pid_follow_line(150, speed=150, line_sensor=ilan.color_sensor_right, Kp=1.393, Ki=0.038, white_is_right=True, Kd=0.072)  
+# *******************ilan.pid_follow_line(150, speed=120, line_sensor=ilan.color_sensor_right, Kp=1.353, Ki=0.0352, white_is_right=True, Kd=0.062)  
+
+# Kp=1.353, Ki=0.0352, Kd=0.062 pretty good - speed 120
+
+
+
+
+
+
+
+
+
+ilan.say("ze hajuk shehekpitz et hashpritz shel hamitlahatzitz al hashpitz shel hakfitz baharitz hamesukan behor hahar")
