@@ -478,7 +478,40 @@ class Robot:
         self.write("R Left: " + str(self.color_sensor_left.reflection()))
         self.write("R Right: " + str(self.color_sensor_right.reflection()))
 
-    
+    ###2022-03-04 rtm 
+    def drive_until_line(self,distance,speed,detection_color_sensor,stop_color,lines_till_stop, Kp = 1.30 ,Ki = 0.01, white_is_right = True, Kd=0.07):
+        my_debug = True
+        self.robot.reset()
+        # מגדיר את תנאי העצירה
+        stop_condition = lambda : detection_color_sensor.color() == stop_color
+
+        # self.wait_for_button("Start Follow", my_debug)
+
+        # מוצא קווים ככמות הפרמטר
+        for i in range (0, lines_till_stop):
+            #self.check_forced_exit()
+
+            while detection_color_sensor.reflection() > 15:
+                print(detection_color_sensor.reflection())
+                self.robot.drive(speed,0)
+                #self.wait_for_button("Found Line", my_debug)
+            
+            #if (i > 0):
+                # לאחר מציאת קו, סע 10 ס"מ במהירות נמוכה יותר כדי
+                # להתרחק מן הקו ולהיות בטוח מפני פניות
+                #self.pid_follow_line(10, 80, follow_color_sensor, Kp=kp, white_is_right = white_is_right)
+            
+            # נסיעה עד זיהוי תנאי העצירה - זיהוי הקו השחור
+            #self.pid_follow_line(150, speed, follow_color_sensor, stop_condition = stop_on_black, Kp = kp, white_is_right = white_is_right)
+            self.beep()
+        self.robot.stop()
+
+
+    ##### RUN STRAIGHT ####
+
+    def run_straight (self, distance):
+        self.robot.straight(distance * 10)
+
 
     ##### PID Follow Line #####
 
@@ -771,7 +804,7 @@ class Robot:
 
     ##### TURN UNTIL COLOR #####
 
-    def turn_until_color (self, line_sensor, turn_right = True, speed = 100):
+    def turn_until_black (self, line_sensor, turn_right = True, speed = 100):
 
         # שנה את מהירות הפנייה בהתאם לרצון המשתמש לפנות ימינה או שמאלה
         if turn_right == False:
@@ -779,7 +812,7 @@ class Robot:
 
         ## הפנייה ##
         # פנייה עד זיהוי הצבע השחור
-        while line_sensor.reflection > 40:
+        while line_sensor.reflection() > 15:
             self.check_forced_exit()
             
             # הפעלת המנועים
@@ -787,8 +820,8 @@ class Robot:
             self.right_motor.run(speed * -1)
 
         # עצירת המנועים
-        self.right_motor.stop()
-        self.left_motor.stop()
+        self.right_motor.brake()
+        self.left_motor.brake()
 
 
 
@@ -806,8 +839,8 @@ class Robot:
         self.move_wall_to_point(self.WALL_MAX_ANGLE_X / 2, self.WALL_MAX_ANGLE_Y)
         self.create_log_file()
         # define values throughout the loop
-        loop_start_value = 1.25
-        loop_end_value = 1.35
+        loop_start_value = 1.20
+        loop_end_value = 1.30
         loop_step_size = 0.01
 
         loop_current_value = loop_start_value
