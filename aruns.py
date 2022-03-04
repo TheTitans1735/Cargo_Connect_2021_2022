@@ -4,108 +4,16 @@ from robot import *
 ilan = Robot()
 ilan.reset_wall_bottom_right()
 
-def green_airplane_and_containers():
-    my_debug = False
-    wall_debug = False
+def turbina_run_vino_arm():
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X-200, ilan.WALL_MAX_ANGLE_Y-250)
+    ilan.pid_gyro(36)
+    ilan.pid_follow_line(20,100, ilan.color_sensor_right, white_is_right=True)
+    ilan.pid_gyro(30)
+    ilan.pid_follow_line(20,100, ilan.color_sensor_right, white_is_right=True)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X-600, ilan.WALL_MAX_ANGLE_Y-250, x_wait=False)
+    ilan.wall_y_motor.run_until_stalled(-1200,Stop.BRAKE, duty_limit=75)
 
-    # איפוס הקיר וסידור ההלבשה
-    ilan.wait_for_button("wall bottom right", wall_debug)
-    ilan.reset_wall_bottom_right()
-    
-    ilan.wait_for_button("Place container", True)
-    wait(200)
-
-    # נסיעה אל הקו, הזזת הקיר
-    ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X - 150, 0, 25, 200)
-
-    # נסיעה למשימה - עד זיהוי קו אחד
-    ilan.pid_follow_right_line_until_left_detect_color(1, ilan.color_sensor_right, ilan.color_sensor_left, 90 + 10, white_is_right = True)
-    # ilan.pid_follow_line(2, 8 0, ilan.color_sensor_right, Kp=1.3, white_is_right = True) ***
-    ilan.pid_gyro(2, 80)
-
-    # הפיכת המנוע ונסיעה לאחור
-    ilan.wait_for_button("turn engine over", wall_debug)
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y - 50, x_wait = False, y_wait = False)
-
-    ilan.pid_gyro(5, Forward_Is_True = False)
-    
-    # Z Combination!
-    ilan.turn(15)
-    ilan.pid_gyro(5, 80, False)
-
-    ilan.turn(-15)
-    ilan.pid_gyro(15 + 2, 80, False)
-
-    ### הורדת המכולה מהמטוס - שלב 1 ###
-    # שמאלה
-    ilan.wait_for_button("1 - go left & up", wall_debug)
-    ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y, -1500, False, False)
-
-    # למטה
-    ilan.wait_for_button("2 - down", wall_debug)
-    ilan.move_wall_to_point(0, 100, -1500)
-
-    # למעלה
-    ilan.wait_for_button("3 - up", wall_debug)
-    ilan.move_wall_to_point(0,  300, -1500)
-
-    # ימינה
-    ilan.wait_for_button("4 - right", wall_debug)
-    # ilan.move_wall_to_point(500, 300, -1500)
-
-    # למעלה עד הסוף
-    ilan.wait_for_button("5 - full up", wall_debug)
-    ilan.move_wall_to_point(500, ilan.WALL_MAX_ANGLE_Y, -1500, x_wait = False) ## new code *****
-
-
-    ### הורדת המכולה מהמטוס - שלב 2 ###
-    # שמאלה, למטה
-    ilan.wait_for_button("6 - left", wall_debug)
-    ilan.move_wall_to_point(80, ilan.WALL_MAX_ANGLE_Y, -1500)
-
-    ilan.wait_for_button("7 - down", wall_debug)
-    ilan.move_wall_to_point(80, 0, -1500)
-
-    # למעלה
-    ilan.wait_for_button("8 - up", wall_debug)
-    # ilan.move_wall_to_point(0, 650, -1500) *****
-
-    # ימינה + למעלה
-    ilan.wait_for_button("9 - right and up", wall_debug)
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 700 - 100, -1500,x_wait=False)
-
-    # הסתובב על מנת לקחת את המכולה
-    ilan.wait_for_button("10 - turn to take container", my_debug)
-    ilan.turn(10, 150) # פנייה ימינה
-    ilan.pid_gyro(12 + 3) # נסיעה לאחור
-    ilan.turn(-15 + 5, 150) # פנייה שמאלה
-
-    ilan.wait_for_button("down", wall_debug)
-    # ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 180)
-
-    ilan.wait_for_button("left & down", wall_debug)
-    # ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X - 550, 180, x_wait = False, y_wait = False)
-
-    ilan.move_wall_to_point(200 - 70, 180 - 20, x_wait = True, y_wait = True)
-
-    ilan.wait_for_button("go back",  my_debug)
-    ilan.pid_gyro(7 + 4, Forward_Is_True = False)
-
-    ilan.beep()
-
-    ilan.wait_for_button("go right & up", wall_debug)
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X - 550, ilan.WALL_MAX_ANGLE_Y / 2, x_wait = False, y_wait = False)
-
-    ilan.wait_for_button("turn right", my_debug)
-    ilan.turn(60, 250)
-
-    ilan.wait_for_button("go home", my_debug)
-    ilan.PID_while_move_wall(0, ilan.WALL_MAX_ANGLE_Y - 200, 28, 500, Forward_Is_True = False)
-
-    ilan.wait_for_button("turn into base", my_debug)
-    ilan.turn_until_seconds(1, 80, 400)
-
-
+    # ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X-400, 0)
 def green_airplane_and_containers_WithPneumatic():
     my_debug = False
     wall_debug = False
@@ -468,6 +376,7 @@ def take_containers_before_2022_03_04_11_16_00(close_or_far):
     wait(1000)
     ilan.move_wall_to_point(0, 0, x_wait = False, y_wait = False)
 
+
 def take_containers(close_or_far):
     "Close = True  |  Far  = False"
     my_debug = False
@@ -516,15 +425,16 @@ def take_containers(close_or_far):
     ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y)
 
     # ilan.pid_gyro(5, 150, Forward_Is_True = False) # new code
-    # ilan.turn(90, 150) # new code
-    # ilan.pid_gyro(10, 150, Forward_Is_True = False) # new code
+    ilan.turn(90, 150) # new code
+    ilan.pid_gyro(15, 150, Forward_Is_True = False) # new code
 
-    # ilan.pid_gyro(10, 150, Forward_Is_True = True) # new code
-    # ilan.turn(-90, 150) # new code
+    ilan.pid_gyro(15, 150, Forward_Is_True = True) # new code
+    ilan.turn(-90, 150) # new code
 
-    ilan.pid_gyro(21 - 3 - 5, 150, Forward_Is_True = False)
+    ilan.pid_gyro(21 - 3, 150, Forward_Is_True = False)
     ilan.turn(90, 150)
     #2022-03-04 rtm changed 89 to 87 line below
+    ilan.wait_for_button("Go home", True)
     ilan.pid_gyro(87, 400)
 
     # Turn left to avoid airplane mission
@@ -560,8 +470,10 @@ def crane_run():
     ilan.wait_for_button("Start run", False)
 
     # drive to the line, move the wall in case last run didn't
-    ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X / 2, ilan.WALL_MAX_ANGLE_Y - 200, 27, 150, wall_speed = -1500) # *** x was 0, y was max angle, 
-
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, ilan.WALL_MAX_ANGLE_Y, x_wait=False)
+    ilan.wait_for_button("PLACE ARM")
+    # ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X / 2, ilan.WALL_MAX_ANGLE_Y - 200, 27, 150, wall_speed = -1500) # *** x was 0, y was max angle, 
+    ilan.pid_gyro(27, 150)
     # follow the line to the mission (detect 2 lines) & turn to mission
     ilan.pid_follow_right_line_until_left_detect_color(2, ilan.color_sensor_right, ilan.color_sensor_left, 120, False)
     ilan.turn(-90, 180)
@@ -569,6 +481,7 @@ def crane_run():
     # turn to line
     ilan.wait_for_button("Turn to line", False)
     wait(50)
+
     while ilan.color_sensor_right.reflection() > 40:
         ilan.right_motor.run(25)
         ilan.left_motor.run(-25)
@@ -612,6 +525,7 @@ def crane_run():
     wait(100)
 
     # turn to containers mission
+    ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y, x_wait = False, y_wait = False)
     gyro_angle = ilan.gyro_sensor.angle()
 
     ilan.wait_for_button("Turn to mission", my_debug)
@@ -619,9 +533,12 @@ def crane_run():
 
     # move wall to place containers
     ilan.wait_for_button("place containers", my_debug)
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y - 200) # move wall right & down
+    ilan.pid_gyro(5, 150, False) # new
+    
+    # ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y - 200) # move wall right & down
     ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y / 2 - 140) 
-    ilan.pid_gyro(1.6, 60, False)
+    # ilan.pid_gyro(1.6, 60, False)
+    ilan.pid_gyro(6, 60, True) # new
 
     # clear arm of containers
     ilan.wait_for_button("Clear of containers", my_debug)
@@ -629,15 +546,18 @@ def crane_run():
 
     # drive backwards from mission
     ilan.wait_for_button("Drive Gyro backwards", my_debug)
-    ilan.PID_while_move_wall(0, ilan.WALL_MAX_ANGLE_Y, 10, 150, Forward_Is_True = False)
+    ilan.PID_while_move_wall(0, ilan.WALL_MAX_ANGLE_Y, 10 + 1.6 + 1, 150, Forward_Is_True = False) # + 1.6 + 1 new
 
     ilan.wait_for_button("Turn to parking mission", my_debug)
-    ilan.turn(-45, 120)
+    ilan.turn(-47, 120)
 
     ilan.wait_for_button("Drive to parking mission", my_debug)
-    ilan.pid_gyro(37.1, 250)
+    ilan.pid_gyro(34.1, 250)
+    ilan.beep()
+    ilan.pid_gyro(6, 70)
     
-    ilan.say("I did it")
+    ilan.say("ishmi bili oten doten ba boba beten deten ah chen chef")
+    ilan.ev3.speaker.play_file("kmo hatuna shel aravim magevet ba avir uh uh")
 
 
 TEXT_MENU = """Choose Run: 
@@ -669,8 +589,8 @@ def running ():
             if Button.LEFT in ilan.ev3.buttons.pressed():
                 ilan.write("wing Run")
                 sw.reset() # מאפס את שעון המשימה
-                
-                wing_run() # הפעלת הראן
+                turbina_run_vino_arm()
+                # wing_run() # הפעלת הראן
 
                 sum_time = sw.time() + sum_time
                 # print("!!!TIMER --- Current, Sum!!!")
@@ -728,8 +648,8 @@ def running ():
             print("Error: {}".format(ex))
             wait(2500)
 
-# ilan.ev3.speaker.play_file("https://music.youtube.com/watch?v=gbXL4eg8MH0&feature=share")
 running()
+
 # ilan.pid_gyro(35,300,Forward_Is_True = False)
 # ilan.wait_for_button("Go until line", True)
 # ilan.drive_until_line(10,50,ilan.color_sensor_left, Color.BLACK, 2)

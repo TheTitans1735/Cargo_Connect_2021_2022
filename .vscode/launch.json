@@ -12,6 +12,13 @@
 			"webRoot": "${workspaceFolder}"
 		},
 		{
+			"name": "Tests Download and Run",
+			"type": "ev3devBrowser",
+			"request": "launch",
+			"program": "/home/robot/${workspaceRootFolderName}/tests.py",
+			"interactiveTerminal": false
+		},
+		{
 
 			"name": "Main Download and Run",
 			"type": "ev3devBrowser",
