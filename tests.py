@@ -4,5 +4,6 @@ from robot import *
 ilan = Robot()
 
 
-ilan.drive_until_stalled(120)
+# ilan.drive_until_stalled(120)
 ilan.beep()
+ilan.pid_gyro(20, 500, False)

@@ -8,10 +8,16 @@ def turbina_run_vino_arm():
     ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X-200, ilan.WALL_MAX_ANGLE_Y-250)
     ilan.pid_gyro(36)
     ilan.pid_follow_line(20,100, ilan.color_sensor_right, white_is_right=True)
-    ilan.pid_gyro(30)
-    ilan.pid_follow_line(20,100, ilan.color_sensor_right, white_is_right=True)
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X-600, ilan.WALL_MAX_ANGLE_Y-250, x_wait=False)
+    ilan.pid_gyro(35+14)
+
+    #ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X-600, ilan.WALL_MAX_ANGLE_Y-250, x_wait=False)
+    #ilan.pid_follow_line(20-5,100, ilan.color_sensor_right, white_is_right=True)
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X-350, 0, x_wait=True)
     ilan.wall_y_motor.run_until_stalled(-1200,Stop.BRAKE, duty_limit=75)
+    ilan.wait_for_button("kycdktx", True)
+    ilan.wall_x_motor.run_until_stalled(-1200,Stop.BRAKE, duty_limit=75)
+    ilan.move_wall_to_point(200, 0)
+    ilan.pid_gyro(100, 500, False)
 
     # ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X-400, 0)
 def green_airplane_and_containers_WithPneumatic():
@@ -304,78 +310,6 @@ def go_trucks():
 
     ## FINISH TRUCKS
 
-def take_containers_before_2022_03_04_11_16_00(close_or_far):
-    "Close = True  |  Far  = False"
-    my_debug = False
-    wall_debug = False
-
-    # Continues mission after trucks
-    ilan.wait_for_button("Continue to Containers", my_debug)
-    # 2022-02-11 - removed follow line and replaced by pid_gyro
-
-    # check if robot needs to go to close / far containers
-    ilan.wait_for_button("Go Close or Far", my_debug)
-    cm_to_go_forward = 57 - 1 -10
-    ilan.pid_gyro(cm_to_go_forward, 200)
-
-    # Turn & drive to mission
-    ilan.wait_for_button("Turn to mission", my_debug)
-    ilan.turn(90 - ilan.gyro_sensor.angle(), 200) # turn depending on current angle (error)
-    
-    # Move wall to containers depending on close / far
-    ilan.wait_for_button("Move wall to containers", wall_debug)
-    if (close_or_far):
-        ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 0)
-        # ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X, 0, 8,45)
-
-    else:
-        ilan.move_wall_to_point(0, 0)
-        # ilan.PID_while_move_wall(0,0,8,80)
-    ilan.pid_gyro(8, 80)
-    
-    ilan.pid_gyro(8 - 1.5, 50)
-    ilan.wait_for_button("Knock down rail", my_debug)
-    
-    # Move wall up depending on close / far
-    ilan.wait_for_button("Take containers", wall_debug)
-    if (close_or_far):
-        ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 700)
-
-    else:
-        ilan.move_wall_to_point(0 + 50, 700)
-
-    # Go home
-    ilan.wait_for_button("Go Home", wall_debug)
-
-    # ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y, 22 - 1, 150, 0.5, Forward_Is_True = False)
-    #2022-03-02 rotem move wall before driving to keep contaiers using wall
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y)
-
-    ilan.pid_gyro(5, 150, Forward_Is_True = False) # new code
-    ilan.turn(90, 150) # new code
-    ilan.pid_gyro(10, 150, Forward_Is_True = False) # new code
-
-    ilan.pid_gyro(10, 150, Forward_Is_True = True) # new code
-    ilan.turn(-90, 150) # new code
-
-    ilan.pid_gyro(21 - 3 - 5, 150, Forward_Is_True = False)
-    ilan.turn(90, 150)
-    #2022-03-04 rtm changed 89 to 87 line below
-    ilan.pid_gyro(87, 400)
-
-    # Turn left to avoid airplane mission
-    ilan.turn(-30, 200)
-    ilan.pid_gyro(30, 400)
-    
-    # Go back right, catch blue
-    ilan.turn(57, 150)
-    ilan.pid_gyro(50, 500)
-
-    # ilan.turn(-90, 400)
-    ilan.turn_until_seconds(0.7, 70, 400, False)                      
-    wait(1000)
-    ilan.move_wall_to_point(0, 0, x_wait = False, y_wait = False)
-
 
 def take_containers(close_or_far):
     "Close = True  |  Far  = False"
@@ -426,7 +360,7 @@ def take_containers(close_or_far):
 
     # ilan.pid_gyro(5, 150, Forward_Is_True = False) # new code
     ilan.turn(90, 150) # new code
-    ilan.pid_gyro(15, 150, Forward_Is_True = False) # new code
+    ilan.pid_gyro(16, 150, Forward_Is_True = False) # new code
 
     ilan.pid_gyro(15, 150, Forward_Is_True = True) # new code
     ilan.turn(-90, 150) # new code
@@ -434,7 +368,7 @@ def take_containers(close_or_far):
     ilan.pid_gyro(21 - 3, 150, Forward_Is_True = False)
     ilan.turn(90, 150)
     #2022-03-04 rtm changed 89 to 87 line below
-    ilan.wait_for_button("Go home", True)
+    ilan.wait_for_button("Go home", my_debug)
     ilan.pid_gyro(87, 400)
 
     # Turn left to avoid airplane mission
@@ -443,12 +377,16 @@ def take_containers(close_or_far):
     
     # Go back right, catch blue
     ilan.turn(57, 150)
-    ilan.pid_gyro(50, 500)
+    ilan.pid_gyro(50 - 5, 500)
 
-    # ilan.turn(-90, 400)
-    ilan.turn_until_seconds(0.7, 70, 400, False)                      
+    ilan.turn(-90, 200)
+    # ilan.turn_until_seconds(0.7, 120, 200, False)                      
     wait(1000)
-    ilan.move_wall_to_point(0, 0, x_wait = False, y_wait = False)
+    # ilan.move_wall_to_point(0, 0, x_wait = False, y_wait = False)
+    # ilan.pid_gyro(15, 300)
+    ilan.PID_while_move_wall(0, 0, 15, 300, 0, -5000)
+    ilan.turn(-40)
+    
     
 
 def east_run(close_or_far):
@@ -456,7 +394,7 @@ def east_run(close_or_far):
     my_debug = False
     
     ### FIRST PART ###
-    go_trucks()
+    go_trucks_before_2022_03_04_11_00_00()
 
     ### SECOND PART ###
     ilan.wait_for_button("Second Part", my_debug)
@@ -535,10 +473,12 @@ def crane_run():
     ilan.wait_for_button("place containers", my_debug)
     ilan.pid_gyro(5, 150, False) # new
     
+    
     # ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y - 200) # move wall right & down
     ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y / 2 - 140) 
     # ilan.pid_gyro(1.6, 60, False)
-    ilan.pid_gyro(6, 60, True) # new
+    ilan.pid_gyro(6 + 1 , 60, True) # new
+    #2022-03-05 rtm above line
 
     # clear arm of containers
     ilan.wait_for_button("Clear of containers", my_debug)
@@ -557,7 +497,115 @@ def crane_run():
     ilan.pid_gyro(6, 70)
     
     ilan.say("ishmi bili oten doten ba boba beten deten ah chen chef")
-    ilan.ev3.speaker.play_file("kmo hatuna shel aravim magevet ba avir uh uh")
+
+
+def crane_run_2022_03_05():
+    my_debug  = False
+    
+    # Let's Go Ilan !!
+    ilan.wait_for_button("Start run", False)
+
+    # drive to the line, move the wall in case last run didn't
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, ilan.WALL_MAX_ANGLE_Y, x_wait=False)
+    ilan.wait_for_button("PLACE ARM")
+    # ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X / 2, ilan.WALL_MAX_ANGLE_Y - 200, 27, 150, wall_speed = -1500) # *** x was 0, y was max angle, 
+    ilan.pid_gyro(27, 150)
+    # follow the line to the mission (detect 2 lines) & turn to mission
+    ilan.pid_follow_right_line_until_left_detect_color(2, ilan.color_sensor_right, ilan.color_sensor_left, 120, False)
+    ilan.turn(-90, 180)
+
+    # turn to line
+    ilan.wait_for_button("Turn to line", False)
+    wait(50)
+
+    while ilan.color_sensor_right.reflection() > 40:
+        ilan.right_motor.run(25)
+        ilan.left_motor.run(-25)
+    ilan.right_motor.brake()
+    ilan.left_motor.brake()
+
+    wait(50)
+
+    # follow the line & drive to get closer to mission
+    ilan.wait_for_button("Follow line & gyro to mission", my_debug)
+    ilan.pid_follow_line(12, 90, ilan.color_sensor_right, white_is_right = True) 
+    ilan.pid_gyro(12, 150)
+
+    # turn to crane
+    ilan.wait_for_button("Turn to crane", my_debug)
+    ilan.turn(90, 170)
+
+    # move to crane
+    ilan.wait_for_button("Go to crane", my_debug)
+    wait(50)
+
+    # turn to the line
+    ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y - 200, x_wait = False, y_wait = False) # new movement
+    while ilan.color_sensor_right.reflection() > 40:
+        ilan.right_motor.run(25)
+        ilan.left_motor.run(-25)
+
+    ilan.right_motor.stop()
+    ilan.left_motor.stop()    
+
+    # follow the line,  push the crane
+    ilan.pid_follow_line(20, 100, ilan.color_sensor_right, white_is_right = True)
+
+    # straighten on black line
+    ilan.gyro_sensor.reset_angle(0)
+    ilan.wait_for_button("Go back until black line", my_debug)
+    while ilan.color_sensor_left.reflection() > 8:
+        ilan.robot.drive(-80, ilan.gyro_sensor.angle()*-1)
+    ilan.robot.stop()
+    
+    wait(100)
+
+    # turn to containers mission
+    ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y, x_wait = False, y_wait = False)
+    gyro_angle = ilan.gyro_sensor.angle()
+
+    ilan.wait_for_button("Turn to mission", my_debug)
+    ilan.turn(-90 - gyro_angle, 150)
+
+    # move wall to place containers
+    ilan.wait_for_button("place containers", my_debug)
+    ilan.pid_gyro(5, 150, False) # new
+    
+    
+    # ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y - 200) # move wall right & down
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y / 2 - 140) 
+    # ilan.pid_gyro(1.6, 60, False)
+    ilan.pid_gyro(6 + 1 , 60, True) # new
+    #2022-03-05 rtm above line
+
+    # clear arm of containers
+    ilan.wait_for_button("Clear of containers", my_debug)
+    ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y / 2 - 140, y_wait = False) # wall max left
+
+    my_debug = False
+
+    # drive backwards from mission
+    ilan.wait_for_button("Drive Gyro backwards", my_debug)
+    ilan.PID_while_move_wall(0, ilan.WALL_MAX_ANGLE_Y, 10 + 1.6 + 1, 150, Forward_Is_True = False) # + 1.6 + 1 new
+
+    ilan.wait_for_button("Turn towards mission", my_debug)
+    ilan.turn(90, 150)
+
+    # Z combo!
+    ilan.wait_for_button("Z combo step 1", my_debug)
+    ilan.pid_gyro(10, 150, False)
+    ilan.wait_for_button("Z combo step 2", my_debug)
+    ilan.turn(50, 150)
+    ilan.wait_for_button("Z combo step 3", my_debug)
+    ilan.pid_gyro(20, 150, False)
+    ilan.wait_for_button("Z combo step 4", my_debug)
+    ilan.turn(-50, 150)
+
+    ilan.wait_for_button("Drive back, take truck", my_debug)
+    ilan.pid_gyro(20, 600, False)
+
+    
+    ilan.say("ishmi bili oten doten ba boba beten deten ah chen chef")
 
 
 TEXT_MENU = """Choose Run: 
@@ -647,8 +695,9 @@ def running ():
         except Exception as ex:
             print("Error: {}".format(ex))
             wait(2500)
-
+#ilan.ev3.speaker.play_file("ish.wav")
 running()
+crane_run_2022_03_05()
 
 # ilan.pid_gyro(35,300,Forward_Is_True = False)
 # ilan.wait_for_button("Go until line", True)
@@ -662,7 +711,7 @@ running()
 # ilan.robot.straight(50000)
 # green_airplane_and_containers_WithPneumatic()
 # go_trucks_with_new_arm()
-# ilan.learn_pid_line_values(ilan.color_sensor_right, 150, 120, "kp",kp=1.3, num_of_loops=1)
+# ilan.learn_pid_line_values(ilan.color_sensor_right, 150, 120, "ki",kp=1.17, num_of_loops=1)
 # ilan.move_wall_to_point(500,500)
 
 # ilan.pid_follow_line(150, speed=150, line_sensor=ilan.color_sensor_right, Kp=1.393, Ki=0.038, white_is_right=True, Kd=0.072)  

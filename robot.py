@@ -839,9 +839,9 @@ class Robot:
         self.move_wall_to_point(self.WALL_MAX_ANGLE_X / 2, self.WALL_MAX_ANGLE_Y)
         self.create_log_file()
         # define values throughout the loop
-        loop_start_value = 1.20
-        loop_end_value = 1.30
-        loop_step_size = 0.01
+        loop_start_value = 0.01
+        loop_end_value = 0.03
+        loop_step_size = 0.002
 
         loop_current_value = loop_start_value
         if value_checking == "Kp" or value_checking == "kp":
@@ -858,20 +858,22 @@ class Robot:
         while loop_current_value < loop_end_value:
             
             # drive on the line forward
-            self.wait_for_button("1 Drive on the line forward", False)
+            #self.wait_for_button("Start " + str(loop_current_value), True)
+            wait(5000)
+            self.gyro_sensor.reset_angle(0)
             follow_line_results = self.pid_follow_line(distance, speed, self.color_sensor_right, Kp = kp, Ki = ki, Kd = kd)
             self.write_to_log_file(follow_line_results)
             # turn backwards
-            self.wait_for_button("2 Turn backwards", False)
-            self.turn(180, 200)
+            
+            # self.turn(180, 200)
 
-            # drive on the line back to start
-            self.wait_for_button("drive on the line back to start", False)
-            follow_line_results = self.pid_follow_line(distance, speed, self.color_sensor_left, white_is_right = False, Kp = kp, Ki = ki, Kd = kd)
-            self.write_to_log_file(follow_line_results)
-            # turn backwards
-            self.wait_for_button("3 Turn backwards")
-            self.turn(200, 200)
+            # # drive on the line back to start
+            # self.wait_for_button("drive on the line back to start", False)
+            # follow_line_results = self.pid_follow_line(distance, speed, self.color_sensor_left, white_is_right = False, Kp = kp, Ki = ki, Kd = kd)
+            # self.write_to_log_file(follow_line_results)
+            # # turn backwards
+            # self.wait_for_button("3 Turn backwards")
+            # self.turn(200, 200)
             
             if value_checking == "Kp" or value_checking == "kp":
                 kp = kp + loop_step_size
@@ -881,7 +883,9 @@ class Robot:
 
             elif value_checking == "Kd" or value_checking == "kd":
                 kd = kd + loop_step_size
+            loop_current_value = loop_current_value + loop_step_size
 
+            
         # pid_line_values = DataLog ('Direction', 'Time from line end', 'Distance from line end',
         # 'Kp', 'Ki', 'Kd', 'Gyro angle', name = 'Learn Pid Values', timestamp = True)
 
