@@ -19,8 +19,9 @@ def turbina_run_vino_arm():
     ilan.move_wall_to_point(200, 0)
     ilan.pid_gyro(100, 500, False)
 
-    # ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X-400, 0)
-def green_airplane_and_containers_WithPneumatic():
+
+##### Green Airplane & Containers + Pneumatic #####
+def north_west_run():
     my_debug = False
     wall_debug = False
 
@@ -61,6 +62,7 @@ def green_airplane_and_containers_WithPneumatic():
     ilan.turn(-50)
 
 
+##### Wing Run #####
 def wing_run():
     my_debug = False
     wall_debug = False
@@ -569,13 +571,13 @@ def crane_run_2022_03_05():
 
     # move wall to place containers
     ilan.wait_for_button("place containers", my_debug)
-    ilan.pid_gyro(5, 150, False) # new
+    ilan.pid_gyro(5, 150, False)
     
     
     # ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y - 200) # move wall right & down
     ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y / 2 - 140) 
     # ilan.pid_gyro(1.6, 60, False)
-    ilan.pid_gyro(6 + 1 , 60, True) # new
+    ilan.pid_gyro(7 - 0.8 , 60, True)
     #2022-03-05 rtm above line
 
     # clear arm of containers
@@ -586,7 +588,7 @@ def crane_run_2022_03_05():
 
     # drive backwards from mission
     ilan.wait_for_button("Drive Gyro backwards", my_debug)
-    ilan.PID_while_move_wall(0, ilan.WALL_MAX_ANGLE_Y, 10 + 1.6 + 1, 150, Forward_Is_True = False) # + 1.6 + 1 new
+    ilan.PID_while_move_wall(0, ilan.WALL_MAX_ANGLE_Y, 12.6  - 0.8, 150, Forward_Is_True = False)
 
     ilan.wait_for_button("Turn towards mission", my_debug)
     ilan.turn(90, 150)
@@ -597,13 +599,14 @@ def crane_run_2022_03_05():
     ilan.wait_for_button("Z combo step 2", my_debug)
     ilan.turn(50, 150)
     ilan.wait_for_button("Z combo step 3", my_debug)
-    ilan.pid_gyro(20, 150, False)
+    ilan.pid_gyro(20 - 1, 150, False)
     ilan.wait_for_button("Z combo step 4", my_debug)
     ilan.turn(-50, 150)
 
     ilan.wait_for_button("Drive back, take truck", my_debug)
-    ilan.pid_gyro(20, 600, False)
-
+    ilan.pid_gyro(17, 600, False)
+    wait(100)
+    ilan.pid_gyro(10, 50, False)
     
     ilan.say("ishmi bili oten doten ba boba beten deten ah chen chef")
 
@@ -649,9 +652,8 @@ def running ():
                 ilan.write("Green Airplane & Containers")
                 sw.reset() # מאפס את שעון המשימה
 
-                # green_airplane_and_Containers() # הפעלת הראן
-                # green_airplane_and_containers()
-                green_airplane_and_containers_WithPneumatic()
+                 # הפעלת הראן
+                north_west_run()
 
                 sum_time = sw.time() + sum_time
                 # print("!!!TIMER --- Current, Sum!!!")
@@ -665,8 +667,6 @@ def running ():
                 east_run(True) # הפעלת הראן (מכולות קרובות)
 
                 sum_time = sw.time() + sum_time
-                # print("!!!TIMER --- Current, Sum!!!")
-                # print(str(sw.time()) + " , " + str(sum_time))
                 ilan.write("!!! Timer !!! \n    Mission time: " + str(sw.time()) + " \n Total time: " + str(sum_time))
 
 
@@ -677,8 +677,6 @@ def running ():
                 east_run(False) # הפעלת הרא (מכולות רחוקות)
 
                 sum_time = sw.time() + sum_time
-                # print("!!!TIMER --- Current, Sum!!!")
-                # print(sw.time(), sum_time)
                 ilan.write("!!! Timer !!! \n    Mission time: " + str(sw.time()) + " \n Total time: " + str(sum_time))
 
 
@@ -686,7 +684,8 @@ def running ():
                 ilan.write("Crane run")
                 sw.reset() # מאפס את שעון המשימה
 
-                crane_run() # הפעלת הראן
+                # crane_run() # הפעלת הראן
+                crane_run_2022_03_05()
 
                 sum_time = sw.time() + sum_time
                 # print("!!!TIMER --- Current, Sum!!!")
@@ -695,36 +694,6 @@ def running ():
         except Exception as ex:
             print("Error: {}".format(ex))
             wait(2500)
-#ilan.ev3.speaker.play_file("ish.wav")
+
 running()
-crane_run_2022_03_05()
-
-# ilan.pid_gyro(35,300,Forward_Is_True = False)
-# ilan.wait_for_button("Go until line", True)
-# ilan.drive_until_line(10,50,ilan.color_sensor_left, Color.BLACK, 2)
-# ilan.wait_for_button("Turn to line", True)
-# ilan.pid_gyro(4, 100)
-# wait(100)
-# ilan.turn(50)
-# ilan.turn_until_black(ilan.color_sensor_left, True, 25)
-
-# ilan.robot.straight(50000)
-# green_airplane_and_containers_WithPneumatic()
-# go_trucks_with_new_arm()
-# ilan.learn_pid_line_values(ilan.color_sensor_right, 150, 120, "ki",kp=1.17, num_of_loops=1)
-# ilan.move_wall_to_point(500,500)
-
-# ilan.pid_follow_line(150, speed=150, line_sensor=ilan.color_sensor_right, Kp=1.393, Ki=0.038, white_is_right=True, Kd=0.072)  
-# *******************ilan.pid_follow_line(150, speed=120, line_sensor=ilan.color_sensor_right, Kp=1.353, Ki=0.0352, white_is_right=True, Kd=0.062)  
-
-# Kp=1.353, Ki=0.0352, Kd=0.062 pretty good - speed 120
-
-
-
-
-
-
-
-
-
-# ilan.say("ze hajuk shehekpitz et hashpritz shel hamitlahatzitz al hashpitz shel hakfitz baharitz hamesukan behor hahar")
+# crane_run_2022_03_05()
