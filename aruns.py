@@ -4,16 +4,16 @@ from robot import *
 ilan = Robot()
 ilan.reset_wall_bottom_right()
 
-
-##### Green Airplane & Containers + Pneumatic #####
+##### Green Airplane & Containers #####
 def north_west_run():
     my_debug = False
     wall_debug = False
 
-    # איפוס הקיר וסידור ההלבשה
+    # איפוס הקיר
     ilan.wait_for_button("wall bottom right", wall_debug)
     ilan.reset_wall_bottom_right()
     
+    # עצירה לשם הוספת המכולה הירוקה להלבשה
     ilan.wait_for_button("Place container", True)
     wait(50)
 
@@ -21,8 +21,8 @@ def north_west_run():
     ilan.wait_for_button("Drive to line + move wall", my_debug)
     ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X - 150, 0, 25, 200)
 
-    #  נסיעה למשימה עם החיישן הימני - עד זיהוי קו אחד עם החיישן השמאלי
-    ilan.wait_for_button("Drive on the lin until detect line", my_debug)
+    #  נסיעה למשימה עם החיישן הימני - עד זיהוי קו שחור אחד עם החיישן השמאלי
+    ilan.wait_for_button("Drive on the line until detect line", my_debug)
     ilan.pid_follow_right_line_until_left_detect_color(1, ilan.color_sensor_right, ilan.color_sensor_left, 90+10, white_is_right = True, kp=1.3)
 
     # נסיעה קצרה לפנים
@@ -35,13 +35,16 @@ def north_west_run():
     # נסיעה לאחור והזזת הקיר למעלה
     ilan.wait_for_button("Drive backward, move wall up", wall_debug)
     ilan.pid_gyro(4, 80, False)
-    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y - 300) # הפעלת המנגנון הפנאומטי, הפלת החלק הצהוב
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y - 300)
+    # ^                                            ^
+    # | הפעלת המנגנון הפנאומטי, הפלת החלק הצהוב |
 
     # נסיעה לאחור + הזזת קיר שמאלה ולמטה
+    # ^ תפיסת המכולה ומשיכתה אל העיגול האפור
     ilan.wait_for_button("Drive backwrd, move wall left & down", wall_debug)
     ilan.PID_while_move_wall(0, 0, 22, Forward_Is_True = False)
 
-    # חוזר הביתה
+    # אילן חוזר הביתה
     ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y-400)
     ilan.pid_gyro(30, 200, False)
     ilan.turn(-50)
@@ -257,7 +260,8 @@ def take_containers(close_or_far):
     ilan.pid_gyro(30, 400)
     
     # Go back right, catch blue
-    ilan.turn(57 - 15, 150) # + 15 new code
+    ilan.wait_for_button("Take container", my_debug)
+    ilan.turn(57, 150) # + 15 new code
     ilan.pid_gyro(50 - 5, 500)
 
     ilan.turn(-90 + 15, 200) # + 15 new code
@@ -266,10 +270,87 @@ def take_containers(close_or_far):
     # ilan.move_wall_to_point(0, 0, x_wait = False, y_wait = False)
     # ilan.pid_gyro(15, 300)
     ilan.PID_while_move_wall(0, 0, 15, 300, 0, -5000)
-    ilan.turn(-40)
-    
-    
+    ilan.turn(-40)    
 
+
+def take_containers_2022_03_07(close_or_far):
+    "Close = True  |  Far  = False"
+    my_debug = False
+    wall_debug = False
+
+    # Continues mission after trucks
+    ilan.wait_for_button("Continue to Containers", my_debug)
+    # 2022-02-11 - removed follow line and replaced by pid_gyro
+
+    # check if robot needs to go to close / far containers
+    ilan.wait_for_button("Go Close or Far", my_debug)
+    cm_to_go_forward = 46 - 2
+    ilan.pid_gyro(cm_to_go_forward, 200)
+
+    # Turn & drive to mission
+    ilan.wait_for_button("Turn to mission", my_debug)
+    ilan.turn(90 - ilan.gyro_sensor.angle(), 200) # turn depending on current angle (error)
+    
+    # Move wall to containers depending on close / far
+    ilan.wait_for_button("Move wall to containers", wall_debug)
+    if (close_or_far):
+        ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 0)
+        # ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X, 0, 8,45)
+
+    else:
+        ilan.move_wall_to_point(0, 0)
+        # ilan.PID_while_move_wall(0,0,8,80)
+    ilan.pid_gyro(8, 80)
+    
+    ilan.pid_gyro(8 - 1.5, 50)
+    
+    # Move wall up depending on close / far
+    ilan.wait_for_button("Take containers", wall_debug)
+    if (close_or_far):
+        ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, 700)
+
+    else:
+        ilan.move_wall_to_point(0 + 50, 700)
+
+    # Go home
+    ilan.wait_for_button("Go Home", wall_debug)
+
+    #2022-03-02 rotem move wall before driving to keep contaiers using wall
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X, ilan.WALL_MAX_ANGLE_Y)
+
+    # turn and knock rail down
+    ilan.turn(90, 150)
+    ilan.pid_gyro(16 + 2, 150, Forward_Is_True = False) # + 2 new code
+
+    ilan.pid_gyro(15 + 2, 150, Forward_Is_True = True) # + 2 new code
+    # ilan.turn(-90, 150)
+    ilan.wait_for_button("go home 1", False)
+    ilan.turn(50, 300)
+    ilan.wait_for_button("go home 2", False)
+    ilan.pid_gyro(15, 150)
+    ilan.wait_for_button("go home 3", False)
+    ilan.turn(-40 - 5, 200)
+
+    # ilan.pid_gyro(18, 150, Forward_Is_True = False)
+    # ilan.turn(90, 150)
+    #2022-03-04 rtm changed 89 to 87 line below
+    ilan.wait_for_button("Go home", False)
+    ilan.pid_gyro(76, 400)
+
+    # Turn left to avoid airplane mission
+    ilan.turn(-30 + 5, 200)
+    ilan.pid_gyro(20, 400)
+    
+    # Go back right, catch blue
+    ilan.wait_for_button("Take container", my_debug)
+    ilan.turn(40, 150) # + 15 new code
+    ilan.pid_gyro(50 - 5, 500)
+
+    ilan.turn_until_seconds(1, 60, 400) # + 15 new code
+    # ilan.turn_until_seconds(0.7, 120, 200, False)                  
+
+    
+##### East run - Combo of Go trucks & Take containers #####
 def east_run(close_or_far):
     "Close = True  |  Far = False"
     my_debug = False
@@ -389,8 +470,8 @@ def crane_run():
     wait(100)
     ilan.pid_gyro(10, 50, False)
     
-    ilan.say("ishmi bili oten doten ba boba beten deten ah chen chef")
-
+    # ilan.say("ishmi bili oten doten ba boba beten deten ah chen chef")
+    ilan.say("ze hajuk shehekpitz et hashpritz shel hamitlahatzitz al hashpitz shel hakfitz baharitz hamesukan behor hahar")
 
 TEXT_MENU = """Choose Run: 
   < - Wing run 
@@ -412,7 +493,7 @@ def running ():
         try:
             # מדפיס את טקסט הריצות על הרובוט ועל מסך המחשב
             ilan.write(TEXT_MENU)
-
+            
             # מחכה ללחיצת כפתור
             while not any(ilan.ev3.buttons.pressed()):
                 wait(60)
@@ -477,4 +558,5 @@ def running ():
             wait(2500)
 
 running()
-# crane_run()
+# go_trucks()
+# take_containers_2022_03_07(True)
