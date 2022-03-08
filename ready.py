@@ -15,16 +15,6 @@ def clean_wheels():
         ilan.right_motor.run(500)
         ilan.left_motor.run(500)
 
-
-TEXT_MENU = """Choose Action: 
-  < - Clean Wheels
-  > - 
-  O - 
-  V - 
-  ^ - 
-"""
-
-
-     
+   
 clean_wheels()      
 # ilan.turn(-90)

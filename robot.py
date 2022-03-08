@@ -625,7 +625,7 @@ class Robot:
     ##### PID FOLLOW RIGHT LINE UNTIL LEFT DETECT COLOR #####
 
     def pid_follow_right_line_until_left_detect_color (self, lines_till_stop, follow_color_sensor, detection_color_sensor,
-                                                    speed = 90, white_is_right = True, stop_color = Color.BLACK, kp = 1.3):
+                                                    speed = 90, white_is_right = True, stop_color = Color.BLACK, kp = 1.3, ki = 0.01, kd = 0.07):
         """ סע על הקו השחור עד זיהוי כמות מסויימת של קווים שחורים עם חיישן הצבע השני """
         my_debug = False
 
@@ -644,7 +644,7 @@ class Robot:
                 self.pid_follow_line(10, 80, follow_color_sensor, Kp=kp, white_is_right = white_is_right)
             
             # נסיעה עד זיהוי תנאי העצירה - זיהוי הקו השחור
-            self.pid_follow_line(150, speed, follow_color_sensor, stop_condition = stop_on_black, Kp = kp, white_is_right = white_is_right)
+            self.pid_follow_line(150, speed, follow_color_sensor, stop_condition = stop_on_black, Kp = kp, white_is_right = white_is_right, Ki = ki, Kd = kd)
             self.beep()
 
 
@@ -804,7 +804,7 @@ class Robot:
 
     ##### TURN UNTIL COLOR #####
 
-    def turn_until_black (self, line_sensor, turn_right = True, speed = 100):
+    def turn_to_threshold (self, line_sensor, turn_right = True, speed = 25):
 
         # שנה את מהירות הפנייה בהתאם לרצון המשתמש לפנות ימינה או שמאלה
         if turn_right == False:
@@ -812,7 +812,7 @@ class Robot:
 
         ## הפנייה ##
         # פנייה עד זיהוי הצבע השחור
-        while line_sensor.reflection() > 15:
+        while line_sensor.reflection() > 40:
             self.check_forced_exit()
             
             # הפעלת המנועים
@@ -826,6 +826,7 @@ class Robot:
 
 
     ##### LEARN THE BEST VALUES FOR PID FOLLOW LINE #####
+
     def learn_pid_line_values (self, line_sensor, distance = 150, speed = 100, value_checking = "Kp", kp = 1.3, ki = 0.01, kd = 0.07, num_of_loops = 20):
 
         # Create the file to write in with following catagories:
@@ -885,32 +886,8 @@ class Robot:
                 kd = kd + loop_step_size
             loop_current_value = loop_current_value + loop_step_size
 
-            
-        # pid_line_values = DataLog ('Direction', 'Time from line end', 'Distance from line end',
-        # 'Kp', 'Ki', 'Kd', 'Gyro angle', name = 'Learn Pid Values', timestamp = True)
-
-        # while True:
-
-        #     for i in range(0, num_of_loops):
-        #         self.pid_follow_line(distace, speed, line_sensor, Kp = kp, Ki = ki, Kd = kd)
-        #         wait(200)
-        #         self.turn(180, 200)
-
-        #         self.pid_follow_line(distace, speed, line_sensor, Kp = kp, Ki = ki, Kd = kd, white_is_right = False)
-        #         wait(200)
-        #         self.turn(200, 200)
-
-        #     if value_checking == "Kp" or value_checking == "kp":
-        #         kp = kp + 0.01
-
-        #     elif value_checking == "Ki" or value_checking == "ki":
-        #         ki = ki + 0.01
-
-        #     elif value_checking == "Kd" or value_checking == "kd":
-        #         kd = kd + 0.01
-
-
-
+        
+        
     ##### CHECK GYRO #####
 
     def check_gyro(self):
