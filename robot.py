@@ -772,6 +772,123 @@ class Robot:
 
 
 
+    def turn_2 (self, seconds, max_angle, speed = 100):
+        # איפוס חיישן הג'יירו
+        self.gyro_sensor.reset_angle(0)
+        # הגדרת שעון העצר
+        sw = StopWatch
+        wait(10)
+
+        ## פנייה ימינה - זווית פנייה חיובית ##
+        if max_angle > 0:
+
+
+            # נוסע כמעט עד ערך הזווית במהירות מלאה
+            while self.gyro_sensor.angle() <= max_angle * 0.8 and sw.time() < seconds * 1000:
+                self.check_forced_exit()
+
+                # הדפסת ערך הזווית הנוכחית
+                print("degree: " + str(self.gyro_sensor.angle()))
+
+                # פנייה במהירות מלאה
+                self.right_motor.run(speed = (-1 * speed))
+                self.left_motor.run(speed = speed)
+
+            # עצירת מנועי הרובוט
+            self.right_motor.brake()
+            self.left_motor.brake()
+
+
+            #נוסע את שארית ערך הזווית במהירות מופחתת פי 0.2
+            while self.gyro_sensor.angle() < max_angle and sw.time() < seconds * 1000:
+                self.check_forced_exit()
+
+                # הדפסת ערך הזווית הנוכחית
+                print("degree: " + str(self.gyro_sensor.angle()))
+
+                # פנייה במהירות כמעט מלאה
+                self.right_motor.run(speed = (-0.2 * speed))
+                self.left_motor.run(speed = speed * 0.2)
+
+            # עצירת מנועי הרובוט
+            self.right_motor.brake()
+            self.left_motor.brake()
+            
+
+            #  תיקון איטי נוסף במקרה הצורך
+            while self.gyro_sensor.angle() > max_angle and sw.time() < seconds * 1000:
+                self.check_forced_exit()
+                
+                # הדפסת ערך הזווית הנוכחית
+                print("degree: " + str(self.gyro_sensor.angle()))
+
+                # פנייה במהירות נמוכה מאוד
+                self.right_motor.run(20)
+                self.left_motor.run(-20)
+                
+                wait(10)
+
+
+
+        ## פנייה שמאלה - זווית פנייה שלילית ##
+        elif max_angle < 0:  
+            
+            
+            # נוסע כמעט עד ערך הזווית במהירות מלאה, הגלגלים נעים בכיוון הפוך 
+            while self.gyro_sensor.angle() >= max_angle * 0.8 and sw.time() < seconds * 1000:
+                self.check_forced_exit()
+                
+                # הדפסת ערך הזווית הנוכחית
+                print("degree: " + str(self.gyro_sensor.angle()))
+
+                # פנייה במהירות מלאה
+                self.right_motor.run(speed=(speed))
+                self.left_motor.run(speed=speed*-1)
+
+            # עצירת מנועי הרובוט
+            self.right_motor.brake()
+            self.left_motor.brake()
+
+
+            # נוסע את שארית ערך הזווית במהירות מופחתת פי 0.2
+            while self.gyro_sensor.angle() > max_angle and sw.time() < seconds * 1000:
+                self.check_forced_exit()
+
+                # הדפסת ערך הזווית הנוכחית
+                print("degree: " + str(self.gyro_sensor.angle()))
+
+                # פנייה במהירות כמעט מלאה
+                self.right_motor.run(speed=(0.2 * speed))
+                self.left_motor.run(speed=speed*-0.2)
+
+            # עצירת מנועי הרובוט
+            self.right_motor.stop()
+            self.left_motor.stop()
+
+
+            # תיקון איטי נוסף במקרה הצורך
+            while self.gyro_sensor.angle() > max_angle and sw.time() < seconds * 1000:
+                self.check_forced_exit()
+
+                # הדפסת ערך הזווית הנוכחית
+                print("degree: " + str(self.gyro_sensor.angle()))
+
+                # פנייה במהירות איטית מאוד
+                self.right_motor.run(-20)
+                self.left_motor.run(20)
+
+                wait(10)  
+
+
+        # לאחר הפנייה, עצור את מנועי הרובוט
+        self.right_motor.stop()
+        self.left_motor.stop()
+        
+        # הדפסת הזווית הסופית
+        print("final degree: " + str(self.gyro_sensor.angle()))
+
+
+
     ##### TURN UNTIL SECONDS ####
 
     def turn_until_seconds(self, seconds, max_angle, speed = 150, turn_right = True):

@@ -292,8 +292,8 @@ def take_containers_2022_03_07(close_or_far):
 def south_run():
     """ Wing | Chicken | Gray container """
 
-    my_debug = False
-    wall_debug = False
+    my_debug = True 
+    wall_debug = True
 
     # הזזת הקיר למקום הנחוץ בשביל המשימה
     ilan.move_wall_to_point(0, 0)
@@ -320,9 +320,21 @@ def south_run():
     ilan.move_wall_to_point(0, 100)
 
     # חזרה הביתה - נסיעה לאחור והזזת הקיר בשביל המשימה הבאה
-    # ilan.pid_gyro(10, 400, False)
-    #   V   V   V
-    ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X - 100, 0, 65, 500, 0.7, Forward_Is_True = False, Kp = 3.05) # +10 חדש
+    ilan.pid_gyro(10, 200, False)
+    ilan.turn(5, 200)
+    ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X - 100, 0, 55, 500, Forward_Is_True = False, Kp = 3.05) 
+
+
+
+##### New South Run #####
+
+def south_run_2022_03_09():
+    """ Wing | Chicken | Gray container """
+
+    my_debug = True 
+    wall_debug = True
+
+    
 
 
 
@@ -374,9 +386,10 @@ def north_west_run():
     ilan.move_wall_to_point(0, ilan.WALL_MAX_ANGLE_Y - 400) # הזזת הקיר על מנת לא להזיז את המכולה 
 
     ilan.wait_for_button("Go home", my_debug)
-    ilan.pid_gyro(30, 200, False) # נסיעה הביתה
-    ilan.turn_until_seconds(1, -50, 250) # פנייה אל תוך איזור הבית                
-  
+    ilan.pid_gyro(30 + 2, 200, False) # נסיעה הביתה
+    wait(100)
+    # ilan.turn_until_seconds(2, -50, 250, False) # פנייה אל תוך איזור הבית                
+    ilan.turn(-50, 200)
 
 
 ##### North Run #####
