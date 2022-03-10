@@ -115,19 +115,6 @@ class Robot:
         
         # write current angles
         self.write("x = " + str(self.wall_x_motor.angle()) + "\ny = " + str(self.wall_y_motor.angle()))
-
-
-
-    ##### PUSH WALL'S CURRENT VALUES #####
-
-    def push_wall_values(self):
-        """
-        כתיבת ערך הפוזיציה הנוכחית של הקיר בקובץ טקסט    
-        """
-        # with open('wall_values.txt', 'w+') as f:
-        #     wait(50)
-        #     f.write(str(self.wall_x_motor.angle()) + "," + str(self.wall_y_motor.angle()))
-        pass
             
 
         
@@ -146,7 +133,19 @@ class Robot:
         pass
 
 
+
+    ##### PUSH WALL'S CURRENT VALUES #####
+
+    def push_wall_values(self):
+        """
+        כתיבת ערך הפוזיציה הנוכחית של הקיר בקובץ טקסט    
+        """
+        with open('wall_values.txt', 'w+') as f:
+            wait(50)
+            f.write(str(self.wall_x_motor.angle()) + "," + str(self.wall_y_motor.angle()))
     
+    
+
     ##### MOVE WALL TO POINT #####
 
     def move_wall_to_point(self, x:int,y:int, speed=-1200, x_wait = True, y_wait = True):
@@ -214,9 +213,9 @@ class Robot:
         # Td = 1000 # target distance
         # Ts = 150 # target speed of robot in mm/s
 
-        # Kp = 3 #  the Constant 'K' for the 'p' proportional controller
-        # Ki = 0.025 #  the Constant 'K' for the 'i' integral term
-        # Kd = 3 #  the Constant 'K' for the 'd' derivative term
+        # Kp = 3.06 #  the Constant 'K' for the 'p' proportional controller
+        # Ki = 0.027 #  the Constant 'K' for the 'i' integral term
+        # Kd = 3.02 #  the Constant 'K' for the 'd' derivative term
 
         # initialize
         integral = 0 
@@ -588,15 +587,6 @@ class Robot:
         #2022-03-02 save run data in array and add to an array of arrays which will be the function return value
             arr_result = self.robot.distance(), line_sensor.reflection(), error, PROPORTIONAL_GAIN, INTEGRAL_GAIN, DERIVATIVE_GAIN,integral, derivative, turn_rate, self.gyro_sensor.angle(), speed, white_is_right, self.gyro_sensor.angle() - initial_gyro_angle,watch.time()
             arr_results.append(arr_result)
-                        
-            # arr_result.append(self.robot.distance())
-            # arr_result.append()
-            # arr_result.append()
-            # arr_result.append()
-            # arr_result.append()
-            # arr_result.append()
-            # arr_result.append()
-            # arr_result.append()
             
             # עוצר במקרה שזיהה תנאי עצירה
             if stop_condition():
@@ -767,123 +757,6 @@ class Robot:
         self.right_motor.stop()
         self.left_motor.stop()
 
-        # הדפסת הזווית הסופית
-        print("final degree: " + str(self.gyro_sensor.angle()))
-
-
-
-    def turn_2 (self, seconds, max_angle, speed = 100):
-        # איפוס חיישן הג'יירו
-        self.gyro_sensor.reset_angle(0)
-        # הגדרת שעון העצר
-        sw = StopWatch
-        wait(10)
-
-        ## פנייה ימינה - זווית פנייה חיובית ##
-        if max_angle > 0:
-
-
-            # נוסע כמעט עד ערך הזווית במהירות מלאה
-            while self.gyro_sensor.angle() <= max_angle * 0.8 and sw.time() < seconds * 1000:
-                self.check_forced_exit()
-
-                # הדפסת ערך הזווית הנוכחית
-                print("degree: " + str(self.gyro_sensor.angle()))
-
-                # פנייה במהירות מלאה
-                self.right_motor.run(speed = (-1 * speed))
-                self.left_motor.run(speed = speed)
-
-            # עצירת מנועי הרובוט
-            self.right_motor.brake()
-            self.left_motor.brake()
-
-
-            #נוסע את שארית ערך הזווית במהירות מופחתת פי 0.2
-            while self.gyro_sensor.angle() < max_angle and sw.time() < seconds * 1000:
-                self.check_forced_exit()
-
-                # הדפסת ערך הזווית הנוכחית
-                print("degree: " + str(self.gyro_sensor.angle()))
-
-                # פנייה במהירות כמעט מלאה
-                self.right_motor.run(speed = (-0.2 * speed))
-                self.left_motor.run(speed = speed * 0.2)
-
-            # עצירת מנועי הרובוט
-            self.right_motor.brake()
-            self.left_motor.brake()
-            
-
-            #  תיקון איטי נוסף במקרה הצורך
-            while self.gyro_sensor.angle() > max_angle and sw.time() < seconds * 1000:
-                self.check_forced_exit()
-                
-                # הדפסת ערך הזווית הנוכחית
-                print("degree: " + str(self.gyro_sensor.angle()))
-
-                # פנייה במהירות נמוכה מאוד
-                self.right_motor.run(20)
-                self.left_motor.run(-20)
-                
-                wait(10)
-
-
-
-        ## פנייה שמאלה - זווית פנייה שלילית ##
-        elif max_angle < 0:  
-            
-            
-            # נוסע כמעט עד ערך הזווית במהירות מלאה, הגלגלים נעים בכיוון הפוך 
-            while self.gyro_sensor.angle() >= max_angle * 0.8 and sw.time() < seconds * 1000:
-                self.check_forced_exit()
-                
-                # הדפסת ערך הזווית הנוכחית
-                print("degree: " + str(self.gyro_sensor.angle()))
-
-                # פנייה במהירות מלאה
-                self.right_motor.run(speed=(speed))
-                self.left_motor.run(speed=speed*-1)
-
-            # עצירת מנועי הרובוט
-            self.right_motor.brake()
-            self.left_motor.brake()
-
-
-            # נוסע את שארית ערך הזווית במהירות מופחתת פי 0.2
-            while self.gyro_sensor.angle() > max_angle and sw.time() < seconds * 1000:
-                self.check_forced_exit()
-
-                # הדפסת ערך הזווית הנוכחית
-                print("degree: " + str(self.gyro_sensor.angle()))
-
-                # פנייה במהירות כמעט מלאה
-                self.right_motor.run(speed=(0.2 * speed))
-                self.left_motor.run(speed=speed*-0.2)
-
-            # עצירת מנועי הרובוט
-            self.right_motor.stop()
-            self.left_motor.stop()
-
-
-            # תיקון איטי נוסף במקרה הצורך
-            while self.gyro_sensor.angle() > max_angle and sw.time() < seconds * 1000:
-                self.check_forced_exit()
-
-                # הדפסת ערך הזווית הנוכחית
-                print("degree: " + str(self.gyro_sensor.angle()))
-
-                # פנייה במהירות איטית מאוד
-                self.right_motor.run(-20)
-                self.left_motor.run(20)
-
-                wait(10)  
-
-
-        # לאחר הפנייה, עצור את מנועי הרובוט
-        self.right_motor.stop()
-        self.left_motor.stop()
-        
         # הדפסת הזווית הסופית
         print("final degree: " + str(self.gyro_sensor.angle()))
 
