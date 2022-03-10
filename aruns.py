@@ -133,7 +133,11 @@ def take_containers(close_or_far):
 
     ## נסיעה אל המשימה ##
     # נסיעה מזרחה
-    ilan.pid_gyro(44, 200)
+    if close_or_far:
+        ilan.pid_gyro(44, 200)
+
+    else:
+        ilan.pid_gyro(44 + 1, 200) # new
 
     # פנייה דרומה לכיוון המשימה
     ilan.wait_for_button("Turn to mission", my_debug)
@@ -192,7 +196,11 @@ def take_containers(close_or_far):
 
     # נסיעה לפנים עד למטוס
     ilan.wait_for_button("Go until plane", my_debug)
-    ilan.pid_gyro(87, 400)
+    if close_or_far:
+        ilan.pid_gyro(87, 400)
+
+    else: 
+        ilan.pid_gyro(87 + 1, 400)
 
     # פנייה שמאלה כדי לא להתנגש במטוס
     ilan.wait_for_button("Avoid plane", my_debug)
@@ -478,10 +486,14 @@ def running ():
     """!! One Function To Rule Them All !!"""
     
     while True:
+
+
         
         try:
             # מדפיס את טקסט הריצות על הרובוט ועל מסך המחשב
+            
             ilan.write(TEXT_MENU)
+            
             
             # מחכה ללחיצת כפתור
             while not any(ilan.ev3.buttons.pressed()):
