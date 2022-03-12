@@ -50,20 +50,7 @@ class Robot:
 
 
     ##### RESET WALL #####
-    def proportional_turn(turn_rate = 90, min_speed = 90, max_speed = 250):
-        pass
-        # p
-        # while abs(speed) > 1:
-        # error = target_angle - gyro.angle()
-        # speed = max(-100, min(100, error)) * 4
 
-        # # this part determines the minimal speed >>
-        # if abs(speed) < 3  and speed != 0: 
-        #     speed = 5 * abs(speed) / speed
-        
-        # tank_drive_on(speed, -speed)
-
-    # tank_drive_off()
     def reset_wall(self):
         """"
         מאפס את הקיר לצד שמאל למטה
@@ -140,9 +127,10 @@ class Robot:
         """
         כתיבת ערך הפוזיציה הנוכחית של הקיר בקובץ טקסט    
         """
-        with open('wall_values.txt', 'w+') as f:
-            wait(50)
-            f.write(str(self.wall_x_motor.angle()) + "," + str(self.wall_y_motor.angle()))
+        # with open('wall_values.txt', 'w+') as f:
+        #     wait(50)
+        #     f.write(str(self.wall_x_motor.angle()) + "," + str(self.wall_y_motor.angle()))
+        pass
     
     
 
@@ -174,12 +162,12 @@ class Robot:
         
 
 
-    ##### MEASURE WALL #####
+    ##### MEASURE WALL MAX VALUES #####
 
-    # ideally will be run only once to measure the angles of the wall extremes
-    def measure_wall(self):
-
-        """"פונקציה שבעזרתה בדקנו מה האיקס והוואי של הקיר בפינות"""
+    def measure_wall_max_values(self):
+        """"
+        פונקציה שבעזרתה בדקנו מה האיקס והוואי של הקיר בפינות
+        """
 
         self.reset_wall()
 
@@ -198,6 +186,9 @@ class Robot:
     ##### PID Gyro #####
 
     def pid_gyro(self, Td, Ts = 150, Forward_Is_True = True, Kp = 3.06, Ki= 0.027, Kd = 3.02):
+        """
+        PID Gyro נסיעה ישרה באמצעות מנגנון
+        """
 
         direction_indicator = -1
         speed_indicator = -1       #משתנה שנועד כדי לכפול אותו במהירות ובתיקון השגיאה כדי שנוכל לנסוע אחורה במידת הצורך     
@@ -267,6 +258,9 @@ class Robot:
 
     def PID_while_move_wall(self, x:int, y:int, drive_distance, drive_speed = 150, seconds_to_start_wall = 0, wall_speed =- 1200,
                             Forward_Is_True = True, Kp = 3.06, Ki= 0.027, Kd = 3.02):
+        """
+        PID Gyro הזזת הקיר תוך כדי נסיעה
+        """
         
         self.update_angles_from_file()
 
@@ -367,6 +361,9 @@ class Robot:
     ##### PID GYRO UNTIL COLOR #####
 
     def pid_gyro_until_color(self, stop_color = Color.BLACK, Ts = 150, Forward_Is_True = True, Kp = 3.06, Ki= 0.027, Kd = 3.02):
+        """
+        PID Gyro נסיעה ישרה עד זיהוי קו באמצעות
+        """
         
         direction_indicator = -1
         speed_indicator = -1       #משתנה שנועד כדי לכפול אותו במהירות ובתיקון השגיאה כדי שנוכל לנסוע אחורה במידת הצורך  
@@ -433,6 +430,10 @@ class Robot:
     ##### STRAIGHTEN ON BLACK #####
 
     def straighten_on_black(self, speed = 90, drive_forward = True):
+        """
+        התיישרות על קו שחור
+        """
+        
         if drive_forward == False:
             speed = speed * -1
 
@@ -477,46 +478,24 @@ class Robot:
         self.write("R Left: " + str(self.color_sensor_left.reflection()))
         self.write("R Right: " + str(self.color_sensor_right.reflection()))
 
-    ###2022-03-04 rtm 
-    def drive_until_line(self,distance,speed,detection_color_sensor,stop_color,lines_till_stop, Kp = 1.30 ,Ki = 0.01, white_is_right = True, Kd=0.07):
-        my_debug = True
-        self.robot.reset()
-        # מגדיר את תנאי העצירה
-        stop_condition = lambda : detection_color_sensor.color() == stop_color
-
-        # self.wait_for_button("Start Follow", my_debug)
-
-        # מוצא קווים ככמות הפרמטר
-        for i in range (0, lines_till_stop):
-            #self.check_forced_exit()
-
-            while detection_color_sensor.reflection() > 15:
-                print(detection_color_sensor.reflection())
-                self.robot.drive(speed,0)
-                #self.wait_for_button("Found Line", my_debug)
-            
-            #if (i > 0):
-                # לאחר מציאת קו, סע 10 ס"מ במהירות נמוכה יותר כדי
-                # להתרחק מן הקו ולהיות בטוח מפני פניות
-                #self.pid_follow_line(10, 80, follow_color_sensor, Kp=kp, white_is_right = white_is_right)
-            
-            # נסיעה עד זיהוי תנאי העצירה - זיהוי הקו השחור
-            #self.pid_follow_line(150, speed, follow_color_sensor, stop_condition = stop_on_black, Kp = kp, white_is_right = white_is_right)
-            self.beep()
-        self.robot.stop()
 
 
     ##### RUN STRAIGHT ####
 
     def run_straight (self, distance):
+        """
+        נסיעה ישרה לפי סנטימטרים
+        """
         self.robot.straight(distance * 10)
 
 
     ##### PID Follow Line #####
 
     def pid_follow_line(self, distance, speed, line_sensor, stop_condition = lambda: False, Kp = 1.30 ,Ki = 0.01, white_is_right = True, Kd=0.07):
-        
-        """ נסיעה על הקו עם מנגנון פיד """
+        """
+        PID מעקב אחרי קו עם מנגנון 
+        """
+
         self.robot.reset() 
 
         # define gyro angle robot starts driving in
@@ -525,8 +504,9 @@ class Robot:
         # Start a stopwatch to measure elapsed time
         watch = StopWatch()
 
-        #log_file_name = time.strftime("%Y_%m_%d_%H_%M_%S")
+        ## Following code was remarked for it is only needed when learning the PID values ##
 
+        #log_file_name = time.strftime("%Y_%m_%d_%H_%M_%S")
         # print file's name
         #print(log_file_name)
         #self.data =DataLog("Distance", "Reflection", "Error", "PROPORTIONAL_GAIN", "INTEGRAL_GAIN", "DERIVATIVE_GAIN", "integral", "derivative", "turn_rate", "gyro", "speed", "white_is_right","Gyro_Offset","MS_From_Start",name=log_file_name,timestamp=False)
@@ -554,6 +534,7 @@ class Robot:
         derivative =0
         last_error = 0
         arr_results = []
+
         ## Follow The Line Until Target Distance is Reached ##
         while (abs(self.robot.distance()) < distance * 10):
             self.check_forced_exit()
@@ -580,11 +561,14 @@ class Robot:
             # define the last error as current error
             last_error = error
 
+            ## Following code was remarked for it is only needed when learning the PID values ##
+
             # log the driving data into the file
-        # self.data.log(self.robot.distance(), line_sensor.reflection(), error, PROPORTIONAL_GAIN, INTEGRAL_GAIN, DERIVATIVE_GAIN,
-        #               integral, derivative, turn_rate, self.gyro_sensor.angle(), speed, white_is_right,
-        #               self.gyro_sensor.angle() - initial_gyro_angle,watch.time())
-        #2022-03-02 save run data in array and add to an array of arrays which will be the function return value
+            # self.data.log(self.robot.distance(), line_sensor.reflection(), error, PROPORTIONAL_GAIN, INTEGRAL_GAIN, DERIVATIVE_GAIN,
+            #               integral, derivative, turn_rate, self.gyro_sensor.angle(), speed, white_is_right,
+            #               self.gyro_sensor.angle() - initial_gyro_angle,watch.time())
+
+            # Save run data in array and add to an array of arrays which will be the function return value
             arr_result = self.robot.distance(), line_sensor.reflection(), error, PROPORTIONAL_GAIN, INTEGRAL_GAIN, DERIVATIVE_GAIN,integral, derivative, turn_rate, self.gyro_sensor.angle(), speed, white_is_right, self.gyro_sensor.angle() - initial_gyro_angle,watch.time()
             arr_results.append(arr_result)
             
@@ -601,22 +585,106 @@ class Robot:
         return arr_results
 
 
+
+    ##### CREATE LOG FILE #####
+
     def create_log_file(self):
+        """
+        יצירת קובץ למדידת ערכי פיד אופטימליים
+        """
+        
         log_file_name = time.strftime("%Y_%m_%d_%H_%M_%S")
 
         # print file's name
         print(log_file_name)
-        self.data =DataLog("Distance", "Reflection", "Error", "PROPORTIONAL_GAIN", "INTEGRAL_GAIN", "DERIVATIVE_GAIN", "integral", "derivative", "turn_rate", "gyro", "speed", "white_is_right","Gyro_Offset","MS_From_Start",name=log_file_name,timestamp=False)
+
+        # Create the file to write in with following catagories:
+        # Distance | Reflection | Error | Proportional Gain | Integral Gain | Derivative Gain | Integral | Derivative |
+        # Turn Rate | Gyro | Speed | Side of the Line | Gyro Offset | Time From Start |
+
+        self.data = DataLog("Distance", "Reflection", "Error", "PROPORTIONAL_GAIN", "INTEGRAL_GAIN", "DERIVATIVE_GAIN", "integral", "derivative", "turn_rate", "gyro", "speed", "white_is_right","Gyro_Offset","MS_From_Start",name=log_file_name,timestamp=False)
     
-    def write_to_log_file(self,message):
+
+
+    ##### WRITE TO LOG FILE #####
+
+    def write_to_log_file(self, message):
+        """
+        כתיבה לתוך הקובץ שנוצר בפונקציה הקודמת
+        """
+
         for a in message:
             self.data.log(a)
 
+
+
+    ##### LEARN THE BEST VALUES FOR PID FOLLOW LINE #####
+
+    def learn_pid_line_values_2022_03_11 (self, distance = 150, speed = 100, value_checking = "Kp", kp = 1.3, ki = 0.01, kd = 0.07, num_of_loops = 20):
+        """
+        פונקציה ללמידת ערכי הפיד האופטימליים למעקב אחרי קו     
+        """
+
+        # איפוס הקיר והזזתו למרכז - למעלה (על מנת שלא ישפיע על הנסיעה)
+        self.reset_wall()
+        self.move_wall_to_point(self.WALL_MAX_ANGLE_X / 2, self.WALL_MAX_ANGLE_Y)
+
+        # שימוש בפונקציית יצירת הקובץ
+        self.create_log_file()
+
+        # הגדרת הערך ההתחלתי, הסופי והכמות שרוצים להגדיל אותו בכל סיבוב
+        loop_start_value = 0.01
+        loop_end_value = 0.03
+        loop_step_size = 0.002
+
+        loop_current_value = loop_start_value
+
+        # הכנסת הערכים שהוגדרו אל המשתנה אותו אנו רוצים לבדוק
+        if value_checking == "Kp" or value_checking == "kp":
+            kp = loop_start_value
+
+        elif value_checking == "Ki" or value_checking == "ki":
+            ki = loop_start_value
+
+        elif value_checking == "Kd" or value_checking == "kd":
+            kd = loop_start_value
+
+
+        ## הלולאה ##
+        while loop_current_value < loop_end_value:
+            
+            # איפוס חיישן הג'יירו
+            self.gyro_sensor.reset_angle(0)
+
+            # הפעלת הפונקציה וכתיבת התוצאות בתוך הקובץ שנוצר
+            follow_line_results = self.pid_follow_line(distance, speed, self.color_sensor_right, Kp = kp, Ki = ki, Kd = kd)
+            self.write_to_log_file(follow_line_results)
+            
+            # הגדלת הערכים
+            if value_checking == "Kp" or value_checking == "kp":
+                kp = kp + loop_step_size
+
+            elif value_checking == "Ki" or value_checking == "ki":
+                ki = ki + loop_step_size
+
+            elif value_checking == "Kd" or value_checking == "kd":
+                kd = kd + loop_step_size
+
+            loop_current_value += loop_step_size
+
+            # המתנה שהמריץ ייקח את הרובוט חזרה אל תחילת הקו
+            wait(5000)
+
+
+
     ##### PID FOLLOW RIGHT LINE UNTIL LEFT DETECT COLOR #####
 
-    def pid_follow_right_line_until_left_detect_color (self, lines_till_stop, follow_color_sensor, detection_color_sensor,
+    def pid_follow_line_until_other_detect_color (self, lines_till_stop, follow_color_sensor, detection_color_sensor,
                                                     speed = 90, white_is_right = True, stop_color = Color.BLACK, kp = 1.3, ki = 0.01, kd = 0.07):
-        """ סע על הקו השחור עד זיהוי כמות מסויימת של קווים שחורים עם חיישן הצבע השני """
+        """
+        סע על הקו השחור עד זיהוי כמות מסויימת של קווים שחורים עם חיישן הצבע השני
+        """
+        
         my_debug = False
 
         # מגדיר את תנאי העצירה
@@ -636,6 +704,7 @@ class Robot:
             # נסיעה עד זיהוי תנאי העצירה - זיהוי הקו השחור
             self.pid_follow_line(150, speed, follow_color_sensor, stop_condition = stop_on_black, Kp = kp, white_is_right = white_is_right, Ki = ki, Kd = kd)
             self.beep()
+
 
 
     ##### RUN STRAIGHT ####
@@ -792,7 +861,7 @@ class Robot:
 
 
 
-    ##### TURN UNTIL COLOR #####
+    ##### TURN TO THRESHOLD #####
 
     def turn_to_threshold (self, line_sensor, turn_right = True, speed = 25):
 
@@ -829,6 +898,7 @@ class Robot:
         self.reset_wall()
         self.move_wall_to_point(self.WALL_MAX_ANGLE_X / 2, self.WALL_MAX_ANGLE_Y)
         self.create_log_file()
+        
         # define values throughout the loop
         loop_start_value = 0.01
         loop_end_value = 0.03

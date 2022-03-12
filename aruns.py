@@ -113,7 +113,7 @@ def go_trucks():
     ilan.pid_follow_line(15, 150, ilan.color_sensor_right, Kd = 0.085)
 
     # נסיעה על הקו השחור עד זיהוי קו שחור עם החיישן השמאלי
-    ilan.pid_follow_right_line_until_left_detect_color(1, ilan.color_sensor_right, ilan.color_sensor_left, 100)
+    ilan.pid_follow_line_until_other_detect_color(1, ilan.color_sensor_right, ilan.color_sensor_left, 100)
 
     ### סיום חלק 1 של ראן המזרח ###
 
@@ -260,47 +260,6 @@ def south_run():
     ilan.turn(5, 150)
     ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X - 150, 0, 55, 600, Forward_Is_True = False, Kp = 3.05) 
 
-
-
-##### New South Run #####
-
-def south_run_2022_03_09():
-    """ Wing | Chicken | Gray container """
-
-    my_debug = True 
-    wall_debug = True
-
-    # הזזת הקיר למקום הנחוץ בשביל המשימה
-    ilan.move_wall_to_point(0, 0)
-    ilan.wait_for_button("Place container",  True)
-
-    # נסיעה אל המשימה
-    ilan.wait_for_button("Drive to mission", my_debug)
-    ilan.pid_gyro(72, 350, Kp = 3.05)
-
-    # דחיפה איטית של להב הטורבינה עד לנגיעה במשימה
-    ilan.wait_for_button("Push turbine to mission", my_debug)
-    ilan.pid_gyro(10 - 6, 100) # ***
-
-    # הזזת הקיר ותפיסת התרנגולת
-    ilan.wait_for_button("Catch chicken", wall_debug)
-    ilan.move_wall_to_point(600, 0)
-
-    # משיכת התרנגולת והמכולה חזרה אל העיגול האפור
-    ilan.wait_for_button("Pull chicken & container back to circle", my_debug)
-    ilan.pid_gyro(21, 100, Forward_Is_True = False)
-
-    # הזזת הקיר על מנת לא לקחת את התרנגולת הביתה
-    ilan.wait_for_button("careful of chicken!", wall_debug)
-    ilan.move_wall_to_point(0, 100)
-
-    # חזרה הביתה - נסיעה לאחור והזזת הקיר בשביל המשימה הבאה
-    ilan.pid_gyro(10, 200, False)
-    ilan.turn(5, 200)
-    ilan.PID_while_move_wall(ilan.WALL_MAX_ANGLE_X - 150, 0, 55, 500, Forward_Is_True = False, Kp = 3.05) 
-
-
-
 ##### North West Run #####
 
 def north_west_run():
@@ -324,7 +283,7 @@ def north_west_run():
 
     #  נסיעה למשימה עם החיישן הימני - עד זיהוי קו שחור אחד עם החיישן השמאלי
     ilan.wait_for_button("Drive on the line until detect line", my_debug)
-    ilan.pid_follow_right_line_until_left_detect_color(1, ilan.color_sensor_right, ilan.color_sensor_left, 90+10, white_is_right = True, kp=1.3)
+    ilan.pid_follow_line_until_other_detect_color(1, ilan.color_sensor_right, ilan.color_sensor_left, 90+10, white_is_right = True, kp=1.3)
 
     # נסיעה קצרה לפנים
     ilan.pid_gyro(2, 80)  
@@ -352,8 +311,11 @@ def north_west_run():
     ilan.wait_for_button("Go home", my_debug)
     ilan.pid_gyro(30 + 2, 200, False) # נסיעה הביתה
     wait(100)
-    # ilan.turn_until_seconds(2, -50, 250, False) # פנייה אל תוך איזור הבית                
+    # פנייה אל תוך איזור הבית                
     ilan.turn(-50, 200)
+
+    ilan.move_wall_to_point(ilan.WALL_MAX_ANGLE_X / 2, ilan.WALL_MAX_ANGLE_Y, x_wait = False, y_wait = False)
+
 
 
 ##### North Run #####
@@ -375,7 +337,7 @@ def north_run():
 
     # נסיעה על הקו השחור עד זיהוי שני קוים שחורים עם החיישן השמאלי
     ilan.wait_for_button("Drive until detect 2 lines", my_debug)
-    ilan.pid_follow_right_line_until_left_detect_color(2, ilan.color_sensor_right, ilan.color_sensor_left, 120, False)
+    ilan.pid_follow_line_until_other_detect_color(2, ilan.color_sensor_right, ilan.color_sensor_left, 120, False)
     
     # פנייה צפונה לכיוון המשימות
     ilan.turn(-90, 180)
