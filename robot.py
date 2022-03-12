@@ -111,13 +111,15 @@ class Robot:
         """
         עדכון ערך הפוזיציה הנוכחית של הקיר לפי מה שנכתב בקובץ הטקסט
         """
-        # with open('wall_values.txt') as f:
-        #     content = f.readline()
-        #     x_value, y_value = content.split(",")
-        #     wait(50)
-        #     self.wall_x_motor.reset_angle(int(x_value))
-        #     self.wall_y_motor.reset_angle(int(y_value))
-        pass
+
+        with open('wall_values.txt') as f:
+            content = f.readline()
+
+            x_value, y_value = content.split(",")
+            wait(50)
+
+            self.wall_x_motor.reset_angle(int(x_value))
+            self.wall_y_motor.reset_angle(int(y_value))
 
 
 
@@ -127,10 +129,9 @@ class Robot:
         """
         כתיבת ערך הפוזיציה הנוכחית של הקיר בקובץ טקסט    
         """
-        # with open('wall_values.txt', 'w+') as f:
-        #     wait(50)
-        #     f.write(str(self.wall_x_motor.angle()) + "," + str(self.wall_y_motor.angle()))
-        pass
+        with open('wall_values.txt', 'w+') as f:
+            wait(50)
+            f.write(str(self.wall_x_motor.angle()) + "," + str(self.wall_y_motor.angle()))
     
     
 
@@ -427,59 +428,6 @@ class Robot:
 
 
 
-    ##### STRAIGHTEN ON BLACK #####
-
-    def straighten_on_black(self, speed = 90, drive_forward = True):
-        """
-        התיישרות על קו שחור
-        """
-        
-        if drive_forward == False:
-            speed = speed * -1
-
-        self.right_motor.run(speed)
-        self.left_motor.run(speed)
-
-        right_sensor_flag = False
-        left_sensor_flag = False
-        target_reflection = -1
-
-        while (right_sensor_flag == False or left_sensor_flag == False):
-            self.check_forced_exit()
-
-            if target_reflection == -1:
-                if self.color_sensor_right.color() == Color.BLACK:
-                    right_sensor_flag = True
-                    target_reflection = self.color_sensor_right.reflection()
-                    self.right_motor.brake()
-
-                elif self.color_sensor_left.color() == Color.BLACK:
-                    left_sensor_flag = True
-                    target_reflection = self.color_sensor_left.reflection()
-                    self.left_motor.brake()
-
-                self.write("L: " + str(self.color_sensor_left.color()) + " R: " + str(self.color_sensor_right.color()))
-
-            else:
-                if self.color_sensor_right.reflection() == target_reflection:
-                    right_sensor_flag = True
-                    self.right_motor.brake()
-
-                if self.color_sensor_left.reflection() <= target_reflection:
-                    left_sensor_flag = True
-                    self.left_motor.brake()
-
-                self.write("L: " + str(self.color_sensor_left.reflection()) + " R: " + str(self.color_sensor_right.reflection()))
-
-            wait(10)
-        
-        self.write("C Left: " + str(self.color_sensor_left.color()))
-        self.write("C Right: " + str(self.color_sensor_right.color()))
-        self.write("R Left: " + str(self.color_sensor_left.reflection()))
-        self.write("R Right: " + str(self.color_sensor_right.reflection()))
-
-
-
     ##### RUN STRAIGHT ####
 
     def run_straight (self, distance):
@@ -704,6 +652,82 @@ class Robot:
             # נסיעה עד זיהוי תנאי העצירה - זיהוי הקו השחור
             self.pid_follow_line(150, speed, follow_color_sensor, stop_condition = stop_on_black, Kp = kp, white_is_right = white_is_right, Ki = ki, Kd = kd)
             self.beep()
+    
+    
+    
+    ##### STRAIGHTEN ON BLACK #####
+
+    def straighten_on_black(self, speed = 90, drive_forward = True):
+        """
+        התיישרות על קו שחור
+        """
+        
+        # הגדרת המהירות בהתאם לרצון לנסוע קדימה / אחורה
+        if drive_forward == False:
+            speed = speed * -1
+
+        # התחלת הנסיעה
+        self.right_motor.run(speed)
+        self.left_motor.run(speed)
+
+        right_sensor_flag = False
+        left_sensor_flag = False
+        target_reflection = -1
+
+        ## התיישרות על הקו ##
+        ## כל עוד שני החיישנים עוד לא זיהו שחור ##
+        while (right_sensor_flag == False or left_sensor_flag == False):
+            self.check_forced_exit()
+
+            # אם הרובוט עוד לא זיהה שחור באחד החיישנים
+            if target_reflection == -1:
+
+                # אם החיישן הימני מזהה שחור
+                if self.color_sensor_right.color() == Color.BLACK:
+                    right_sensor_flag = True
+
+                    # הגדרת האור המוחזר הרצוי כאור שהחיישן הימני קולט
+                    target_reflection = self.color_sensor_right.reflection()
+                    self.right_motor.brake()
+
+                # אם החיישן השמאלי מזהה שחור
+                elif self.color_sensor_left.color() == Color.BLACK:
+                    left_sensor_flag = True
+
+                    # הגדרת האור המוחזר הרצוי כאור שהחיישן השמאלי קולט
+                    target_reflection = self.color_sensor_left.reflection()
+                    self.left_motor.brake()
+
+                # הדפסת הצבע שהחיישנים קולטים
+                self.write("L: " + str(self.color_sensor_left.color()) + " R: " + str(self.color_sensor_right.color()))
+
+            # אם אחד מהחיישנים זיהה צבע שחור
+            else:
+
+                # אם החיישן הימני זיהה שחור
+                if self.color_sensor_right.reflection() == target_reflection:
+                    right_sensor_flag = True
+
+                    # עצור את המנוע הימני
+                    self.right_motor.brake()
+
+                # אם החיישן השמאלי זיהה שחור
+                if self.color_sensor_left.reflection() <= target_reflection:
+                    left_sensor_flag = True
+
+                    # עצור את המנוע השמאלי
+                    self.left_motor.brake()
+
+                # הדפסת האור שמוחזר בשני החיישנים
+                self.write("L: " + str(self.color_sensor_left.reflection()) + " R: " + str(self.color_sensor_right.reflection()))
+
+            wait(10)
+        
+        # הדפסת האור והצבע ששני החיישנים קוראים
+        self.write("C Left: " + str(self.color_sensor_left.color()))
+        self.write("C Right: " + str(self.color_sensor_right.color()))
+        self.write("R Left: " + str(self.color_sensor_left.reflection()))
+        self.write("R Right: " + str(self.color_sensor_right.reflection()))
 
 
 
@@ -882,70 +906,6 @@ class Robot:
         self.right_motor.brake()
         self.left_motor.brake()
 
-
-
-    ##### LEARN THE BEST VALUES FOR PID FOLLOW LINE #####
-
-    def learn_pid_line_values (self, line_sensor, distance = 150, speed = 100, value_checking = "Kp", kp = 1.3, ki = 0.01, kd = 0.07, num_of_loops = 20):
-
-        # Create the file to write in with following catagories:
-        # Direction - Forward / Backward | Time passed from last end of the line | Distance passed from last end of the line |
-        # Current Kp value | Current Ki value | Current Kd value | Current Gyro angle |
-
-        pid_line_values = DataLog ('Direction', 'Time from line end', 'Distance from line end',
-                                    'Kp', 'Ki', 'Kd', 'Gyro angle', name = 'Learn Pid Values', timestamp = True)
-
-        self.reset_wall()
-        self.move_wall_to_point(self.WALL_MAX_ANGLE_X / 2, self.WALL_MAX_ANGLE_Y)
-        self.create_log_file()
-        
-        # define values throughout the loop
-        loop_start_value = 0.01
-        loop_end_value = 0.03
-        loop_step_size = 0.002
-
-        loop_current_value = loop_start_value
-        if value_checking == "Kp" or value_checking == "kp":
-            kp = loop_start_value
-
-        elif value_checking == "Ki" or value_checking == "ki":
-            ki = loop_start_value
-
-        elif value_checking == "Kd" or value_checking == "kd":
-            kd = loop_start_value
-
-
-        ## Start Loop ##
-        while loop_current_value < loop_end_value:
-            
-            # drive on the line forward
-            #self.wait_for_button("Start " + str(loop_current_value), True)
-            wait(5000)
-            self.gyro_sensor.reset_angle(0)
-            follow_line_results = self.pid_follow_line(distance, speed, self.color_sensor_right, Kp = kp, Ki = ki, Kd = kd)
-            self.write_to_log_file(follow_line_results)
-            # turn backwards
-            
-            # self.turn(180, 200)
-
-            # # drive on the line back to start
-            # self.wait_for_button("drive on the line back to start", False)
-            # follow_line_results = self.pid_follow_line(distance, speed, self.color_sensor_left, white_is_right = False, Kp = kp, Ki = ki, Kd = kd)
-            # self.write_to_log_file(follow_line_results)
-            # # turn backwards
-            # self.wait_for_button("3 Turn backwards")
-            # self.turn(200, 200)
-            
-            if value_checking == "Kp" or value_checking == "kp":
-                kp = kp + loop_step_size
-
-            elif value_checking == "Ki" or value_checking == "ki":
-                ki = ki + loop_step_size
-
-            elif value_checking == "Kd" or value_checking == "kd":
-                kd = kd + loop_step_size
-            loop_current_value = loop_current_value + loop_step_size
-
         
         
     ##### CHECK GYRO #####
@@ -958,10 +918,14 @@ class Robot:
         try:
             current_gyro = self.gyro_sensor.angle()
             wait(500)
+
             while current_gyro != self.gyro_sensor.angle():
+
                 for _ in range(3):
+
                     self.ev3.speaker.play_file("GENERAL_ALERT.wav")
                     wait(10)
+
                 wait(10)
 
         except:
@@ -974,9 +938,13 @@ class Robot:
 
     ##### CHECK FORCED EXIT #####
 
-    #waiting for button and showing text - for debugging
     def check_forced_exit(self):
+        """
+        במקרה שנלחצים שני כפתורים בו זמנית, הפעל שגיאה
+        """
+
         if len(self.ev3.buttons.pressed()) >= 2:
+
             self.write("Forced Exit")
             print("!!!!!!!!!!!!!!!!!!!! FORCED EXIT !!!!!!!!!!!!!!!!!!!!!!!!")
             raise Exception("Forced Exit")
@@ -986,6 +954,9 @@ class Robot:
     ##### WAIT FOR BUTTON #####
 
     def wait_for_button(self, text, debug = True):
+        """
+        מחכה לכפתור וכותב טקסט - Debugging מנגנון
+        """
         
         # הדפסת הטקסט הנתון
         self.write(text)
@@ -1003,7 +974,9 @@ class Robot:
     ##### WRITE ON EV3 SCREEN #####
 
     def write(self, my_text):
-        """ מדפיס טקסט נתון במחשב ועל מסך הרובוט """
+        """
+        הדפסת טקסט נתון במחשב ועל מסך הרובוט
+        """
 
         # נקה את מסך הרובוט
         self.ev3.screen.clear()
@@ -1011,7 +984,7 @@ class Robot:
         # הדפסת הטקסט במחשב
         print(my_text)
         
-        # הפרד את הטקסט לפי \n
+        # \n הפרד את הטקסט לשורות נפגדות לפי
         lines = my_text.split("\n")
 
         # הדפסת הטקסט על מסך הרובוט עם מרווחים בין כל שורה
@@ -1023,8 +996,9 @@ class Robot:
     ##### BEEP #####
 
     def beep(self):
-
-        """"אילן עושה ביפ"""
+        """"
+        אילן עושה ביפ
+        """
 
         self.ev3.speaker.beep()
 
@@ -1033,9 +1007,10 @@ class Robot:
     ##### SAY TEXT #####
 
     def say(self, text, voice='m1', volume = 100):
-
-        """"אילן אומר את הטקסט.
-        ניתן לשלוט על הווליום ואפילו לשנות את המבטא של אילן."""
+        """"
+        אילן אומר את הטקסט
+        ניתן לשלוט על הווליום ואפילו לשנות את המבטא של אילן
+        """
         
         # הגדרת הווליום של הבקר
         self.ev3.speaker.set_volume(volume)
@@ -1045,3 +1020,6 @@ class Robot:
 
         # הבקר מקריא את הטקסט
         self.ev3.speaker.say(text)
+
+
+##### The End :) #####
